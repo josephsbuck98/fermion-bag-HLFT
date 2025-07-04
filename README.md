@@ -45,12 +45,12 @@ sites versus $24^2$ sites), I am able to compute the critical exponents more rel
 earlier work. I show that the inclusion of these larger lattices causes a significant
 shift in the values of the critical exponents that was not evident for the smaller lattices. 
 This shift puts the critical exponent values in closer agreement with continuum
-4 - $\Epsilon$ expansion calculations. The largest lattice sizes of $64^2$ at a comparably low
+4 - ε expansion calculations. The largest lattice sizes of $64^2$ at a comparably low
 temperature are reachable due to efficiency gains from this Hamiltonian fermion bag
 algorithm. The two independent critical exponents I find, which completely characterize 
-the phase transition, are η = .51(3) and $\Nu$ = .89(1), compared to previous
+the phase transition, are η = .51(3) and ν = .89(1), compared to previous
 work that had lower values for these exponents. The finite size scaling fit is excellent
-with a χ$^2$ / DOF = .90, showing strong evidence for a second-order critical phase
+with a $χ^2$ / DOF = .90, showing strong evidence for a second-order critical phase
 transition, and hence a non-perturbative QFT can be defined at the critical point.
 <br><br>
 ## Theoretical Development and Algorithm Description:
