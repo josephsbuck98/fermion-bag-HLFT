@@ -12,10 +12,12 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy project files into container
-COPY . .
+COPY ../main.cpp .
+COPY ../CMakeLists.txt .
 
 # Create build directory and build project
 RUN mkdir build && cd build && cmake .. && make
 
 # Run executable OR set entrypoint
 ## CMD [?????]
+CMD ["./build/main"]
