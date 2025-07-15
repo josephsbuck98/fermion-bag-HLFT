@@ -15,6 +15,7 @@ target_link_libraries(tests_main
     models_test_lib
     utils_test_lib
     algorithms_lib
+    configuration_lib
     models_lib
     utils_lib
 )
