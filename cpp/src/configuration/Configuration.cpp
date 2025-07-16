@@ -2,11 +2,15 @@
 
 #include "Configuration.hpp"
 
+//TODO: Tolerance check when retrieving by key? Make a genKey or createKey func to take the float and get the correct key.
+//TODO: If a tau is already present, do not allow a bond with that tau to be added
+
 void Configuration::addBond(double tau, Bond& bond) {
   bonds.insert_or_assign(tau, bond);
 }
 
 void Configuration::delBond(double tau) {
+  //TODO: Handle deleting a bond that isn't there
   bonds.erase(tau);
 }
 
