@@ -1,19 +1,22 @@
 #pragma once
 
-#include <vector>
+#include <iostream>
+#include <set>
 
 class Bond {
 public:
-  Bond(const std::vector<int>& indices);
+  Bond(const std::set<int>& indices);
 
   int getNumSites() const;
-  const std::vector<int>& getIndices() const;
+  const std::set<int>& getIndices() const;
 
   bool operator==(const Bond& other) const;
   bool operator!=(const Bond& other) const;
 
+  friend std::ostream& operator<<(std::ostream& os, const Bond& bond);
+
 private:
   int numSites;
-  std::vector<int> indices;
+  std::set<int> indices;
 
 };

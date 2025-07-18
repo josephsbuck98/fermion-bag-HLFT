@@ -4,7 +4,7 @@ void runBondTests();
 void runConfigurationTests();
 
 int main(int argc, char** argv) {
-    std::cout << "Running all tests...\n";
+    std::cout << "<<<<<RUNNING ALL TESTS>>>>>\n\n";
     runBondTests();
     runConfigurationTests();
     return 0;

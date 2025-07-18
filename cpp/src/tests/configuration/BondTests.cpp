@@ -3,34 +3,38 @@
 
 #include "Bond.hpp"
 
-void testGetNumSites(int numSites, Bond b);
-void testGetIndices(std::vector<int> indices, Bond b);
+void testGetNumSites();
+void testGetIndices();
+void testEquality();
 
 void runBondTests() {
-  int numSites;
-  std::vector<int> indices;
+  std::cout << ">>>>>Running BondTests...\n";
   
-  std::cout << "Running BondTests...\n";
+  testGetNumSites();
+  testGetIndices();
+  testEquality();
   
-  numSites = 2;
-  indices = {2, 3};
+  std::cout << ">>>>>Completed BondTests.\n\n";
+};
+
+void testGetNumSites() {
+  Bond b({2, 3, 4, 5});
+  assert(b.getNumSites() == 4);
+};
+
+void testGetIndices() {
+  std::set<int> indices({2, 3, 4, 5}); 
   Bond b(indices);
-  
-  testGetNumSites(numSites, b);
-  testGetIndices(indices, b);
-  
-  std::cout << "Completed BondTests.\n";
+  assert(b.getIndices() == indices);
 };
 
-void testGetNumSites(int numSites, Bond b) {
-  assert(b.getNumSites() == numSites);
-};
+void testEquality() {
+  Bond b({1, 2, 3});
+  Bond bb({3, 1, 2});
+  Bond bbb({1, 2});
 
-void testGetIndices(std::vector<int> indices, Bond b) {
-  std::vector<int> bIndices = b.getIndices();
-  for(int i = 0; i < bIndices.size(); i++) {
-    assert(bIndices[i] == indices[i]);
-  }
-};
+  assert(b == bb);
+  assert(b != bbb);
+  assert(bb != bbb);
 
-//TODO: Test == and != operators for bonds
+}
