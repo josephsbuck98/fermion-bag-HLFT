@@ -9,6 +9,9 @@ public:
   int getNumSites() const;
   const std::vector<int>& getIndices() const;
 
+  bool operator==(const Bond& other) const;
+  bool operator!=(const Bond& other) const;
+
 private:
   int numSites;
   std::vector<int> indices;

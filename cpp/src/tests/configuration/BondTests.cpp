@@ -29,3 +29,5 @@ void testGetIndices(std::vector<int> indices, Bond b) {
     assert(bIndices[i] == indices[i]);
   }
 };
+
+//TODO: Test == and != operators for bonds

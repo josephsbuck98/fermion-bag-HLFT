@@ -12,7 +12,10 @@ public:
   const Bond& getBond(double tau) const;
   const std::map<double, Bond>& getBonds() const;
 
-  int getNumBonds();
+  int getNumBonds() const;
+
+  bool operator==(const Configuration& other) const;
+  bool operator!=(const Configuration& other) const;
 
 private:
   std::map<double, Bond> bonds;

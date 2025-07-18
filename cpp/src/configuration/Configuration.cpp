@@ -2,7 +2,7 @@
 
 #include "Configuration.hpp"
 
-//TODO: Tolerance check when retrieving by key? Make a genKey or createKey func to take the float and get the correct key.
+//TODO: TOLERANCE CHECK when retrieving by key? Make a genKey or createKey func to take the float and get the correct key.
 //TODO: If a tau is already present, do not allow a bond with that tau to be added
 
 void Configuration::addBond(double tau, Bond& bond) {
@@ -26,6 +26,21 @@ const std::map<double, Bond>& Configuration::getBonds() const {
   return bonds;
 }
 
-int Configuration::getNumBonds() {
+int Configuration::getNumBonds() const {
   return bonds.size();
+}
+
+bool Configuration::operator==(const Configuration& other) const {
+  if (this->getNumBonds() != other.getNumBonds()) {
+    return false;
+  }
+  for (const auto& pair : bonds) {
+    if(bonds.at(pair.first) != other.bonds.at(pair.first)) {
+      return false;
+    }
+  }
+}
+
+bool Configuration::operator!=(const Configuration& other) const {
+  return !(*this == other);
 }
