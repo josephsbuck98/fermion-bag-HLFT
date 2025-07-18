@@ -4,6 +4,13 @@
 #include "Bond.hpp"
 #include "Configuration.hpp"
 
+void testAddBond(std::array<double, 4> taus, std::array<Bond, 4> bonds, Configuration& c);
+void testDelBond(std::array<double, 4> taus, std::array<Bond, 4> bonds, Configuration& c);
+void testGetBond(std::array<double, 4> taus, std::array<Bond, 4> bonds, Configuration& c);
+void testGetBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds, Configuration& c);
+void testGetNumBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds, Configuration& c);
+void testEquality(std::array<double, 4> taus, Configuration& c, Configuration& d);
+
 void runConfigurationTests() {
   Bond b1({1});
   Bond b2({2, 3});

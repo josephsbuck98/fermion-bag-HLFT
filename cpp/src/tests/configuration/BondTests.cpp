@@ -3,6 +3,9 @@
 
 #include "Bond.hpp"
 
+void testGetNumSites(int numSites, Bond b);
+void testGetIndices(std::vector<int> indices, Bond b);
+
 void runBondTests() {
   int numSites;
   std::vector<int> indices;

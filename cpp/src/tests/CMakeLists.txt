@@ -3,8 +3,6 @@
 # Add the test executable
 add_executable(tests_main 
   tests_main.cpp
-  configuration/BondTests.cpp
-  configuration/ConfigurationTests.cpp
 )
 
 # Add subdirectories
@@ -27,8 +25,8 @@ target_link_libraries(tests_main
 )
 
 target_include_directories(tests_main PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/algorithms
-  ${CMAKE_CURRENT_SOURCE_DIR}/configuration
-  ${CMAKE_CURRENT_SOURCE_DIR}/models
-  ${CMAKE_CURRENT_SOURCE_DIR}/utils
+  ${CMAKE_SOURCE_DIR}/src/algorithms
+  ${CMAKE_SOURCE_DIR}/src/configuration
+  ${CMAKE_SOURCE_DIR}/src/models
+  ${CMAKE_SOURCE_DIR}/src/utils
 )

@@ -39,6 +39,7 @@ bool Configuration::operator==(const Configuration& other) const {
       return false;
     }
   }
+  return true;
 }
 
 bool Configuration::operator!=(const Configuration& other) const {
