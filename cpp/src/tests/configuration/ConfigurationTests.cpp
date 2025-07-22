@@ -40,6 +40,14 @@ void testAddBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
     c.addBond(taus[i], bonds[i]);
     assert(c.getNumBonds() == i + 1);
   }
+
+  // Test adding a bond to a pre-existing tau
+  try {
+    c.addBond(taus[0], bonds[0]);
+    assert(false);
+  } catch (const std::runtime_error& err) {
+    assert(true);
+  }
 }
 
 void testAddBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
@@ -53,6 +61,16 @@ void testAddBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
     cc.addBond(taus[i], bonds[i]);
   }
   assert(c == cc);
+
+  // Test adding the same bonds again
+  for (int i = 0; i < taus.size(); i++) {
+    try {
+      cc.addBond(taus[i], bonds[i]);
+      assert(false);
+    } catch (const std::runtime_error& err) {
+      assert(true);
+    }
+  }
 }
 
 void testDelBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {

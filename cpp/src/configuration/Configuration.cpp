@@ -4,8 +4,6 @@
 
 #include "Configuration.hpp"
 
-//TODO: TOLERANCE CHECK when retrieving by key? Make a genKey or createKey func to take the float and get the correct key.
-//TODO: If a tau is already present, do not allow a bond with that tau to be added
 //TODO: Error/special case handling (for example, if getBond is called with a tau that doesn't exist.)
 //TODO: Implement delBonds (with an s)
 
@@ -15,7 +13,11 @@ Configuration::Configuration(double tol) {
 }
 
 void Configuration::addBond(double tau, Bond& bond) {
-  bonds.insert_or_assign(truncateToTolerance(tau), bond);
+  auto retPair = bonds.insert({truncateToTolerance(tau), bond});
+  if (!retPair.second) {
+    throw std::runtime_error("Insert failed: Bond with tau" 
+                  "=" + std::to_string(tau) + " already exists.");
+  }
 }
 
 void Configuration::addBonds(std::vector<double> taus, std::vector<Bond> newBonds) {
@@ -25,7 +27,11 @@ void Configuration::addBonds(std::vector<double> taus, std::vector<Bond> newBond
                   " " + std::to_string(newBonds.size()));
   }
   for (int i = 0; i < newBonds.size(); i++) {
-    addBond(taus[i], newBonds[i]);
+    try {
+      addBond(taus[i], newBonds[i]);
+    } catch (std::runtime_error err) {
+      std::cout << err.what() << std::endl;
+    }
   }
 }
 
