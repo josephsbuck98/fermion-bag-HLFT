@@ -36,16 +36,21 @@ void Configuration::addBonds(std::vector<double> taus, std::vector<Bond> newBond
 }
 
 void Configuration::delBond(double tau) {
-  //TODO: Handle deleting a bond that isn't there. May need try-catch if error gets thrown.
-  bonds.erase(truncateToTolerance(tau));
+  size_t ret = bonds.erase(truncateToTolerance(tau));
+  if (ret == 0) {
+    std::runtime_error err("Cannot delete element with tau"
+              "=" + std::to_string(tau) + ". Element does not exist.");
+    std::cout << err.what() << std::endl;
+  }
 }
 
 const Bond& Configuration::getBond(double tau) const {
   auto it = bonds.find(truncateToTolerance(tau));
   if (it != bonds.end()) {
     return it->second;
-  } //TODO: May want to change return type to Bond* so can return nullptr. That way, don't have to throw exception.
-  throw std::out_of_range("Bond with specified tau not found"); 
+  } 
+  static const Bond nullBond({});
+  return nullBond;
 }
 
 const std::map<double, Bond>& Configuration::getBonds() const {
@@ -61,7 +66,8 @@ bool Configuration::operator==(const Configuration& other) const {
     return false;
   }
   for (const auto& pair : bonds) {
-    if (bonds.at(truncateToTolerance(pair.first)) != other.bonds.at(truncateToTolerance(pair.first))) {
+    if (this->getBond(truncateToTolerance(pair.first)) 
+          != other.getBond(truncateToTolerance(pair.first))) {      
       return false;
     }
   }

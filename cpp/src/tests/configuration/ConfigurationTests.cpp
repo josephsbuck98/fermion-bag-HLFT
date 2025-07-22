@@ -35,6 +35,8 @@ void runConfigurationTests() {
 void testAddBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
   Configuration c(1e-5);
 
+  std::cout << "Testing addBond..." << std::endl;
+
   // Test adding bonds
   for(int i = 0; i < taus.size(); i++) {
     c.addBond(taus[i], bonds[i]);
@@ -48,12 +50,17 @@ void testAddBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
   } catch (const std::runtime_error& err) {
     assert(true);
   }
+
+  std::cout << std::endl;
+
 }
 
 void testAddBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
   Configuration c(1e-5); Configuration cc(1e-5);
   std::vector<double> tausVec(taus.begin(), taus.end());
   std::vector<Bond> bondsVec(bonds.begin(), bonds.end());
+
+  std::cout << "Testing addBonds..." << std::endl;
 
   // Test adding multiple bonds at once
   c.addBonds(tausVec, bondsVec);
@@ -71,31 +78,38 @@ void testAddBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
       assert(true);
     }
   }
+
+  std::cout << std::endl;
+
 }
 
 void testDelBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
-  //TODO: Test deleting a bond that isn't there. 
   Configuration c(1e-5);
   std::vector<double> tausVec(taus.begin(), taus.end());
   std::vector<Bond> bondsVec(bonds.begin(), bonds.end());
   
+  std::cout << "Testing delBond..." << std::endl;
+
   // Test deleting bonds
   c.addBonds(tausVec, bondsVec);
   for(int i = taus.size(); i >= 0; i--) {
     // On first iter, test deleting bond that isn't there
-    c.delBond(taus[i]);
+    if (i == taus.size()) {
+      c.delBond(0.00000);
+    } else {
+      c.delBond(taus[i]);
+    }
     assert(c.getNumBonds() == i); 
   }
 
-  // Test deleting a bond that isn't there
-  c.addBonds(tausVec, bondsVec);
-  c.delBond(tausVec[0]);
-  c.delBond(tausVec[0]);
-  assert(c.getNumBonds() == bondsVec.size() - 1);
+  std::cout << std::endl;
+
 }
 
 void testGetBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
   Configuration c(1e-5);
+
+  std::cout << "Testing getBond..." << std::endl;
 
   // Test regular getBond
   c.addBond(taus[0], bonds[0]);
@@ -103,12 +117,11 @@ void testGetBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
   assert(b == bonds[0]);
 
   // Test getting bond that isn't there
-  try {
-    Bond bb = c.getBond(taus[1]);
-    assert(false);
-  } catch (std::out_of_range ex) {
-    assert(true);
-  }
+  Bond bb = c.getBond(taus[1]);
+  assert(bb.getNumSites() == 0);
+
+  std::cout << std::endl;
+
 }
 
 void testGetBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
@@ -116,12 +129,17 @@ void testGetBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
   std::vector<double> tausVec(taus.begin(), taus.end());
   std::vector<Bond> bondsVec(bonds.begin(), bonds.end());
 
+  std::cout << "Testing getBonds..." << std::endl;
+
   // Test getBonds
   c.addBonds(tausVec, bondsVec);
   std::map<double, Bond> cBonds = c.getBonds();
   for (int i = 0; i < taus.size(); i++) {
     assert(cBonds.at(taus[i]) == bonds[i]);
   }
+
+  std::cout << std::endl;
+
 }
 
 void testGetNumBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
@@ -129,9 +147,14 @@ void testGetNumBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
   std::vector<double> tausVec(taus.begin(), taus.end());
   std::vector<Bond> bondsVec(bonds.begin(), bonds.end());
 
+  std::cout << "Testing getNumBonds..." << std::endl;
+
   // Test getNumBonds
   c.addBonds(tausVec, bondsVec);
   assert(c.getNumBonds() == bondsVec.size());
+
+  std::cout << std::endl;
+
 }
 
 void testEquality(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
@@ -139,18 +162,24 @@ void testEquality(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
   Bond bb({1});
   Configuration c(1e-5); Configuration cc(1e-5);
 
+  std::cout << "Testing equality operator..." << std::endl;
+
   // Test equality and inequality operators
   assert(c == cc);
-  cc.addBond(0.27, b);
+  c.addBond(0.27, b);
   assert(c != cc);
-  cc.delBond(0.27);
+  cc.addBond(0.30, b);
+  assert(c != cc);
+  c.addBond(0.30, b);
+  assert(c != cc);
+  c.delBond(0.27);
   assert(c == cc);
-  cc.delBond(taus[0]);
-  cc.addBond(0.001, b);
+  cc.delBond(0.30);
+  cc.addBond(0.30, bb);
   assert(c != cc);
-  cc.delBond(taus[0]);
-  cc.addBond(taus[0], bb);
-  assert(c != cc);
+
+  std::cout << std::endl;
+
 }
 
 void testTruncateToTolerance() {
@@ -159,18 +188,19 @@ void testTruncateToTolerance() {
   Bond b({1});
   Configuration c(1e-5);
 
+  std::cout << "Testing truncateToTolerance..." << std::endl;
+
   // Test getting the same bond outside the given tolerance
   c.addBond(tau, b);
-  try {
-    c.getBond(tauDiff);
-    assert(false);
-  } catch(...) {
-    assert(true);
-  }
+  Bond bb = c.getBond(tauDiff);
+  assert(bb.getNumSites() == 0);
 
   // Test getting the same bond within the given tolerance
   tauDiff = tau + 1e-6;
   b = c.getBond(tau);
-  Bond bb = c.getBond(tauDiff);
+  bb = c.getBond(tauDiff);
   assert(b == bb);
+
+  std::cout << std::endl;
+
 }
