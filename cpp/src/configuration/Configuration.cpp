@@ -44,6 +44,10 @@ void Configuration::delBond(double tau) {
   }
 }
 
+void Configuration::delBonds() {
+  bonds = {};
+}
+
 const Bond& Configuration::getBond(double tau) const {
   auto it = bonds.find(truncateToTolerance(tau));
   if (it != bonds.end()) {

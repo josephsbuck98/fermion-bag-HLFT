@@ -3,7 +3,7 @@
 #include <iostream>
 #include <set>
 
-class Bond {
+class Bond { 
 public:
   Bond(const std::set<int>& indices);
 
@@ -17,6 +17,6 @@ public:
 
 private:
   int numSites;
-  std::set<int> indices;
+  std::set<int> indices; //TODO: Change to support multiple dims
 
 };

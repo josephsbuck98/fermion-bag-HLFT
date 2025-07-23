@@ -7,6 +7,7 @@
 void testAddBond(std::array<double, 4> taus, std::array<Bond, 4> bonds);
 void testAddBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds);
 void testDelBond(std::array<double, 4> taus, std::array<Bond, 4> bonds);
+void testDelBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds);
 void testGetBond(std::array<double, 4> taus, std::array<Bond, 4> bonds);
 void testGetBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds);
 void testGetNumBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds);
@@ -25,6 +26,7 @@ void runConfigurationTests() {
   testAddBonds(taus, bonds);
   testTruncateToTolerance();
   testDelBond(taus, bonds);
+  testDelBonds(taus, bonds);
   testGetBonds(taus, bonds);
   testGetNumBonds(taus, bonds);
   testEquality(taus, bonds);
@@ -101,6 +103,21 @@ void testDelBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
     }
     assert(c.getNumBonds() == i); 
   }
+
+  std::cout << std::endl;
+
+}
+
+void testDelBonds(std::array<double, 4> taus, std::array<Bond, 4> bonds) {
+  Configuration c(1e-5);
+  std::vector<double> tausVec(taus.begin(), taus.end());
+  std::vector<Bond> bondsVec(bonds.begin(), bonds.end());
+
+  std::cout << "Testing delBonds..." << std::endl;
+
+  c.addBonds(tausVec, bondsVec);
+  c.delBonds();
+  assert(c.getNumBonds() == 0);
 
   std::cout << std::endl;
 

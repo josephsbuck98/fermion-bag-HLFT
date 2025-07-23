@@ -12,6 +12,7 @@ public:
   void addBond(double tau, Bond& newBond);
   void addBonds(std::vector<double> taus, std::vector<Bond> newBonds);
   void delBond(double tau);
+  void delBonds();
 
   const Bond& getBond(double tau) const;
   const std::map<double, Bond>& getBonds() const;
