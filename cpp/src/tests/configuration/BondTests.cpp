@@ -14,7 +14,7 @@ void runBondTests() {
   testGetIndices();
   testEquality();
   
-  std::cout << ">>>>>Completed BondTests.\n\n";
+  std::cout << ">>>>>Completed BondTests.\n\n\n";
 };
 
 void testGetNumSites() {

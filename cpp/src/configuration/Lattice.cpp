@@ -22,9 +22,10 @@ Lattice::Lattice(std::map<std::string, std::pair<float, float>> lims, std::map<s
 
 void validateInputs(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts) {
   //TODO: Check that if xlims is present, xnpts is too, and vice versa, and so on.
+  //TODO: Check that xlims and xnpts are always present 
   std::unordered_set<std::string> validLimKeys = {"xlims", "ylims", "zlims"};
   std::unordered_set<std::string> validNptsKeys = {"xnpts", "ynpts", "znpts"};
-  
+ 
   // Validate lims
   for (const auto& limsElem : lims) {
     if (validLimKeys.count(limsElem.first) == 0) {
@@ -46,6 +47,10 @@ void validateInputs(std::map<std::string, std::pair<float, float>> lims, std::ma
         "but was " + std::to_string(nptsElem.second) + ".");
     }
   }
+};
+
+int Lattice::getNumSites() {
+  return numSites;
 };
 
 float Lattice::operator[](const int index) const {

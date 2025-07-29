@@ -31,7 +31,7 @@ void runConfigurationTests() {
   testGetNumBonds(taus, bonds);
   testEquality(taus, bonds);
 
-  std::cout << ">>>>>Completed configuration tests.\n\n";
+  std::cout << ">>>>>Completed configuration tests.\n\n\n";
 }
 
 void testAddBond(std::array<double, 4> taus, std::array<Bond, 4> bonds) {

@@ -7,6 +7,8 @@
 class Lattice {
 public:
   Lattice(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts);
+ 
+  int getNumSites();
   
   float operator[](const int index) const; 
 
