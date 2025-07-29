@@ -5,6 +5,8 @@
 
 #include "Lattice.hpp"
 
+void validateInputs(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts);
+
 Lattice::Lattice(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts) {
   validateInputs(lims, npts);
   
@@ -41,7 +43,7 @@ void validateInputs(std::map<std::string, std::pair<float, float>> lims, std::ma
       throw std::invalid_argument("Npts key " + nptsElem.first + " is not valid.");
     } else if (nptsElem.second < 0) {
       throw std::invalid_argument("Npts in any direction must be at least 0, "
-        "but was " + std::to_string(nptsElem.second)) + ".";
+        "but was " + std::to_string(nptsElem.second) + ".");
     }
   }
 };
