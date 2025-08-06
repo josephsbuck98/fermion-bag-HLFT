@@ -13,5 +13,6 @@ namespace {
 
 ParsedInput parseInputFile(const std::string& filepath) {
   YAML::Node root = YAML::LoadFile(filepath);
-  
+
+  return ParsedInput();
 };

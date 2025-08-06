@@ -9,5 +9,4 @@ find_package(yaml-cpp REQUIRED)
 
 add_subdirectory(src)
 
-target_link_libraries(your_target_name PRIVATE yaml-cpp)
 
