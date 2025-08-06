@@ -1,0 +1,33 @@
+control:
+  algorithm: random
+  nmoves: 50
+
+lattice:
+  type: simple-cubic
+  a: 3.77945                  # in Bohr radii. 2.00 A.
+  b: 
+  c: 
+  alpha: pid2                 # Angle defining lattice. Understood as pid2 for s-c
+  beta:
+  gamma:
+
+  lims:
+    x:
+      min: 0.00
+      max_factor: 100
+      base: a
+
+configuration:
+  float_tol: 1e-5
+  nbonds: 60
+  tau_max: 70
+  bond_type_props: 
+    1: 10
+    2: 20
+    3: 30
+    4: 25
+    5: 15
+
+constants:
+  pi: 3.141592653589793
+  pid2: 1.57079632679
