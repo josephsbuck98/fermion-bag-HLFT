@@ -5,5 +5,139 @@
 \section{Physics Implementations}
 \label{sec:physics_implementations}
 
-% Lattice representation data structs for sites/bonds/neighbors, hamiltonian in code,
-% fermion bag implementation (where it happens, algorithmic flow), observable measurements
+
+% Data Structure Descriptions
+\subsection{Data Structures}
+\begin{description}
+  \item[\texttt{\textbf{Bond}}]
+    Stores information about a single bond including the indices of its lattice
+    sites and its size. \\
+    \textbf{Data Members}
+    \begin{itemize}
+      \item \texttt{int numSites}
+        The number of sites in the bond.
+      \item \texttt{std::set<int> indices}
+        The indices of lattice sites in the bond.
+        This structure works for one dimension and will need to be updated for
+        three dimensions.
+        For complicated geometries, the approach to storing the lattice sites 
+        for each bond will need to be revised.
+    \end{itemize}
+    \textbf{Methods}
+    \begin{itemize}
+      \item \texttt{Bond(const std::set<int>\& indices)}
+        This is the constructor for the Bond class.
+        The indices input is a set of integers that represent the indices of the
+        lattice that are participants in the bond. 
+        These lattice neighbors must be nearest neighbors. 
+        Additional considerations must be made once three dimensions and more 
+        complicated geometries are introduced.
+      \item \texttt{int getNumSites() const}
+        Returns the number of sites in the bond. 
+      \item \texttt{bool operator==(const Bond\& other) const}
+        This overloaded equality operator tests whether two Bond objects are  
+        equivalent by determining whether their indices arrays are equal.
+      \item \texttt{bool operator!=(const Bond\& other) const}
+        This overloaded operator uses the overloaded equaulity operator to 
+        determine inequality.
+      \item \texttt{friend std::ostream\& operator<<(std::ostream\& os, const Bond\& bond)}
+        This overloaded operator prints bond data out in a neat, easy to read 
+        format.
+    \end{itemize}
+  \item[\texttt{\textbf{Lattice}}]
+    Stores information about the lattice including the spatial positions of 
+    lattice sites and the number of sites.
+    Once higher dimensions are supported, numSites will need to be a vector of
+    integers, and sites will need to be a three dimensional vector of floats. \\
+    \textbf{Data Members}
+    \begin{itemize}
+      \item \texttt{int numSites}
+        The number of sites in the lattice.
+      \item \texttt{std::vector<float> sites}
+        The spatial positions of each site in one dimension. 
+        Only supports a single dimension at the moment.
+    \end{itemize}
+    \textbf{Methods}
+    \begin{itemize}
+      \item \texttt{Lattice(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts)}
+        This is the constructor for the Lattice class. 
+        The lims map it takes in is constructed from the lims input parameters.
+        The string key of the lims map should be x, y, or z, and its value 
+        should be a pair with the first element being the minimum spatial 
+        position in the lattice, and the second element being the maximum.
+        The npts input map has a string key of x, y, or z, and an integer 
+        defining the number of points in that dimension.
+        This setup is currently specific only to a simple-cubic geometry in
+        three dimensions. 
+        The return value is a Lattice object.
+      \item \texttt{int getNumSites()}
+        Returns the number of sites in the lattice. 
+        Once higher dimensions are supported, this will be a vector npts.
+      \item \texttt{float operator[](const int index) const}
+        This overloaded operator returns the spatial position contained in the
+        lattice at the given index. 
+        Eventually this will support three dimensions:
+        [x\_ind, y\_ind, z\_ind].
+    \end{itemize}
+  \item[\texttt{\textbf{Configuration}}]
+    Stores information about the current configuration including a map from taus 
+    to Bonds, and the tolerance used to determine uniqueness of a taus. \\
+    \textbf{Data Members}
+    \begin{itemize}
+      \item \texttt{double tolerance}
+        The tolerance/precision to use when accessing bonds in the 
+        configuration by their tau key. 
+        The default tolerance is 1e-5. 
+      \item \texttt{std::map<double, Bond> bonds}
+        A map from the "imaginary" time tau, a double, to a Bond type. 
+    \end{itemize}
+    \textbf{Methods}
+    \begin{itemize}
+      \item \texttt{Configuration(double tol)}
+        This is the constructor for the Configuration class.
+        It takes in a tolerance parameter and returns an empty Configuration 
+        object.
+      \item \texttt{void addBond(double tau, Bond\& newBond)}
+        Adds a bond with a given tau and Bond to the configuration.
+      \item \texttt{void addBonds(std::vector<double> taus, std::vector<Bond> newBonds)}
+        Adds multiple bonds to a configuration at once using a vector of taus
+        and a vector of Bonds.
+        Calls the addBond method.
+      \item \texttt{void delBond(double tau)}
+        Deletes a Bond from the configuration by its tau. 
+      \item \texttt{void delBonds()}
+        Deletes all bonds from a configuration. 
+      \item \texttt{const Bond\& getBond(double tau) const}
+        Returns a Bond object from its tau value. 
+      \item \texttt{const std::map<double, Bond>\& getBonds() const}
+        Returns the bonds map, which is a map of all Bonds in the Configuration.
+      \item \texttt{int getNumBonds() const}
+        Returns the number of Bonds (number of unique taus) in the Configuration. 
+      \item \texttt{bool operator==(const Configuration\& other) const}
+        An overloaded equality operator which tests the equality of two 
+        Configurations by testing the equality of the number of bonds in each
+        Configuration and the equality of each Bond associated with each tau.
+      \item \texttt{bool operator!=(const Configuration\& other) const}
+        An overloaded inequality operator which calls the overloaded equality 
+        operator to determine if two Configurations are not equivalent.
+      \item \texttt{friend std::ostream\& operator<<(std::ostream\& os, const Configuration\& configuration)}
+        An overloaded output operator which facilitates easy viewing of a 
+        Configuration object.
+      \item \texttt{private double truncateToTolerance(double key) const}
+        A function which rounds a double to a given tolerance. 
+        The tolerance should already be stored in the Configuration before this
+        method is ever called.
+    \end{itemize}
+\end{description}
+
+
+% Hamiltonian Representation in Code
+\subsection{Hamiltonian Representation}
+
+
+% Fermion Bag Algorithm Implementation (where it happens, algorithmic flow, etc.)
+\subsection{Fermion-Bag Algorithm}
+
+
+% Measurement of Observables
+\subsection{Measurement of Observables}
