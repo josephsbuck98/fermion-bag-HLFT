@@ -13,23 +13,31 @@ int main(int argc, char* argv[]) {
   // Read in the inputs and handle errors
   InputParser::ParsedInput input;
   std::string filepath = argv[1];
+  std::cout << "Reading input file..." << std::endl;
   try {
     input = InputParser::parseInputFile(filepath);
   } catch (const std::exception& e) {
     std::cerr << "Error parsing input file: " << e.what() << "\n";
     return 1;
   }
+  std::cout << "Successfully read input file\n\n";
 
-  std::cout << "Algorithm: " << input.controlInput.algorithm << "\n";
-  std::cout << "Nmoves: "    << input.controlInput.nmoves << "\n";
+  // Process and validate the parsedInput object data
+  std::cout << "Validating input data..." << std::endl;
 
-  std::cout << "Lattice type: " << input.latticeInput.type << "\n";
-  std::cout << "a = "           << input.latticeInput.a << "\n";
-  std::cout << "alpha = "       << input.latticeInput.alpha << "\n";
+  std::cout << "Finished validating input data.\n\n"
 
-  for (auto& bond_size : input.configurationInput.bond_type_props) {
-      std::cout << "Bond Proportions: " << bond_size.first << " -> " << bond_size.second << "\n";
-  }
+  // Report some key parameters or variables perhaps not given in input file.
+
+  // Generate initial configuration (empty configuration).
+
+  // Initiate insert/delete process.
+
+  //TODO: Store number of each type of bond at each time step.
+
+  // Return
+  
+  
 
   return 0;
 }

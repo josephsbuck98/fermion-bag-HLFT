@@ -23,16 +23,19 @@ files: control, lattice, configuration, and constants.
     Control parameters are any variables determining the overall execution of 
     the code. 
     \begin{itemize}
-      \item \texttt{algorithm}
+      \item \texttt{hamil_model}
         The bond switching algorithm to use in the relaxation process.
         Currently, the only option is "random", but others will be introduced
         as development proceeds.
         \begin{itemize}
           \item \texttt{random}
-            This algorithm takes a starting configuration and randomly removes
-            a bond from the configuration, randomly chooses a new tau, and 
-            randomly (using the bond type proportions) chooses the new bond
-            size and lattice sites.
+            This hamiltonian model randomly adds or removes a bond at a given
+            step according to some probability of addition or removel (name?). 
+            It starts with an empty starting configuration and proceeds with
+            additions and removals.
+            The location of the bond is random, the tau value is random between
+            0 and beta, and the number of sites in the bond is randomly chosen
+            according to bond_type_props.
             This proceeds for nmoves iterations.
             For more information, see \ref{sec:physics_implementations}.
         \end{itemize}

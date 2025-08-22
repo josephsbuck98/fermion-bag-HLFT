@@ -1,21 +1,23 @@
 control:
-  algorithm: random
+  hamil_model: random
   nmoves: 50
+  insert_prob: 0.5            # Prob of bond insert (vs. delete). 0 to 1.
 
 lattice:
   type: simple-cubic
   a: 3.77945                  # in Bohr radii. 2.00 A.
-  b: 
-  c: 
-  alpha: pid2                 # Angle defining lattice. Understood as pid2 for s-c
-  beta:
-  gamma:
+  b: 3.77945
+  c: 3.77945
+  alpha: 1.57079632679        # Input in radians
+  beta: 1.57079632679
+  gamma: 1.57079632679
 
   lims:
     x:
+      bc_type: "open"         # Options are periodic and open
       min: 0.00
       max_factor: 100
-      base: a
+      base: a                 # Will usually only need "a" here
 
 configuration:
   float_tol: 1e-5
