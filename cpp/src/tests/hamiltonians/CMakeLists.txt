@@ -1,0 +1,2 @@
+add_library(hamiltonians_test_lib dummy.cpp)
+target_include_directories(hamiltonians_test_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

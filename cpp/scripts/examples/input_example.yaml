@@ -19,9 +19,8 @@ lattice:
 
 configuration:
   float_tol: 1e-5
-  nbonds: 60
-  tau_max: 70
-  bond_type_props: 
+  beta: 70
+  bond_type_props:            # Will be defined internally in the future
     1: 10
     2: 20
     3: 30

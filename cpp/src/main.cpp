@@ -1,14 +1,35 @@
 // Entry point for running simulations
 #include <iostream>
 
-int main() {
-  // Read in input parameters
-  // 	1. nmoves: Number of add/removes to execute
-  // 	2. nbonds: Number of bonds (unique taus) that should exist in the configuration.
-  // 	3. taumax: Maximum value of tau 
-  // 	4. bond_type_props: Array of relative proportions of bonds with length 1, 2, 3, etc. Array must be length 1 or greater. Will be normalized to 1 automatically.
-  // Generate initial configuration based on parameters
-  // Randomly remove and add bonds from the configuration for a number of times specified by input parameters
-  //
+#include "InputParser.hpp"
+
+int main(int argc, char* argv[]) {
+  // Ensure you get an input file
+  if (argc < 2) {
+    std::cerr << "Usage: " << argv[0] << " <input.yaml>\n";
+    return 1;
+  }
+
+  // Read in the inputs and handle errors
+  InputParser::ParsedInput input;
+  std::string filepath = argv[1];
+  try {
+    input = InputParser::parseInputFile(filepath);
+  } catch (const std::exception& e) {
+    std::cerr << "Error parsing input file: " << e.what() << "\n";
+    return 1;
+  }
+
+  std::cout << "Algorithm: " << input.controlInput.algorithm << "\n";
+  std::cout << "Nmoves: "    << input.controlInput.nmoves << "\n";
+
+  std::cout << "Lattice type: " << input.latticeInput.type << "\n";
+  std::cout << "a = "           << input.latticeInput.a << "\n";
+  std::cout << "alpha = "       << input.latticeInput.alpha << "\n";
+
+  for (auto& bond_size : input.configurationInput.bond_type_props) {
+      std::cout << "Bond Proportions: " << bond_size.first << " -> " << bond_size.second << "\n";
+  }
+
   return 0;
 }

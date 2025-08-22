@@ -96,18 +96,10 @@ files: control, lattice, configuration, and constants.
         If no floating point tolerance is specified, machine precision 
         discrepancies could contribute to the code not recognizing a given tau. 
         The default float tolerance is 1e-5. 
-      \item \texttt{nbonds}
-        The total number of bonds to be included in a configuration. 
-        Note that the actual number of bonds in a given configuration may be 
-        slightly less than nbonds in order to accomodate the bond type 
-        proportions (bond\_type\_props).
-        The actual number of bonds will never be greater than nbonds.
-        This variable by definition also determines the number of unique taus
-        in a configuration.
-      \item \texttt{tau\_max}
-        The tau variable in the code is an "imaginary" time variable. 
-        This tau\_max input parameter determines the maximum allowed value that
-        tau is allowed to take.
+      \item \texttt{beta}
+        Beta, or inverse temperature, is the maximum value that the tau 
+        variable in the code can take.
+        The tau variable is an "imaginary" time variable.
       \item \texttt{bond\_type\_props}
         Bonds in the code can be made up of one or more adjacent lattice sites.
         The purpose of this parameter is to specify which bond sizes should be
@@ -116,8 +108,7 @@ files: control, lattice, configuration, and constants.
         The relative proportions are given as the values corresponding to each 
         key.
         The proportions can be given as floats or integers. 
-        Renormalization and computation of the actual number of each type of 
-        bond is done in the code in conjunction with nbonds.  
+        Renormalization is done in the code.
     \end{itemize}
   \item \texttt{constants}
     This parameter section is the place to define useful constants that may be
