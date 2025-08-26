@@ -1,11 +1,13 @@
 control:
-  hamil_model: random
-  nmoves: 50
+  hamil_model: random #*
+  nbonds_stop_sweeps: 3          #*
+  nbonds_stop_tol: 0.1
+  max_sweeps: 100
   insert_prob: 0.5            # Prob of bond insert (vs. delete). 0 to 1.
 
 lattice:
-  type: simple-cubic
-  a: 3.77945                  # in Bohr radii. 2.00 A.
+  type: simple-cubic  
+  a: 3.77945          #*      # in Bohr radii. 2.00 A.
   b: 3.77945
   c: 3.77945
   alpha: 1.57079632679        # Input in radians
@@ -13,15 +15,17 @@ lattice:
   gamma: 1.57079632679
 
   lims:
-    x:
-      bc_type: "open"         # Options are periodic and open
-      min: 0.00
-      max_factor: 100
-      base: a                 # Will usually only need "a" here
+    x:                #*
+      bc_type: open           # Options are periodic and open
+      min: 0.00       
+      nsites: 100 
+      base: a                 # Will usually only need "a" here. //TODO: REMOVE
 
 configuration:
   float_tol: 1e-5
   beta: 70
+  num_time_groups_init: 5
+  scale_updates_per_sweep: 1
   bond_type_props:            # Will be defined internally in the future
     1: 10
     2: 20

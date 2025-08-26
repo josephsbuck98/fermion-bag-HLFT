@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+
   // Read in the inputs and handle errors
   InputParser::ParsedInput input;
   std::string filepath = argv[1];
@@ -20,18 +21,21 @@ int main(int argc, char* argv[]) {
     std::cerr << "Error parsing input file: " << e.what() << "\n";
     return 1;
   }
-  std::cout << "Successfully read input file\n\n";
+  std::cout << input.controlInput.max_sweeps << std::endl;
+  std::cout << "Input parameters successfully imported and validated.\n\n";
 
-  // Process and validate the parsedInput object data
-  std::cout << "Validating input data..." << std::endl;
 
-  std::cout << "Finished validating input data.\n\n"
+  // Perform cross validation between input classes
+
 
   // Report some key parameters or variables perhaps not given in input file.
 
-  // Generate initial configuration (empty configuration).
+
+  // Generate initial configuration (empty configuration) and Lattice.
+
 
   // Initiate insert/delete process.
+
 
   //TODO: Store number of each type of bond at each time step.
 

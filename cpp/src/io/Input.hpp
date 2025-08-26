@@ -3,9 +3,11 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 #include <map>
+#include <numbers>
 #include <string>
 #include <vector>
 
+#include "Constants.hpp"
 #include "YAMLHelpers.hpp"
 
 // The function templates in the YAML namespace tell YAML how to decode the
@@ -21,9 +23,25 @@
 //TODO: default values. Then it gets overwritten and added to by actual input.
 
 struct ControlInput {
-  std::string hamil_model = "random";
-  int nmoves = 0;
+  std::string hamil_model;
+  int nbonds_stop_sweeps = 3;
+  double nbonds_stop_tol = 0.1;
+  int max_sweeps = 100;
   double insert_prob = 0.5;
+
+  void validate() const {
+    if (constants::ALLOWED_HAMIL_MODELS.count(hamil_model)) 
+        throw std::runtime_error("ControlInput: "
+        "'hamil_model' cannot be empty.");
+    if (nbonds_stop_sweeps <= 0) throw std::runtime_error("ControlInput: "
+        "'nbonds_stop_sweeps' must be greater than 0.");
+    if (nbonds_stop_tol < 0 || nbonds_stop_tol > 1) throw std::runtime_error(""
+        "ControlInput: 'nbonds_stop_tol' must be between 0 and 1.");
+    if (max_sweeps < 0) throw std::runtime_error("ControlInput: 'max_sweeps'"
+        "must be greater than 0.");
+    if (insert_prob < 0 || insert_prob > 1) throw std::runtime_error(""
+        "ControlInput: 'insert_prob' must be between 0 and 1.");
+  }
 };
 
 namespace YAML {
@@ -31,9 +49,18 @@ template<>
 struct convert<ControlInput> {
   static bool decode(const Node& node, ControlInput& rhs) {
     if (!node.IsMap()) return false;
-    if (node["hamil_model"]) rhs.hamil_model = getRequiredScalar<std::string>(node, "hamil_model");
-    if (node["nmoves"]) rhs.nmoves = getRequiredScalar<int>(node, "nmoves");
-    if (node["insert_prob"]) rhs.insert_prob = getRequiredScalar<double>(node, "insert_prob");
+    if (node["hamil_model"]) rhs.hamil_model = 
+        getRequiredScalar<std::string>(node, "hamil_model");
+    if (node["nbonds_stop_sweeps"]) rhs.nbonds_stop_sweeps = 
+        getRequiredScalar<int>(node, "nbonds_stop_sweeps");
+    if (node["nbonds_stop_tol"]) rhs.nbonds_stop_tol = 
+        getRequiredScalar<double>(node, "nbonds_stop_tol");
+    if (node["max_sweeps"]) rhs.max_sweeps = 
+        getRequiredScalar<int>(node, "max_sweeps");
+    if (node["insert_prob"]) rhs.insert_prob = 
+        getRequiredScalar<double>(node, "insert_prob");
+
+    rhs.validate();
     return true;
   }
 };
@@ -51,9 +78,34 @@ struct LatticeInput {
 
   std::string x_bc_type = "open", y_bc_type = "open", z_bc_type = "open";
   double x_min = 0.0, y_min = 0.0, z_min = 0.0;
-  double x_max_factor = -1, y_max_factor = -1, z_max_factor = -1;
+  double x_nsites = 100, y_nsites = 100, z_nsites = 100;
   std::string x_base = "a", y_base = "b", z_base = "c";
 
+  void validate() const {
+    //TODO: Create a func that checks for x, x&y, or x&y&z data. 
+    std::string lattice_types[2] = {"simple-cubic", "honeycomb"};
+    std::string bc_types[2] = {"open", "periodic"}; //TODO: Store in better place, with lattice type definitions
+    if (constants::ALLOWED_LATTICE_TYPES.count(type)) {
+      std::string message = "LatticeInput: 'type' must be one of: ";
+      for (const auto& val : constants::ALLOWED_LATTICE_TYPES) {
+        message += val + ", ";
+      }
+      throw std::runtime_error(message);
+    }
+    if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive"); //TODO: Validate bc_types and lattice_types
+    if (constants::ALLOWED_BOUNDARY_TYPES.count(x_bc_type)) {
+      std::string message = "LatticeInput: 'x_bc_type' must be one of: ";
+      for (const auto& val : constants::ALLOWED_BOUNDARY_TYPES) {
+        message += val + ", ";
+      }
+      throw std::runtime_error(message);
+    }
+    if (x_nsites < 1) throw std::runtime_error("LatticeInput: 'x_max_fac' "
+      "must be greater than 1.");
+    if ((alpha > 0 && alpha > constants::pi) || (beta > 0 && beta > constants::pi)
+      || (gamma > 0 && gamma > constants::pi)) throw std::runtime_error(
+      "Lattice Input: angles must be between 0 and pi.");
+  }
 };
 
 namespace YAML {
@@ -73,11 +125,15 @@ struct convert<LatticeInput> {
     if (node["lims"]) {
       if (node["lims"]["x"]) {
         auto x = node["lims"]["x"];
+        if (x["bc_type"]) rhs.x_bc_type = 
+            getRequiredScalar<std::string>(x, "bc_type");
         if (x["min"]) rhs.x_min = getRequiredScalar<double>(x, "min");
-        if (x["max_factor"]) rhs.x_max_factor = getRequiredScalar<double>(x, "max_factor");
+        if (x["nsites"]) rhs.x_nsites = getRequiredScalar<double>(x, "nsites");
         if (x["base"]) rhs.x_base = getRequiredScalar<std::string>(x, "base");
       }
     }
+
+    rhs.validate();
     return true;
   }
 };
@@ -88,8 +144,20 @@ struct convert<LatticeInput> {
 struct ConfigurationInput {
   double float_tol = 1e-5;
   double beta = 0.0;
+  int num_time_groups_init = 5;
+  double scale_updates_per_sweep = 1;
   std::map<int, double> bond_type_props; //TODO: Might fit better with the other hamiltonian parameters in control? May need to put those hamiltonian parameters in a "hamiltonian" section
 
+  void validate() const { //TODO: Validate bond_type_props!!!!!
+    if (float_tol < 1e-15) throw std::runtime_error("ConfigurationInput: "
+        "'float_tol' must be greater than 1e-15 and non-negative.");
+    if (beta <= 0) throw std::runtime_error("ConfigurationInput: "
+        "'beta' must be greater than 0.");
+    if (num_time_groups_init <= 0) throw std::runtime_error("ConfigurationInput: "
+        "'num_time_groups_init' must be greater than 0."); 
+    if (scale_updates_per_sweep <= 0) throw std::runtime_error("ConfigurationInput: "
+        "'scale_updates_per_sweep' must be greater than 0.");
+  }
 };
 
 namespace YAML {
@@ -99,6 +167,10 @@ struct convert<ConfigurationInput> {
     if (!node.IsMap()) return false;
     if (node["float_tol"]) rhs.float_tol = getRequiredScalar<double>(node, "float_tol");
     if (node["beta"]) rhs.beta = getRequiredScalar<double>(node, "beta");
+    if (node["num_time_groups_init"]) rhs.num_time_groups_init = 
+        getRequiredScalar<int>(node, "num_time_groups_init");
+    if (node["scale_updates_per_sweep"]) rhs.scale_updates_per_sweep =
+        getRequiredScalar<double>(node, "scale_updates_per_sweep");
     if (node["bond_type_props"]) {
       for (auto bond_size : node["bond_type_props"]) { //TODO: Handle empty bond_type_props
         if (bond_size.second.IsNull()) { //TODO: Don't handle validations like negatives here. Diff file for that.
@@ -108,6 +180,8 @@ struct convert<ConfigurationInput> {
         }
       }
     }
+
+    rhs.validate();
     return true;
   }
 };
