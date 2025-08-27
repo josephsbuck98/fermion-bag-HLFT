@@ -30,9 +30,15 @@ struct ControlInput {
   double insert_prob = 0.5;
 
   void validate() const {
-    if (constants::ALLOWED_HAMIL_MODELS.count(hamil_model)) 
-        throw std::runtime_error("ControlInput: "
-        "'hamil_model' cannot be empty.");
+    auto it_HA = constants::HAMIL_MODEL_MAP.find(hamil_model);
+    if (it_HA == constants::HAMIL_MODEL_MAP.end()) {
+      std::string message = "ControlInput: "
+        "'hamil_model' must be one of: ";
+      for (const auto& kv : constants::HAMIL_MODEL_MAP) {
+        message += kv.first + ", ";
+      }
+      throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
+    };
     if (nbonds_stop_sweeps <= 0) throw std::runtime_error("ControlInput: "
         "'nbonds_stop_sweeps' must be greater than 0.");
     if (nbonds_stop_tol < 0 || nbonds_stop_tol > 1) throw std::runtime_error(""
@@ -60,7 +66,6 @@ struct convert<ControlInput> {
     if (node["insert_prob"]) rhs.insert_prob = 
         getRequiredScalar<double>(node, "insert_prob");
 
-    rhs.validate();
     return true;
   }
 };
@@ -83,22 +88,22 @@ struct LatticeInput {
 
   void validate() const {
     //TODO: Create a func that checks for x, x&y, or x&y&z data. 
-    std::string lattice_types[2] = {"simple-cubic", "honeycomb"};
-    std::string bc_types[2] = {"open", "periodic"}; //TODO: Store in better place, with lattice type definitions
-    if (constants::ALLOWED_LATTICE_TYPES.count(type)) {
+    auto it_LAT = constants::LATTICE_TYPE_MAP.find(type);
+    if (it_LAT == constants::LATTICE_TYPE_MAP.end()) {
       std::string message = "LatticeInput: 'type' must be one of: ";
-      for (const auto& val : constants::ALLOWED_LATTICE_TYPES) {
-        message += val + ", ";
+      for (const auto& kv : constants::LATTICE_TYPE_MAP) {
+        message += kv.first + ", ";
       }
-      throw std::runtime_error(message);
+      throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
     }
     if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive"); //TODO: Validate bc_types and lattice_types
-    if (constants::ALLOWED_BOUNDARY_TYPES.count(x_bc_type)) {
+    auto it_BND = constants::BOUND_TYPE_MAP.find(x_bc_type);
+    if (it_BND == constants::BOUND_TYPE_MAP.end()) {
       std::string message = "LatticeInput: 'x_bc_type' must be one of: ";
-      for (const auto& val : constants::ALLOWED_BOUNDARY_TYPES) {
-        message += val + ", ";
+      for (const auto& kv : constants::BOUND_TYPE_MAP) {
+        message += kv.first + ", ";
       }
-      throw std::runtime_error(message);
+      throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
     }
     if (x_nsites < 1) throw std::runtime_error("LatticeInput: 'x_max_fac' "
       "must be greater than 1.");
@@ -133,7 +138,6 @@ struct convert<LatticeInput> {
       }
     }
 
-    rhs.validate();
     return true;
   }
 };
@@ -157,7 +161,7 @@ struct ConfigurationInput {
         "'num_time_groups_init' must be greater than 0."); 
     if (scale_updates_per_sweep <= 0) throw std::runtime_error("ConfigurationInput: "
         "'scale_updates_per_sweep' must be greater than 0.");
-  }
+  } //NOTE: Don't validate bond_type_props now, because it will be replaced by physics in the future.
 };
 
 namespace YAML {
@@ -181,7 +185,6 @@ struct convert<ConfigurationInput> {
       }
     }
 
-    rhs.validate();
     return true;
   }
 };

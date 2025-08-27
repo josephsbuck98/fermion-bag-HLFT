@@ -10,6 +10,15 @@ namespace InputParser {
     ControlInput controlInput;
     LatticeInput latticeInput;
     ConfigurationInput configurationInput;
+
+    void validate() const {
+      controlInput.validate();
+      latticeInput.validate();
+      configurationInput.validate();
+
+      //TODO: If type is simple-cubic and a is given, all x options must be specified
+      // if (latticeInput.type == "simple-cubic")
+    }//TODO: Validate y, z, and honeycomb later.
   };
 
   ParsedInput parseInputFile(const std::string& filepath);
@@ -24,6 +33,8 @@ struct convert<InputParser::ParsedInput> {
     if (node["control"]) rhs.controlInput = node["control"].as<ControlInput>();
     if (node["lattice"]) rhs.latticeInput = node["lattice"].as<LatticeInput>();
     if (node["configuration"]) rhs.configurationInput = node["configuration"].as<ConfigurationInput>();
+    
+    rhs.validate();
     return true;
   }
 };

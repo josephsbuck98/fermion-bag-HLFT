@@ -11,14 +11,29 @@ namespace constants {
   inline constexpr double k_B    = 1.380649e-23;        // Boltzmann constant, J/K
   
   // Input constants
-  inline const std::unordered_set<std::string> ALLOWED_HAMIL_MODELS = {
-    "random"
+  enum class HamilModel {
+    RANDOM
   };
-  inline const std::unordered_set<std::string> ALLOWED_LATTICE_TYPES = {
-    "simple-cubic", "honeycomb"
+  inline const std::unordered_map<std::string, HamilModel> HAMIL_MODEL_MAP = {
+    {"random", HamilModel::RANDOM}
   };
-  inline const std::unordered_set<std::string> ALLOWED_BOUNDARY_TYPES = {
-    "open", "periodic"
+
+  enum class LatticeType {
+    SIMPLE_CUBIC,
+    HONEYCOMB
+  };
+  inline const std::unordered_map<std::string, LatticeType> LATTICE_TYPE_MAP = {
+    {"simple-cubic", LatticeType::SIMPLE_CUBIC},
+    {"honeycomb", LatticeType::HONEYCOMB}
+  };
+
+  enum class BoundType {
+    OPEN,
+    PERIODIC
+  };
+  inline const std::unordered_map<std::string, BoundType> BOUND_TYPE_MAP = {
+    {"open", OPEN},
+    {"periodic", PERIODIC}
   };
 
 }

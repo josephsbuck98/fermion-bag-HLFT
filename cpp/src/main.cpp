@@ -21,7 +21,6 @@ int main(int argc, char* argv[]) {
     std::cerr << "Error parsing input file: " << e.what() << "\n";
     return 1;
   }
-  std::cout << input.controlInput.max_sweeps << std::endl;
   std::cout << "Input parameters successfully imported and validated.\n\n";
 
 
