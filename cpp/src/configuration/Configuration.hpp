@@ -4,10 +4,12 @@
 #include <vector>
 
 #include "Bond.hpp"
+#include "Input.hpp"
 
 class Configuration {
 public:
-  Configuration(double tol);
+  // Configuration(double tol = 1e-5);
+  Configuration(ConfigurationInput input);
 
   void addBond(double tau, Bond& newBond);
   void addBonds(std::vector<double> taus, std::vector<Bond> newBonds);
@@ -28,6 +30,9 @@ private:
   double truncateToTolerance(double key) const;
 
   double tolerance;
+  double beta;
   std::map<double, Bond> bonds;
+  int maxNbondsPerGroup;
+  std::vector<double> tauGroupStarts; //TODO: Function to compute and store new starts using maxNbondsPerGroup
 
 };

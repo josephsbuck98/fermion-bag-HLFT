@@ -16,10 +16,20 @@ namespace InputParser {
       latticeInput.validate();
       configurationInput.validate();
 
-      if (latticeInput.type == constants::LatticeType::SIMPLE_CUBIC) {
+      if (latticeInput.type == consts::LatticeType::SIMPLE_CUBIC) {
+        if (latticeInput.dims == consts::DimsType::ONE) {
+
+        }
+        if (latticeInput.dims == consts::DimsType::TWO) {
+
+        }
+        if (latticeInput.dims == consts::DimsType::THREE) {
+
+        }
+        // Check if dims is 1, 2, or 3. Require x's for 1, x's & y's for 2, etc.
         // Require a, x_min, x_nsites, x_bc_type. Already there, so no action required.
       }
-      if (controlInput.hamil_model == constants::HamilModel::RANDOM) {
+      if (controlInput.hamil_model == consts::HamilModel::RANDOM) {
         // Require nbonds_stop_sweeps, nbonds_stop_tol, max_sweeps, insert_prob, num_time_groups_init, scale_updates_per_sweep
       }
     }//TODO: Validate y, z, honeycomb, and other hamiltonians later.

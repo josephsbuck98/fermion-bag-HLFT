@@ -7,9 +7,29 @@
 //TODO: Error/special case handling (for example, if getBond is called with a tau that doesn't exist.)
 //TODO: Implement delBonds (with an s)
 
-Configuration::Configuration(double tol) {
-  tolerance = tol;
+// Configuration::Configuration(double tol) {
+//   tolerance = tol;
+//   bonds = {};
+// }
+
+std::vector<double> generateTauGroupStarts(double beta, int num_time_groups_init);
+
+Configuration::Configuration(ConfigurationInput input) {
+  tolerance = input.float_tol;
+  beta = input.beta;
   bonds = {};
+  maxNbondsPerGroup = input.maxNbondsPerGroup;
+  tauGroupStarts = generateTauGroupStarts(beta, input.num_time_groups_init);
+}
+
+std::vector<double> generateTauGroupStarts(double beta, int num_time_groups_init) {
+  double groupWidth = beta / num_time_groups_init;
+  std::vector<double> tauGroupStarts(num_time_groups_init);
+  tauGroupStarts[0] = 0.0;
+  for (int i = 1; i < num_time_groups_init; i++) {
+    tauGroupStarts[i] = i * groupWidth;
+  }
+  return tauGroupStarts;
 }
 
 void Configuration::addBond(double tau, Bond& bond) {

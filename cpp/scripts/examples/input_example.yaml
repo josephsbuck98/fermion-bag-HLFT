@@ -2,11 +2,13 @@ control:
   hamil_model: random #*
   nbonds_stop_sweeps: 3          #*
   nbonds_stop_tol: 0.1
+  scale_updates_per_sweep: 1
   max_sweeps: 100
   insert_prob: 0.5            # Prob of bond insert (vs. delete). 0 to 1.
 
 lattice:
   type: simple-cubic  
+  dims: 1
   a: 3.77945          #*      # in Bohr radii. 2.00 A.
   b: 3.77945
   c: 3.77945
@@ -24,8 +26,8 @@ lattice:
 configuration:
   float_tol: 1e-5
   beta: 70
-  num_time_groups_init: 5
-  scale_updates_per_sweep: 1
+  num_time_groups_init: 5     # Initial number of time groups. Num groups will only change when max_num_time_groups ceases to be satisfied.
+  max_nbonds_per_group: 30    # Maximum number of bonds there can be in a single group.
   bond_type_props:            # Will be defined internally in the future
     1: 10
     2: 20
@@ -33,6 +35,6 @@ configuration:
     4: 25
     5: 15
 
-constants:
+consts:
   pi: 3.141592653589793
   pid2: 1.57079632679

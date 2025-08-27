@@ -1,6 +1,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+
 #include <iostream>
 #include <map>
 #include <numbers>
@@ -25,9 +26,10 @@
 //TODO: default values. Then it gets overwritten and added to by actual input.
 
 struct ControlInput {
-  constants::HamilModel hamil_model;
+  consts::HamilModel hamil_model;
   int nbonds_stop_sweeps = 3;
   double nbonds_stop_tol = 0.1;
+  double scale_updates_per_sweep = 1;
   int max_sweeps = 100;
   double insert_prob = 0.5;
 
@@ -36,6 +38,8 @@ struct ControlInput {
         "'nbonds_stop_sweeps' must be greater than 0.");
     if (nbonds_stop_tol < 0 || nbonds_stop_tol > 1) throw std::runtime_error(""
         "ControlInput: 'nbonds_stop_tol' must be between 0 and 1.");
+    if (scale_updates_per_sweep <= 0) throw std::runtime_error("ConfigurationInput: "
+        "'scale_updates_per_sweep' must be greater than 0.");
     if (max_sweeps < 0) throw std::runtime_error("ControlInput: 'max_sweeps'"
         "must be greater than 0.");
     if (insert_prob < 0 || insert_prob > 1) throw std::runtime_error(""
@@ -51,11 +55,11 @@ struct convert<ControlInput> {
 
     if (node["hamil_model"]) {
       std::string hamil_type = getRequiredScalar<std::string>(node, "hamil_model");
-      auto it_HA = constants::HAMIL_MODEL_MAP.find(hamil_type);
-      if (it_HA == constants::HAMIL_MODEL_MAP.end()) {
+      auto it_HA = consts::HAMIL_MODEL_MAP.find(hamil_type);
+      if (it_HA == consts::HAMIL_MODEL_MAP.end()) {
         std::string message = "ControlInput: "
           "'hamil_model' must be one of: ";
-        for (const auto& kv : constants::HAMIL_MODEL_MAP) {
+        for (const auto& kv : consts::HAMIL_MODEL_MAP) {
           message += kv.first + ", ";
         }
         throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
@@ -66,6 +70,8 @@ struct convert<ControlInput> {
         getRequiredScalar<int>(node, "nbonds_stop_sweeps");
     if (node["nbonds_stop_tol"]) rhs.nbonds_stop_tol = 
         getRequiredScalar<double>(node, "nbonds_stop_tol");
+    if (node["scale_updates_per_sweep"]) rhs.scale_updates_per_sweep =
+        getRequiredScalar<double>(node, "scale_updates_per_sweep");
     if (node["max_sweeps"]) rhs.max_sweeps = 
         getRequiredScalar<int>(node, "max_sweeps");
     if (node["insert_prob"]) rhs.insert_prob = 
@@ -79,14 +85,15 @@ struct convert<ControlInput> {
 
 
 struct LatticeInput {
-  constants::LatticeType type;
+  consts::LatticeType type;
+  consts::DimsType dims;
 
   double a = 0.0, b = 0.0, c = 0.0;
   double alpha = 0.0, beta = 0.0, gamma = 0.0;
 
   //TODO: Don't set defaults for other params, b/c might use their absence to infer dimensionality
 
-  constants::BoundType x_bc_type, y_bc_type, z_bc_type;
+  consts::BoundType x_bc_type, y_bc_type, z_bc_type;
   double x_min = 0.0, y_min = 0.0, z_min = 0.0;
   double x_nsites = 100, y_nsites = 100, z_nsites = 100;
   std::string x_base = "a", y_base = "b", z_base = "c";
@@ -95,8 +102,8 @@ struct LatticeInput {
     if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive"); //TODO: Validate bc_types and lattice_types
     if (x_nsites < 1) throw std::runtime_error("LatticeInput: 'x_max_fac' "
       "must be greater than 1.");
-    if ((alpha > 0 && alpha > constants::pi) || (beta > 0 && beta > constants::pi)
-      || (gamma > 0 && gamma > constants::pi)) throw std::runtime_error(
+    if ((alpha > 0 && alpha > consts::pi) || (beta > 0 && beta > consts::pi)
+      || (gamma > 0 && gamma > consts::pi)) throw std::runtime_error(
       "Lattice Input: angles must be between 0 and pi.");
   }
 };
@@ -109,15 +116,28 @@ struct convert<LatticeInput> {
 
     if (node["type"]) {
       std::string lat_type = getRequiredScalar<std::string>(node, "type");
-      auto it_LAT = constants::LATTICE_TYPE_MAP.find(lat_type);
-      if (it_LAT == constants::LATTICE_TYPE_MAP.end()) {
+      auto it_LAT = consts::LATTICE_TYPE_MAP.find(lat_type);
+      if (it_LAT == consts::LATTICE_TYPE_MAP.end()) {
         std::string message = "LatticeInput: 'type' must be one of: ";
-        for (const auto& kv : constants::LATTICE_TYPE_MAP) {
+        for (const auto& kv : consts::LATTICE_TYPE_MAP) {
           message += kv.first + ", ";
         }
         throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
       }
       rhs.type = it_LAT->second;
+    }
+
+    if (node["dims"]) {
+      int dims = getRequiredScalar<int>(node, "dims");
+      auto it_DIMS = consts::DIMS_TYPE_MAP.find(dims);
+      if (it_DIMS == consts::DIMS_TYPE_MAP.end()) {
+        std::string message = "LatticeInput: 'dims' must be one of: ";
+        for (const auto& kv : consts::DIMS_TYPE_MAP) {
+          message += kv.first + ", ";
+        }
+        throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
+      }
+      rhs.dims = it_DIMS->second;
     }
     
     if (node["a"]) rhs.a = getRequiredScalar<double>(node, "a");
@@ -132,10 +152,10 @@ struct convert<LatticeInput> {
         auto x = node["lims"]["x"];
         if (x["bc_type"]) {
           std::string x_bc = getRequiredScalar<std::string>(x, "bc_type");
-          auto it_BND = constants::BOUND_TYPE_MAP.find(x_bc);
-          if (it_BND == constants::BOUND_TYPE_MAP.end()) {
+          auto it_BND = consts::BOUND_TYPE_MAP.find(x_bc);
+          if (it_BND == consts::BOUND_TYPE_MAP.end()) {
             std::string message = "LatticeInput: 'x_bc_type' must be one of: ";
-            for (const auto& kv : constants::BOUND_TYPE_MAP) {
+            for (const auto& kv : consts::BOUND_TYPE_MAP) {
               message += kv.first + ", ";
             }
             throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
@@ -160,7 +180,7 @@ struct ConfigurationInput {
   double float_tol = 1e-5;
   double beta = 0.0;
   int num_time_groups_init = 5;
-  double scale_updates_per_sweep = 1;
+  int maxNbondsPerGroup = 30;
   std::map<int, double> bond_type_props; //TODO: Might fit better with the other hamiltonian parameters in control? May need to put those hamiltonian parameters in a "hamiltonian" section
 
   void validate() const { //TODO: Validate bond_type_props!!!!!
@@ -170,8 +190,8 @@ struct ConfigurationInput {
         "'beta' must be greater than 0.");
     if (num_time_groups_init <= 0) throw std::runtime_error("ConfigurationInput: "
         "'num_time_groups_init' must be greater than 0."); 
-    if (scale_updates_per_sweep <= 0) throw std::runtime_error("ConfigurationInput: "
-        "'scale_updates_per_sweep' must be greater than 0.");
+    if (maxNbondsPerGroup <= 1) throw std::runtime_error("ConfigurationInput: " 
+        "'max_nbonds_per_group' must be greater than 1.");
   } //NOTE: Don't validate bond_type_props now, because it will be replaced by physics in the future.
 };
 
@@ -184,8 +204,8 @@ struct convert<ConfigurationInput> {
     if (node["beta"]) rhs.beta = getRequiredScalar<double>(node, "beta");
     if (node["num_time_groups_init"]) rhs.num_time_groups_init = 
         getRequiredScalar<int>(node, "num_time_groups_init");
-    if (node["scale_updates_per_sweep"]) rhs.scale_updates_per_sweep =
-        getRequiredScalar<double>(node, "scale_updates_per_sweep");
+    if (node["max_nbonds_per_group"]) rhs.maxNbondsPerGroup = 
+        getRequiredScalar<int>(node, "max_nbonds_per_group");
     if (node["bond_type_props"]) {
       for (auto bond_size : node["bond_type_props"]) { //TODO: Handle empty bond_type_props
         if (bond_size.second.IsNull()) { //TODO: Don't handle validations like negatives here. Diff file for that.

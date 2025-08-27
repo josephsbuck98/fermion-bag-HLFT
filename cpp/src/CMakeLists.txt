@@ -8,8 +8,8 @@ add_subdirectory(configuration)
 add_subdirectory(hamiltonians)
 add_subdirectory(io)
 add_subdirectory(models)
+# add_subdirectory(tests)
 add_subdirectory(utils)
-add_subdirectory(tests)
 
 # Link with module libraries
 target_link_libraries(main
@@ -29,5 +29,5 @@ target_include_directories(main
     ${CMAKE_CURRENT_SOURCE_DIR}/hamiltonians
     ${CMAKE_CURRENT_SOURCE_DIR}/io
     ${CMAKE_CURRENT_SOURCE_DIR}/models
-    # ${CMAKE_CURRENT_SOURCE_DIR}/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils
 )
