@@ -32,8 +32,8 @@ namespace constants {
     PERIODIC
   };
   inline const std::unordered_map<std::string, BoundType> BOUND_TYPE_MAP = {
-    {"open", OPEN},
-    {"periodic", PERIODIC}
+    {"open", BoundType::OPEN},
+    {"periodic", BoundType::PERIODIC}
   };
 
 }

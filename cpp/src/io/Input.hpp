@@ -13,6 +13,8 @@
 // The function templates in the YAML namespace tell YAML how to decode the
 // input file into the correct variables of the correct classes.
 
+//TODO: Unify all functions that do string input validation and use enums
+
 //TODO: SWITCH ALL VARIABLES IN THE ACTUAL CODE TO CAMEL CASE
 
 //TODO: Make the variable read-ins safe by checking that first of all a value
@@ -23,22 +25,13 @@
 //TODO: default values. Then it gets overwritten and added to by actual input.
 
 struct ControlInput {
-  std::string hamil_model;
+  constants::HamilModel hamil_model;
   int nbonds_stop_sweeps = 3;
   double nbonds_stop_tol = 0.1;
   int max_sweeps = 100;
   double insert_prob = 0.5;
 
   void validate() const {
-    auto it_HA = constants::HAMIL_MODEL_MAP.find(hamil_model);
-    if (it_HA == constants::HAMIL_MODEL_MAP.end()) {
-      std::string message = "ControlInput: "
-        "'hamil_model' must be one of: ";
-      for (const auto& kv : constants::HAMIL_MODEL_MAP) {
-        message += kv.first + ", ";
-      }
-      throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-    };
     if (nbonds_stop_sweeps <= 0) throw std::runtime_error("ControlInput: "
         "'nbonds_stop_sweeps' must be greater than 0.");
     if (nbonds_stop_tol < 0 || nbonds_stop_tol > 1) throw std::runtime_error(""
@@ -55,8 +48,20 @@ template<>
 struct convert<ControlInput> {
   static bool decode(const Node& node, ControlInput& rhs) {
     if (!node.IsMap()) return false;
-    if (node["hamil_model"]) rhs.hamil_model = 
-        getRequiredScalar<std::string>(node, "hamil_model");
+
+    if (node["hamil_model"]) {
+      std::string hamil_type = getRequiredScalar<std::string>(node, "hamil_model");
+      auto it_HA = constants::HAMIL_MODEL_MAP.find(hamil_type);
+      if (it_HA == constants::HAMIL_MODEL_MAP.end()) {
+        std::string message = "ControlInput: "
+          "'hamil_model' must be one of: ";
+        for (const auto& kv : constants::HAMIL_MODEL_MAP) {
+          message += kv.first + ", ";
+        }
+        throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
+      }
+      rhs.hamil_model = it_HA->second;
+    }
     if (node["nbonds_stop_sweeps"]) rhs.nbonds_stop_sweeps = 
         getRequiredScalar<int>(node, "nbonds_stop_sweeps");
     if (node["nbonds_stop_tol"]) rhs.nbonds_stop_tol = 
@@ -74,37 +79,20 @@ struct convert<ControlInput> {
 
 
 struct LatticeInput {
-  std::string type = "simple-cubic";
+  constants::LatticeType type;
 
   double a = 0.0, b = 0.0, c = 0.0;
   double alpha = 0.0, beta = 0.0, gamma = 0.0;
 
   //TODO: Don't set defaults for other params, b/c might use their absence to infer dimensionality
 
-  std::string x_bc_type = "open", y_bc_type = "open", z_bc_type = "open";
+  constants::BoundType x_bc_type, y_bc_type, z_bc_type;
   double x_min = 0.0, y_min = 0.0, z_min = 0.0;
   double x_nsites = 100, y_nsites = 100, z_nsites = 100;
   std::string x_base = "a", y_base = "b", z_base = "c";
 
   void validate() const {
-    //TODO: Create a func that checks for x, x&y, or x&y&z data. 
-    auto it_LAT = constants::LATTICE_TYPE_MAP.find(type);
-    if (it_LAT == constants::LATTICE_TYPE_MAP.end()) {
-      std::string message = "LatticeInput: 'type' must be one of: ";
-      for (const auto& kv : constants::LATTICE_TYPE_MAP) {
-        message += kv.first + ", ";
-      }
-      throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-    }
     if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive"); //TODO: Validate bc_types and lattice_types
-    auto it_BND = constants::BOUND_TYPE_MAP.find(x_bc_type);
-    if (it_BND == constants::BOUND_TYPE_MAP.end()) {
-      std::string message = "LatticeInput: 'x_bc_type' must be one of: ";
-      for (const auto& kv : constants::BOUND_TYPE_MAP) {
-        message += kv.first + ", ";
-      }
-      throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-    }
     if (x_nsites < 1) throw std::runtime_error("LatticeInput: 'x_max_fac' "
       "must be greater than 1.");
     if ((alpha > 0 && alpha > constants::pi) || (beta > 0 && beta > constants::pi)
@@ -119,7 +107,19 @@ struct convert<LatticeInput> {
   static bool decode(const Node& node, LatticeInput& rhs) {
     if (!node.IsMap()) return false;
 
-    if (node["type"]) rhs.type = getRequiredScalar<std::string>(node, "type");
+    if (node["type"]) {
+      std::string lat_type = getRequiredScalar<std::string>(node, "type");
+      auto it_LAT = constants::LATTICE_TYPE_MAP.find(lat_type);
+      if (it_LAT == constants::LATTICE_TYPE_MAP.end()) {
+        std::string message = "LatticeInput: 'type' must be one of: ";
+        for (const auto& kv : constants::LATTICE_TYPE_MAP) {
+          message += kv.first + ", ";
+        }
+        throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
+      }
+      rhs.type = it_LAT->second;
+    }
+    
     if (node["a"]) rhs.a = getRequiredScalar<double>(node, "a");
     if (node["b"]) rhs.b = getRequiredScalar<double>(node, "b");
     if (node["c"]) rhs.c = getRequiredScalar<double>(node, "c");
@@ -130,8 +130,19 @@ struct convert<LatticeInput> {
     if (node["lims"]) {
       if (node["lims"]["x"]) {
         auto x = node["lims"]["x"];
-        if (x["bc_type"]) rhs.x_bc_type = 
-            getRequiredScalar<std::string>(x, "bc_type");
+        if (x["bc_type"]) {
+          std::string x_bc = getRequiredScalar<std::string>(x, "bc_type");
+          auto it_BND = constants::BOUND_TYPE_MAP.find(x_bc);
+          if (it_BND == constants::BOUND_TYPE_MAP.end()) {
+            std::string message = "LatticeInput: 'x_bc_type' must be one of: ";
+            for (const auto& kv : constants::BOUND_TYPE_MAP) {
+              message += kv.first + ", ";
+            }
+            throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
+          }
+          rhs.x_bc_type = it_BND->second;
+        }
+        
         if (x["min"]) rhs.x_min = getRequiredScalar<double>(x, "min");
         if (x["nsites"]) rhs.x_nsites = getRequiredScalar<double>(x, "nsites");
         if (x["base"]) rhs.x_base = getRequiredScalar<std::string>(x, "base");

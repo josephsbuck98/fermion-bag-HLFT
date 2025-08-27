@@ -16,9 +16,13 @@ namespace InputParser {
       latticeInput.validate();
       configurationInput.validate();
 
-      //TODO: If type is simple-cubic and a is given, all x options must be specified
-      // if (latticeInput.type == "simple-cubic")
-    }//TODO: Validate y, z, and honeycomb later.
+      if (latticeInput.type == constants::LatticeType::SIMPLE_CUBIC) {
+        // Require a, x_min, x_nsites, x_bc_type. Already there, so no action required.
+      }
+      if (controlInput.hamil_model == constants::HamilModel::RANDOM) {
+        // Require nbonds_stop_sweeps, nbonds_stop_tol, max_sweeps, insert_prob, num_time_groups_init, scale_updates_per_sweep
+      }
+    }//TODO: Validate y, z, honeycomb, and other hamiltonians later.
   };
 
   ParsedInput parseInputFile(const std::string& filepath);
