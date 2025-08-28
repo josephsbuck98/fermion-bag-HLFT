@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "Configuration.hpp"
+#include "Driver.hpp"
 #include "InputParser.hpp"
 #include "Lattice.hpp"
 
@@ -35,14 +36,12 @@ int main(int argc, char* argv[]) {
   //TODO: REPORT COMPUTED LATTICE PARAMETERS HERE
 
 
-  // Initiate insert/delete process.
-
+  // Call loop driver and pass in configuration and lattice by reference
+  // loop
 
   //TODO: Store number of each type of bond at each time step.
 
-  // Return
-  
-  
+  // Return  
 
   return 0;
 }

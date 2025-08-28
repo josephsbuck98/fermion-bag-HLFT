@@ -8,7 +8,6 @@
 
 class Configuration {
 public:
-  // Configuration(double tol = 1e-5);
   Configuration(ConfigurationInput input);
 
   void addBond(double tau, Bond& newBond);
@@ -29,10 +28,11 @@ public:
 private:
   double truncateToTolerance(double key) const;
 
-  double tolerance;
+  //TODO: We need a data member that stores all taus in sorted order.
+  double tolerance; 
   double beta;
   std::map<double, Bond> bonds;
   int maxNbondsPerGroup;
-  std::vector<double> tauGroupStarts; //TODO: Function to compute and store new starts using maxNbondsPerGroup
+  std::vector<double> tauGroupStarts;
 
 };

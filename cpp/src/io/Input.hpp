@@ -14,13 +14,11 @@
 // The function templates in the YAML namespace tell YAML how to decode the
 // input file into the correct variables of the correct classes.
 
+//TODO: Make a HamiltonianInput struct here, and section in the input file.
+
 //TODO: Unify all functions that do string input validation and use enums
 
 //TODO: SWITCH ALL VARIABLES IN THE ACTUAL CODE TO CAMEL CASE
-
-//TODO: Make the variable read-ins safe by checking that first of all a value
-//TODO: exists associated with the current node, and that the value is the 
-//TODO: type or class that you need. Use .IsScalar() for numeric fields.
 
 //TODO: Have the program create a default ParsedInput obj with all the minimal
 //TODO: default values. Then it gets overwritten and added to by actual input.
@@ -99,7 +97,7 @@ struct LatticeInput {
   std::string x_base = "a", y_base = "b", z_base = "c";
 
   void validate() const {
-    if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive"); //TODO: Validate bc_types and lattice_types
+    if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive");
     if (x_nsites < 1) throw std::runtime_error("LatticeInput: 'x_max_fac' "
       "must be greater than 1.");
     if ((alpha > 0 && alpha > consts::pi) || (beta > 0 && beta > consts::pi)
@@ -208,7 +206,7 @@ struct convert<ConfigurationInput> {
         getRequiredScalar<int>(node, "max_nbonds_per_group");
     if (node["bond_type_props"]) {
       for (auto bond_size : node["bond_type_props"]) { //TODO: Handle empty bond_type_props
-        if (bond_size.second.IsNull()) { //TODO: Don't handle validations like negatives here. Diff file for that.
+        if (bond_size.second.IsNull()) { 
           rhs.bond_type_props[bond_size.first.as<int>()] = 0.0;
         } else {
           rhs.bond_type_props[bond_size.first.as<int>()] = bond_size.second.as<double>();
