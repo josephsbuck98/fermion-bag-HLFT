@@ -41,14 +41,14 @@ std::unordered_map<consts::DirsType, std::vector<double>,
     new_sites[consts::DirsType::Z] = genUniform1DLattice(min, base, nsites);
   }
 
-  return sites;
+  return new_sites;
 }
 
 std::vector<double> genUniform1DLattice(double min, double base, int nsites) {
   std::vector<double> new_lattice(nsites);
   new_lattice[0] = min;
   for (int i = 1; i < nsites; i++) {
-    new_lattice[i] = new_lattice[i] + base;
+    new_lattice[i] = new_lattice[i - 1] + base;
   }
   return new_lattice;
 }

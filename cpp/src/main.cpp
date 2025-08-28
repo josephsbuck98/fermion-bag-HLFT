@@ -27,14 +27,8 @@ int main(int argc, char* argv[]) {
 
 
   // Generate initial configuration (empty configuration) and Lattice.
-  // Configuration curr_configuration 
-  //     = Configuration(input.configurationInput.float_tol);
-
   Configuration curr_configuration = Configuration(input.configurationInput);
-
   Lattice lattice = Lattice(input.latticeInput);
-  std::cout << "Number of Sites: " << lattice.getNumSites(consts::DirsType::X) << std::endl;
-  std::cout << "Site at Index 10: " << lattice.getSite(consts::DirsType::X, 10) << std::endl;
   
   // Report some key parameters or variables perhaps not given in input file.
   //TODO: Report all non-trivial parameters of the code (but don't be pedantic).
