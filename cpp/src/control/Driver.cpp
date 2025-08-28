@@ -6,11 +6,14 @@
 
 Driver::Driver(ControlInput input) {
   hamilModel = input.hamil_model;
-  nbondsStopSweeps = input.nbonds_stop_sweeps; //TODO: Rename nbondsStopSweeps to stopSweepsPatience
-  nbondsStopTol = input.nbonds_stop_tol; //TODO: Rename nbondsStopTol to stopSweepsTol
-  scaleUpdatesPerSweep = input.scale_updates_per_sweep;
+  stopSweepsPatience = input.stopSweepsPatience; 
+  stopSweepsTol = input.stopSweepsTol; 
+  scaleNumUpdates = input.scaleNumUpdates;
   maxSweeps = input.max_sweeps;
-  insertProb = input.insert_prob; //TODO: Probably belongs in Hamiltonians somewhere, but might be ok here and passing to Hamiltonian constr later.
+  initNumTimeGroups = input.initNumTimeGroups;
+
+  acceptProb = input.acceptProb; //TODO: Probably belongs in Hamiltonians somewhere, but might be ok here and passing to Hamiltonian constr later.
+  insertProb = input.insertProb; //TODO: Probably belongs in Hamiltonians somewhere, but might be ok here and passing to Hamiltonian constr later.
 }
 
 void Driver::run(Configuration curr_configuration, Lattice lattice) {

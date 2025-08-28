@@ -25,25 +25,29 @@
 
 struct ControlInput {
   consts::HamilModel hamil_model;
-  int nbonds_stop_sweeps = 3;
-  double nbonds_stop_tol = 0.1;
-  double scale_updates_per_sweep = 1;
+  int stopSweepsPatience = 3;
+  double stopSweepsTol = 0.1;
+  double scaleNumUpdates = 1;
   int max_sweeps = 100;
   int initNumTimeGroups = 5;
-  double insert_prob = 0.5;
+
+  double acceptProb = 0.5;
+  double insertProb = 0.5;
 
   void validate() const {
-    if (nbonds_stop_sweeps <= 0) throw std::runtime_error("ControlInput: "
-        "'nbonds_stop_sweeps' must be greater than 0.");
-    if (nbonds_stop_tol < 0 || nbonds_stop_tol > 1) throw std::runtime_error(""
-        "ControlInput: 'nbonds_stop_tol' must be between 0 and 1.");
-    if (scale_updates_per_sweep <= 0) throw std::runtime_error("ConfigurationInput: "
-        "'scale_updates_per_sweep' must be greater than 0.");
+    if (stopSweepsPatience <= 0) throw std::runtime_error("ControlInput: "
+        "'stop_sweeps_patience' must be greater than 0.");
+    if (stopSweepsTol < 0 || stopSweepsTol > 1) throw std::runtime_error(""
+        "ControlInput: 'stop_sweeps_tol' must be between 0 and 1.");
+    if (scaleNumUpdates <= 0) throw std::runtime_error("ConfigurationInput: "
+        "'scale_num_updates' must be greater than 0.");
     if (max_sweeps < 0) throw std::runtime_error("ControlInput: 'max_sweeps'"
         "must be greater than 0.");
     if (initNumTimeGroups <= 0) throw std::runtime_error("ConfigurationInput: "
-        "'init_num_time_groups' must be greater than 0."); 
-    if (insert_prob < 0 || insert_prob > 1) throw std::runtime_error(""
+        "'init_num_time_groups' must be greater than 0.");
+    if (acceptProb < 0 || acceptProb > 1) throw std::runtime_error(""
+        "ControlInput: 'accept_prob' must be between 0 and 1.");
+    if (insertProb < 0 || insertProb > 1) throw std::runtime_error(""
         "ControlInput: 'insert_prob' must be between 0 and 1.");
   }
 };
@@ -67,17 +71,19 @@ struct convert<ControlInput> {
       }
       rhs.hamil_model = it_HA->second;
     }
-    if (node["nbonds_stop_sweeps"]) rhs.nbonds_stop_sweeps = 
-        getRequiredScalar<int>(node, "nbonds_stop_sweeps");
-    if (node["nbonds_stop_tol"]) rhs.nbonds_stop_tol = 
-        getRequiredScalar<double>(node, "nbonds_stop_tol");
-    if (node["scale_updates_per_sweep"]) rhs.scale_updates_per_sweep =
-        getRequiredScalar<double>(node, "scale_updates_per_sweep");
+    if (node["stop_sweeps_patience"]) rhs.stopSweepsPatience = 
+        getRequiredScalar<int>(node, "stop_sweeps_patience");
+    if (node["stop_sweeps_tol"]) rhs.stopSweepsTol = 
+        getRequiredScalar<double>(node, "stop_sweeps_tol");
+    if (node["scale_num_updates"]) rhs.scaleNumUpdates =
+        getRequiredScalar<double>(node, "scale_num_updates");
     if (node["max_sweeps"]) rhs.max_sweeps = 
         getRequiredScalar<int>(node, "max_sweeps");
     if (node["init_num_time_groups"]) rhs.initNumTimeGroups = 
         getRequiredScalar<int>(node, "init_num_time_groups");
-    if (node["insert_prob"]) rhs.insert_prob = 
+    if (node["accept_prob"]) rhs.acceptProb = 
+        getRequiredScalar<double>(node, "accept_prob");
+    if (node["insert_prob"]) rhs.insertProb = 
         getRequiredScalar<double>(node, "insert_prob");
 
     return true;
@@ -99,7 +105,6 @@ struct LatticeInput {
   consts::BoundType x_bc_type, y_bc_type, z_bc_type;
   double x_min = 0.0, y_min = 0.0, z_min = 0.0;
   double x_nsites = 100, y_nsites = 100, z_nsites = 100;
-  std::string x_base = "a", y_base = "b", z_base = "c";
 
   void validate() const {
     if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive");
@@ -168,7 +173,6 @@ struct convert<LatticeInput> {
         
         if (x["min"]) rhs.x_min = getRequiredScalar<double>(x, "min");
         if (x["nsites"]) rhs.x_nsites = getRequiredScalar<double>(x, "nsites");
-        if (x["base"]) rhs.x_base = getRequiredScalar<std::string>(x, "base");
       }
     }
 

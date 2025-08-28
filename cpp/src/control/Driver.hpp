@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "Configuration.hpp"
 #include "Input.hpp"
 #include "Lattice.hpp"
@@ -15,10 +17,13 @@ public:
 private:
   // Data members read directly from input
   consts::HamilModel hamilModel;
-  int nbondsStopSweeps;
-  double nbondsStopTol;
-  double scaleUpdatesPerSweep;
+  int stopSweepsPatience;
+  double stopSweepsTol;
+  double scaleNumUpdates;
   int maxSweeps;
+  int initNumTimeGroups;
+
+  double acceptProb = 0.5;
   double insertProb = 0.5;          // For 'random' hamiltonian model
 
   // Data members for dynamically controlling loop execution
@@ -26,4 +31,5 @@ private:
   int currStableNbonds = 0;
 
   // Data members for storing loop iteration data (sweep objects, etc)
+  std::vector<Sweep> sweeps;
 };

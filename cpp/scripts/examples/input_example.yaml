@@ -1,10 +1,12 @@
 control:
   hamil_model: random #*
-  nbonds_stop_sweeps: 3          #*
-  nbonds_stop_tol: 0.1
-  scale_updates_per_sweep: 1
+  stop_sweeps_patience: 3          #*
+  stop_sweeps_tol: 0.1
+  scale_num_updates: 1
   max_sweeps: 100
   init_num_time_groups: 5     # Initial number of time groups. 
+
+  accept_prob: 0.5            # Prob of accepting (vs. deleting) update. 0 to 1.
   insert_prob: 0.5            # Prob of bond insert (vs. delete). 0 to 1.
 
 lattice:
@@ -22,7 +24,6 @@ lattice:
       bc_type: open           # Options are periodic and open
       min: 0.00       
       nsites: 100 
-      base: a                 # Will usually only need "a" here. //TODO: REMOVE
 
 configuration:
   float_tol: 1e-5
