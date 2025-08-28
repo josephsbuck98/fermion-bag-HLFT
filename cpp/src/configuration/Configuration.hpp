@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <vector>
 
 #include "Bond.hpp"
@@ -32,6 +33,7 @@ private:
   double tolerance; 
   double beta;
   std::map<double, Bond> bonds;
+  std::set<double> taus;
   int maxNbondsPerGroup;
   std::vector<double> tauGroupStarts;
 

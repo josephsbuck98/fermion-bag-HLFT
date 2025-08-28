@@ -29,6 +29,7 @@ struct ControlInput {
   double nbonds_stop_tol = 0.1;
   double scale_updates_per_sweep = 1;
   int max_sweeps = 100;
+  int initNumTimeGroups = 5;
   double insert_prob = 0.5;
 
   void validate() const {
@@ -40,6 +41,8 @@ struct ControlInput {
         "'scale_updates_per_sweep' must be greater than 0.");
     if (max_sweeps < 0) throw std::runtime_error("ControlInput: 'max_sweeps'"
         "must be greater than 0.");
+    if (initNumTimeGroups <= 0) throw std::runtime_error("ConfigurationInput: "
+        "'init_num_time_groups' must be greater than 0."); 
     if (insert_prob < 0 || insert_prob > 1) throw std::runtime_error(""
         "ControlInput: 'insert_prob' must be between 0 and 1.");
   }
@@ -72,6 +75,8 @@ struct convert<ControlInput> {
         getRequiredScalar<double>(node, "scale_updates_per_sweep");
     if (node["max_sweeps"]) rhs.max_sweeps = 
         getRequiredScalar<int>(node, "max_sweeps");
+    if (node["init_num_time_groups"]) rhs.initNumTimeGroups = 
+        getRequiredScalar<int>(node, "init_num_time_groups");
     if (node["insert_prob"]) rhs.insert_prob = 
         getRequiredScalar<double>(node, "insert_prob");
 
@@ -177,7 +182,7 @@ struct convert<LatticeInput> {
 struct ConfigurationInput {
   double float_tol = 1e-5;
   double beta = 0.0;
-  int num_time_groups_init = 5;
+  int initNumTimeGroups = 5;
   int maxNbondsPerGroup = 30;
   std::map<int, double> bond_type_props; //TODO: Might fit better with the other hamiltonian parameters in control? May need to put those hamiltonian parameters in a "hamiltonian" section
 
@@ -186,8 +191,6 @@ struct ConfigurationInput {
         "'float_tol' must be greater than 1e-15 and non-negative.");
     if (beta <= 0) throw std::runtime_error("ConfigurationInput: "
         "'beta' must be greater than 0.");
-    if (num_time_groups_init <= 0) throw std::runtime_error("ConfigurationInput: "
-        "'num_time_groups_init' must be greater than 0."); 
     if (maxNbondsPerGroup <= 1) throw std::runtime_error("ConfigurationInput: " 
         "'max_nbonds_per_group' must be greater than 1.");
   } //NOTE: Don't validate bond_type_props now, because it will be replaced by physics in the future.
@@ -200,8 +203,6 @@ struct convert<ConfigurationInput> {
     if (!node.IsMap()) return false;
     if (node["float_tol"]) rhs.float_tol = getRequiredScalar<double>(node, "float_tol");
     if (node["beta"]) rhs.beta = getRequiredScalar<double>(node, "beta");
-    if (node["num_time_groups_init"]) rhs.num_time_groups_init = 
-        getRequiredScalar<int>(node, "num_time_groups_init");
     if (node["max_nbonds_per_group"]) rhs.maxNbondsPerGroup = 
         getRequiredScalar<int>(node, "max_nbonds_per_group");
     if (node["bond_type_props"]) {

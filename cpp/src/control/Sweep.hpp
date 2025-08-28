@@ -23,5 +23,6 @@ private:
   int finNumInserts;
   int finNumRemoves;
   int finNumBonds;
+  //TODO: WHAT ABOUT STORING THE NUMBER OF BONDS OF EACH SIZE? 
 
 };

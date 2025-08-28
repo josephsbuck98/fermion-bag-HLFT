@@ -30,6 +30,8 @@ int main(int argc, char* argv[]) {
   // Generate initial configuration (empty configuration) and Lattice.
   Configuration curr_configuration = Configuration(input.configurationInput);
   Lattice lattice = Lattice(input.latticeInput);
+
+
   
   // Report some key parameters or variables perhaps not given in input file.
   //TODO: Report all non-trivial parameters of the code (but don't be pedantic).
