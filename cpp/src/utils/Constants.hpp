@@ -1,7 +1,9 @@
 #pragma once
+
 #include <cmath>
 #include <string>
 #include <unordered_map>
+
 
 namespace consts {
   // Mathematical consts

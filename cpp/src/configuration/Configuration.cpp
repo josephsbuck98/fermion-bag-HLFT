@@ -16,10 +16,6 @@ Configuration::Configuration(ConfigurationInput input) {
   taus = {};
   maxNbondsPerGroup = input.maxNbondsPerGroup;
   tauGroupStarts = generateTauGroupStarts(beta, input.initNumTimeGroups);
-  std::cout << "tauGroupStarts: " << std::endl;
-  for (int i = 0; i < tauGroupStarts.size(); i++) {
-    std::cout << tauGroupStarts[i] << ", ";
-  }
 }
 
 std::vector<double> generateTauGroupStarts(double beta, int initNumTimeGroups) {

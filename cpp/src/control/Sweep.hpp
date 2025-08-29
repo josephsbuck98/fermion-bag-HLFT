@@ -10,9 +10,9 @@ class Sweep { //This is the only class that will both define the loop structure 
 public:
   Sweep(int initNumTimeGroups, double scaleNumUpdates);
 
+  void run();
+
 private: 
-  //TODO: Move num_time_groups_init to controlInput
-  //TODO: Create acceptProb input 
   int initNumTimeGroups;
   double scaleNumUpdates;
   // int numUpdatesPerGroup; //TODO: This will be different for every group, b/c Nsites is different for each 

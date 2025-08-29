@@ -18,10 +18,10 @@ Driver::Driver(ControlInput input) {
 
 void Driver::run(Configuration curr_configuration, Lattice lattice) {
   for (int sweep_iter = 0; sweep_iter < maxSweeps; sweep_iter++) {
-    //TODO: Implement checking if new nbonds is within nbondsStopTol
-    //TODO: Implement checking if currStableNbonds has been exceeded
-    //TODO: Implement updating currNumSweepsWithinTol and currStableNbonds for all cases
-    //TODO: Implement storage of sweep object and other loop iteration data
-    //TODO: Implement 
+    //TODO: Check if new nbonds is within nbondsStopTol
+    //TODO: Check if currStableNbonds has been exceeded. Exit if yes.
+    //TODO: Update currNumSweepsWithinTol and currStableNbonds for all cases
+    //TODO: Create a Sweep object and call its .run() function
+    //TODO: Store sweep object and other loop iteration data
   }
 }
