@@ -185,13 +185,16 @@ struct HamiltonianInput {
   consts::HamilModel model;
   double acceptProb = 0.5;
   double insertProb = 0.5;
-  std::map<int, double> bond_type_props; 
+  std::map<int, double> bondTypeProps; 
 
   void validate() const {
     if (acceptProb < 0 || acceptProb > 1) throw std::runtime_error(""
         "ControlInput: 'accept_prob' must be between 0 and 1.");
     if (insertProb < 0 || insertProb > 1) throw std::runtime_error(""
         "ControlInput: 'insert_prob' must be between 0 and 1.");
+    for (int i = 0; i < bondTypeProps.size(); i++) {
+      if 
+    }
   }
 };
 
@@ -218,12 +221,16 @@ struct convert<HamiltonianInput> {
         getRequiredScalar<double>(node, "accept_prob");
     if (node["insert_prob"]) rhs.insertProb = 
         getRequiredScalar<double>(node, "insert_prob");
-    if (node["bond_type_props"]) {
-      for (auto bond_size : node["bond_type_props"]) { //TODO: Handle empty bond_type_props
-        if (bond_size.second.IsNull()) { 
-          rhs.bond_type_props[bond_size.first.as<int>()] = 0.0;
+    if (node["bond_type_props"]) { //TODO: Throw this in a function so it doesn't clutter.
+      for (auto bond_size : node["bond_type_props"]) { 
+        if (!bond_size.first.IsScalar()) continue;
+        int key = bond_size.first.as<int>();
+        if (!bond_size.second || bond_size.second.IsNull() ||
+            !bond_size.second.IsScalar()) { 
+          rhs.bondTypeProps[key] = 0.0;
         } else {
-          rhs.bond_type_props[bond_size.first.as<int>()] = bond_size.second.as<double>();
+          rhs.bondTypeProps[key] = bond_size.second.as<double>();
+          if (rhs.bondTypeProps[key] < 0) rhs.bondTypeProps[key] = 0.0;
         }
       }
     }
