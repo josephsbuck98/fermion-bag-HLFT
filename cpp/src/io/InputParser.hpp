@@ -9,6 +9,7 @@ namespace InputParser {
   struct ParsedInput {
     ControlInput controlInput;
     LatticeInput latticeInput;
+    HamiltonianInput hamiltonianInput;
     ConfigurationInput configurationInput;
 
     void validate() const {
@@ -29,7 +30,7 @@ namespace InputParser {
         // Check if dims is 1, 2, or 3. Require x's for 1, x's & y's for 2, etc.
         // Require a, x_min, x_nsites, x_bc_type. Already there, so no action required.
       }
-      if (controlInput.hamil_model == consts::HamilModel::RANDOM) {
+      if (hamiltonianInput.model == consts::HamilModel::RANDOM) {
         // Require nbonds_stop_sweeps, nbonds_stop_tol, max_sweeps, insert_prob, num_time_groups_init, scale_num_updates
       }
     }//TODO: Validate y, z, honeycomb, and other hamiltonians later.
@@ -46,6 +47,7 @@ struct convert<InputParser::ParsedInput> {
     if (!node.IsMap()) return false;
     if (node["control"]) rhs.controlInput = node["control"].as<ControlInput>();
     if (node["lattice"]) rhs.latticeInput = node["lattice"].as<LatticeInput>();
+    if (node["hamiltonian"]) rhs.hamiltonianInput = node["hamiltonian"].as<HamiltonianInput>();
     if (node["configuration"]) rhs.configurationInput = node["configuration"].as<ConfigurationInput>();
     
     rhs.validate();

@@ -10,9 +10,9 @@ public:
   void run();
 
 private:
-  consts::HamilModel hamilModel;
-  double acceptProb;
-  double insertProb;
+  // consts::HamilModel hamilModel;
+  // double acceptProb;
+  // double insertProb;
   double groupLowerBound;
   double groupUpperBound;
 

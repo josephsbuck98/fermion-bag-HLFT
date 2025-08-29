@@ -15,6 +15,4 @@ void Sweep::run() {
   //TODO: Loop over the number of updates
   //TODO: Create an Update object and call its .run() function.
   //TODO: Store Update object and relevant loop data.
-
-  
 }

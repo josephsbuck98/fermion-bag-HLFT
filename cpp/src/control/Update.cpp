@@ -11,7 +11,7 @@ Update::Update() {
 }
 
 
-void run() {
+void run() { //TODO: Move all the random-specific functionality to hamiltonian. Make this general to all hamiltonians
   //TODO: Compute accept/reject with acceptProb. Return if reject.
   //TODO: Compute insert/delete with insertProb. 
   //TODO: If insert

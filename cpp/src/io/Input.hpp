@@ -14,8 +14,6 @@
 // The function templates in the YAML namespace tell YAML how to decode the
 // input file into the correct variables of the correct classes.
 
-//TODO: Make a HamiltonianInput struct here, and section in the input file.
-
 //TODO: Unify all functions that do string input validation and use enums
 
 //TODO: SWITCH ALL VARIABLES IN THE ACTUAL CODE TO CAMEL CASE
@@ -24,15 +22,15 @@
 //TODO: default values. Then it gets overwritten and added to by actual input.
 
 struct ControlInput {
-  consts::HamilModel hamil_model;
+  // consts::HamilModel hamil_model;
   int stopSweepsPatience = 3;
   double stopSweepsTol = 0.1;
   double scaleNumUpdates = 1;
   int max_sweeps = 100;
   int initNumTimeGroups = 5;
 
-  double acceptProb = 0.5;
-  double insertProb = 0.5;
+  // double acceptProb = 0.5;
+  // double insertProb = 0.5;
 
   void validate() const {
     if (stopSweepsPatience <= 0) throw std::runtime_error("ControlInput: "
@@ -45,10 +43,10 @@ struct ControlInput {
         "must be greater than 0.");
     if (initNumTimeGroups <= 0) throw std::runtime_error("ConfigurationInput: "
         "'init_num_time_groups' must be greater than 0.");
-    if (acceptProb < 0 || acceptProb > 1) throw std::runtime_error(""
-        "ControlInput: 'accept_prob' must be between 0 and 1.");
-    if (insertProb < 0 || insertProb > 1) throw std::runtime_error(""
-        "ControlInput: 'insert_prob' must be between 0 and 1.");
+    // if (acceptProb < 0 || acceptProb > 1) throw std::runtime_error(""
+    //     "ControlInput: 'accept_prob' must be between 0 and 1.");
+    // if (insertProb < 0 || insertProb > 1) throw std::runtime_error(""
+    //     "ControlInput: 'insert_prob' must be between 0 and 1.");
   }
 };
 
@@ -58,19 +56,19 @@ struct convert<ControlInput> {
   static bool decode(const Node& node, ControlInput& rhs) {
     if (!node.IsMap()) return false;
 
-    if (node["hamil_model"]) {
-      std::string hamil_type = getRequiredScalar<std::string>(node, "hamil_model");
-      auto it_HA = consts::HAMIL_MODEL_MAP.find(hamil_type);
-      if (it_HA == consts::HAMIL_MODEL_MAP.end()) {
-        std::string message = "ControlInput: "
-          "'hamil_model' must be one of: ";
-        for (const auto& kv : consts::HAMIL_MODEL_MAP) {
-          message += kv.first + ", ";
-        }
-        throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-      }
-      rhs.hamil_model = it_HA->second;
-    }
+    // if (node["hamil_model"]) {
+    //   std::string hamil_type = getRequiredScalar<std::string>(node, "hamil_model");
+    //   auto it_HA = consts::HAMIL_MODEL_MAP.find(hamil_type);
+    //   if (it_HA == consts::HAMIL_MODEL_MAP.end()) {
+    //     std::string message = "ControlInput: "
+    //       "'hamil_model' must be one of: ";
+    //     for (const auto& kv : consts::HAMIL_MODEL_MAP) {
+    //       message += kv.first + ", ";
+    //     }
+    //     throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
+    //   }
+    //   rhs.hamil_model = it_HA->second;
+    // }
     if (node["stop_sweeps_patience"]) rhs.stopSweepsPatience = 
         getRequiredScalar<int>(node, "stop_sweeps_patience");
     if (node["stop_sweeps_tol"]) rhs.stopSweepsTol = 
@@ -81,10 +79,10 @@ struct convert<ControlInput> {
         getRequiredScalar<int>(node, "max_sweeps");
     if (node["init_num_time_groups"]) rhs.initNumTimeGroups = 
         getRequiredScalar<int>(node, "init_num_time_groups");
-    if (node["accept_prob"]) rhs.acceptProb = 
-        getRequiredScalar<double>(node, "accept_prob");
-    if (node["insert_prob"]) rhs.insertProb = 
-        getRequiredScalar<double>(node, "insert_prob");
+    // if (node["accept_prob"]) rhs.acceptProb = 
+    //     getRequiredScalar<double>(node, "accept_prob");
+    // if (node["insert_prob"]) rhs.insertProb = 
+    //     getRequiredScalar<double>(node, "insert_prob");
 
     return true;
   }
@@ -183,12 +181,64 @@ struct convert<LatticeInput> {
 
 
 
+struct HamiltonianInput {
+  consts::HamilModel model;
+  double acceptProb = 0.5;
+  double insertProb = 0.5;
+  std::map<int, double> bond_type_props; 
+
+  void validate() const {
+    if (acceptProb < 0 || acceptProb > 1) throw std::runtime_error(""
+        "ControlInput: 'accept_prob' must be between 0 and 1.");
+    if (insertProb < 0 || insertProb > 1) throw std::runtime_error(""
+        "ControlInput: 'insert_prob' must be between 0 and 1.");
+  }
+};
+
+namespace YAML {
+template<>
+struct convert<HamiltonianInput> {
+  static bool decode(const Node& node, HamiltonianInput& rhs) {
+    if (!node.IsMap()) return false;
+    
+    if (node["hamil_model"]) {
+      std::string hamilType = getRequiredScalar<std::string>(node, "hamil_model");
+      auto it_HA = consts::HAMIL_MODEL_MAP.find(hamilType);
+      if (it_HA == consts::HAMIL_MODEL_MAP.end()) {
+        std::string message = "ControlInput: "
+          "'hamil_model' must be one of: ";
+        for (const auto& kv : consts::HAMIL_MODEL_MAP) {
+          message += kv.first + ", ";
+        }
+        throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
+      }
+      rhs.model = it_HA->second;
+    }
+    if (node["accept_prob"]) rhs.acceptProb = 
+        getRequiredScalar<double>(node, "accept_prob");
+    if (node["insert_prob"]) rhs.insertProb = 
+        getRequiredScalar<double>(node, "insert_prob");
+    if (node["bond_type_props"]) {
+      for (auto bond_size : node["bond_type_props"]) { //TODO: Handle empty bond_type_props
+        if (bond_size.second.IsNull()) { 
+          rhs.bond_type_props[bond_size.first.as<int>()] = 0.0;
+        } else {
+          rhs.bond_type_props[bond_size.first.as<int>()] = bond_size.second.as<double>();
+        }
+      }
+    }
+  }
+};
+}
+
+
+
 struct ConfigurationInput {
   double float_tol = 1e-5;
   double beta = 0.0;
   int initNumTimeGroups = 5;
   int maxNbondsPerGroup = 30;
-  std::map<int, double> bond_type_props; //TODO: Might fit better with the other hamiltonian parameters in control? May need to put those hamiltonian parameters in a "hamiltonian" section
+  // std::map<int, double> bond_type_props; 
 
   void validate() const { //TODO: Validate bond_type_props!!!!!
     if (float_tol < 1e-15) throw std::runtime_error("ConfigurationInput: "
@@ -205,19 +255,20 @@ template<>
 struct convert<ConfigurationInput> {
   static bool decode(const Node& node, ConfigurationInput& rhs) {
     if (!node.IsMap()) return false;
+
     if (node["float_tol"]) rhs.float_tol = getRequiredScalar<double>(node, "float_tol");
     if (node["beta"]) rhs.beta = getRequiredScalar<double>(node, "beta");
     if (node["max_nbonds_per_group"]) rhs.maxNbondsPerGroup = 
         getRequiredScalar<int>(node, "max_nbonds_per_group");
-    if (node["bond_type_props"]) {
-      for (auto bond_size : node["bond_type_props"]) { //TODO: Handle empty bond_type_props
-        if (bond_size.second.IsNull()) { 
-          rhs.bond_type_props[bond_size.first.as<int>()] = 0.0;
-        } else {
-          rhs.bond_type_props[bond_size.first.as<int>()] = bond_size.second.as<double>();
-        }
-      }
-    }
+    // if (node["bond_type_props"]) {
+    //   for (auto bond_size : node["bond_type_props"]) { //TODO: Handle empty bond_type_props
+    //     if (bond_size.second.IsNull()) { 
+    //       rhs.bond_type_props[bond_size.first.as<int>()] = 0.0;
+    //     } else {
+    //       rhs.bond_type_props[bond_size.first.as<int>()] = bond_size.second.as<double>();
+    //     }
+    //   }
+    // }
 
     return true;
   }

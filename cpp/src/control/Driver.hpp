@@ -16,15 +16,15 @@ public:
 
 private:
   // Data members read directly from input
-  consts::HamilModel hamilModel;
+  // consts::HamilModel hamilModel;
   int stopSweepsPatience;
   double stopSweepsTol;
   double scaleNumUpdates;
   int maxSweeps;
-  int initNumTimeGroups;
+  int initNumTimeGroups; //TODO: Might not need this here?
 
-  double acceptProb = 0.5;
-  double insertProb = 0.5;          // For 'random' hamiltonian model
+  // double acceptProb = 0.5;
+  // double insertProb = 0.5;       
 
   // Data members for dynamically controlling loop execution
   int currNumSweepsWithinTol = 0;

@@ -5,15 +5,15 @@
 
 
 Driver::Driver(ControlInput input) {
-  hamilModel = input.hamil_model;
+  // hamilModel = input.hamil_model;
   stopSweepsPatience = input.stopSweepsPatience; 
   stopSweepsTol = input.stopSweepsTol; 
   scaleNumUpdates = input.scaleNumUpdates;
   maxSweeps = input.max_sweeps;
   initNumTimeGroups = input.initNumTimeGroups;
 
-  acceptProb = input.acceptProb; //TODO: Probably belongs in Hamiltonians somewhere, but might be ok here and passing to Hamiltonian constr later.
-  insertProb = input.insertProb; //TODO: Probably belongs in Hamiltonians somewhere, but might be ok here and passing to Hamiltonian constr later.
+  // acceptProb = input.acceptProb;
+  // insertProb = input.insertProb;
 }
 
 void Driver::run(Configuration curr_configuration, Lattice lattice) {
