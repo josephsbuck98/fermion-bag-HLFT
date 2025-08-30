@@ -2,9 +2,6 @@
 
 #include <vector>
 
-#include "Configuration.hpp"
-#include "Input.hpp"
-#include "Lattice.hpp"
 #include "Sweep.hpp"
 
 
@@ -12,23 +9,23 @@ class Driver {
 public:
   Driver(ControlInput input);
 
-  void run(Configuration curr_configuration, Lattice lattice);
+  void run(Configuration& curr_configuration, const Lattice& lattice);
 
 private:
-  // Data members read directly from input
-  // consts::HamilModel hamilModel;
+  // "Static" data members read directly from input
   int equilSweepsPatience;
   double equilSweepsTol;
   double scaleNumUpdates;
   int maxSweeps;
   int initNumTimeGroups; //TODO: Might not need this here?
 
-  // double acceptProb = 0.5;
-  // double insertProb = 0.5;       
-
-  // Data members for dynamically controlling loop execution
+  // Data members for computing equilibration time
   int currNumSweepsWithinTol = 0;
   int currStableNbonds = 0;
+
+  // Equilibration time
+  double equilibrationTime = -1.0;
+  int equilibrationSweeps = -1;
 
   // Data members for storing loop iteration data (sweep objects, etc)
   std::vector<Sweep> sweeps;

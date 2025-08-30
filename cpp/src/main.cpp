@@ -27,10 +27,15 @@ int main(int argc, char* argv[]) {
   std::cout << "Input parameters successfully imported and validated.\n\n";
 
 
-  // Generate initial configuration (empty configuration) and Lattice.
-  Configuration curr_configuration = Configuration(input.configurationInput);
+  // Generate initial Configuration (empty Configuration) and Lattice.
+  std::cout << "Generating lattice and initial configuration.\n"; 
+  Configuration configuration = Configuration(input.configurationInput);
   Lattice lattice = Lattice(input.latticeInput);
+  std::cout << "Finished generating lattice and initial configuration.\n\n";
 
+  // Create Driver object and call its .run() function.
+  Driver driver = Driver(input.controlInput);
+  driver.run(configuration, lattice);
 
   
   // Report some key parameters or variables perhaps not given in input file.
@@ -39,7 +44,7 @@ int main(int argc, char* argv[]) {
 
 
   // Call loop driver and pass in configuration and lattice by reference
-  // loop
+  
 
   //TODO: Store number of each type of bond at each time step.
 
