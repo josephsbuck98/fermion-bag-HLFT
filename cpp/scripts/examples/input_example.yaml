@@ -35,7 +35,7 @@ hamiltonian:
 configuration:
   float_tol: 1e-5
   beta: 70
-  max_nbonds_per_group: 30    # Maximum number of bonds there can be in a single group.
+  avg_nbonds_per_group: 30    # Maximum number of bonds there can be in a single group.
 
 consts:
   pi: 3.141592653589793

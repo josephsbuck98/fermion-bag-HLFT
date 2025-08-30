@@ -53,7 +53,7 @@ std::vector<double> genUniform1DLattice(double min, double base, int nsites) {
   return new_lattice;
 }
 
-int Lattice::getNumSites(consts::DirsType dir) {
+int Lattice::getNumSites(consts::DirsType dir) const {
   return sites[dir].size();
 };
 

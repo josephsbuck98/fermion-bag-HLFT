@@ -14,7 +14,7 @@ public:
   
   Lattice(LatticeInput input);
 
-  int getNumSites(consts::DirsType dir);
+  int getNumSites(consts::DirsType dir) const;
   
   double getSite(consts::DirsType dir, int index) const; 
 

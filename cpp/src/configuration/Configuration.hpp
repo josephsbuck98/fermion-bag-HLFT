@@ -11,6 +11,14 @@ class Configuration {
 public:
   Configuration(ConfigurationInput input);
 
+  void setTauGroupStarts(std::vector<double> newTauGroupStarts);
+
+  std::set<double> getTaus() const;
+
+  int getAvgNbondsPerGroup() const;
+
+  int calcNumTimeGroups(int initNumTimeGroups);
+
   void addBond(double tau, Bond& newBond);
   void addBonds(std::vector<double> taus, std::vector<Bond> newBonds);
   void delBond(double tau);
@@ -18,8 +26,9 @@ public:
 
   const Bond& getBond(double tau) const;
   const std::map<double, Bond>& getBonds() const;
-
   int getNumBonds() const;
+
+  double getBeta() const;
 
   bool operator==(const Configuration& other) const;
   bool operator!=(const Configuration& other) const;
@@ -29,12 +38,14 @@ public:
 private:
   double truncateToTolerance(double key) const;
 
-  //TODO: We need a data member that stores all taus in sorted order.
   double tolerance; 
   double beta;
   std::map<double, Bond> bonds;
   std::set<double> taus;
-  int maxNbondsPerGroup;
+  int avgNbondsPerGroup;
   std::vector<double> tauGroupStarts;
 
 };
+
+
+std::vector<double> generateTauGroupStarts(double beta, int initNumTimeGroups);

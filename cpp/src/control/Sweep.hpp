@@ -16,10 +16,15 @@ public:
   void run(Configuration& configuration, const Lattice& lattice);
 
 private: 
+  // Read in members
   int initNumTimeGroups;
+  int numTimeGroups;
   double scaleNumUpdates;
-  // int numUpdatesPerGroup; //TODO: This will be different for every group, b/c Nsites is different for each 
+
+  // Calculated members
+  int numUpdatesPerGroup;
   
+  // Final data members
   std::vector<int> finNumBondsPerGroup; //NOTE: The length of this vector will be equal to initNumTimeGroups, not finNumTimeGroups, b/c in order to report the number of bonds in each time group, you have to use the same time groups you just used.
   std::map<int, int> finNumBondsPerType;
   int finNumTimeGroups;

@@ -7,15 +7,31 @@
 //TODO: Error/special case handling (for example, if getBond is called with a tau that doesn't exist.)
 //TODO: Implement delBonds (with an s)
 
-std::vector<double> generateTauGroupStarts(double beta, int initNumTimeGroups);
-
 Configuration::Configuration(ConfigurationInput input) {
   tolerance = input.float_tol;
   beta = input.beta;
   bonds = {};
   taus = {};
-  maxNbondsPerGroup = input.maxNbondsPerGroup;
+  avgNbondsPerGroup = input.avgNbondsPerGroup;
   tauGroupStarts = generateTauGroupStarts(beta, input.initNumTimeGroups);
+}
+
+void Configuration::setTauGroupStarts(std::vector<double> newTauGroupStarts) {
+  tauGroupStarts = newTauGroupStarts; 
+}
+
+std::set<double> Configuration::getTaus() const {
+  return taus;
+}
+
+int Configuration::getAvgNbondsPerGroup() const {
+  return avgNbondsPerGroup;
+}
+
+int Configuration::calcNumTimeGroups(int initNumTimeGroups) {
+  double exactNumGroups = taus.size() / static_cast<double>(avgNbondsPerGroup);
+  int newNumTimeGroups = static_cast<int>(std::floor(exactNumGroups + 1));
+  return newNumTimeGroups < initNumTimeGroups ? initNumTimeGroups : newNumTimeGroups;
 }
 
 std::vector<double> generateTauGroupStarts(double beta, int initNumTimeGroups) {
@@ -84,6 +100,10 @@ const std::map<double, Bond>& Configuration::getBonds() const {
 
 int Configuration::getNumBonds() const {
   return taus.size();
+}
+
+double Configuration::getBeta() const {
+  return beta;
 }
 
 bool Configuration::operator==(const Configuration& other) const {

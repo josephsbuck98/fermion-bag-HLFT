@@ -33,7 +33,7 @@ void Driver::run(Configuration& configuration, const Lattice& lattice) { //TODO:
     }
   };
 
-  std::vector<Sweep> sweeps;
+  std::vector<Sweep> sweeps; // Is it ever 
   for (int sweep_iter = 0; sweep_iter < maxSweeps; sweep_iter++) {
     if (equilibrationSweeps < 0) { // If equilibration hasn't been reached...
       updateEquilTestingParams(configuration.getNumBonds());
@@ -41,10 +41,9 @@ void Driver::run(Configuration& configuration, const Lattice& lattice) { //TODO:
     if (currNumSweepsWithinTol >= equilSweepsPatience) { // If patience exceeded
       equilibrationSweeps = sweep_iter; // Don't add 1, b/c on new iter anyways
     }
-    // Sweep newSweep = Sweep(initNumTimeGroups, scaleNumUpdates);
-    // newSweep.run(configuration, lattice);
-    // sweeps.push_back(newSweep);
-    //TODO: Create a Sweep object and call its .run() function
+    Sweep newSweep = Sweep(initNumTimeGroups, scaleNumUpdates);
+    newSweep.run(configuration, lattice);
+    sweeps.push_back(newSweep);
     //TODO: Store sweep object and other loop iteration data
     //TODO: Log equilibration data and any other data.
   }

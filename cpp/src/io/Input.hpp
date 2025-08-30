@@ -175,15 +175,15 @@ struct ConfigurationInput {
   double float_tol = 1e-5;
   double beta = 0.0;
   int initNumTimeGroups = 5; //NOTE: Keep this here. It doesn't get read in here but it gets copied over from ControlInput
-  int maxNbondsPerGroup = 30;
+  int avgNbondsPerGroup = 30;
 
   void validate() const { 
     if (float_tol < 1e-15) throw std::runtime_error("ConfigurationInput: "
         "'float_tol' must be greater than 1e-15 and non-negative.");
     if (beta <= 0) throw std::runtime_error("ConfigurationInput: "
         "'beta' must be greater than 0.");
-    if (maxNbondsPerGroup <= 1) throw std::runtime_error("ConfigurationInput: " 
-        "'max_nbonds_per_group' must be greater than 1.");
+    if (avgNbondsPerGroup <= 1) throw std::runtime_error("ConfigurationInput: " 
+        "'avg_nbonds_per_group' must be greater than 1.");
   }
 };
 
@@ -195,8 +195,8 @@ struct convert<ConfigurationInput> {
 
     if (node["float_tol"]) rhs.float_tol = getRequiredScalar<double>(node, "float_tol");
     if (node["beta"]) rhs.beta = getRequiredScalar<double>(node, "beta");
-    if (node["max_nbonds_per_group"]) rhs.maxNbondsPerGroup = 
-        getRequiredScalar<int>(node, "max_nbonds_per_group");
+    if (node["avg_nbonds_per_group"]) rhs.avgNbondsPerGroup = 
+        getRequiredScalar<int>(node, "avg_nbonds_per_group");
 
     return true;
   }
