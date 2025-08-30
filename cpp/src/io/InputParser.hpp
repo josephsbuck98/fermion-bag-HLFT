@@ -15,6 +15,7 @@ namespace InputParser {
     void validate() const {
       controlInput.validate();
       latticeInput.validate();
+      hamiltonianInput.validate();
       configurationInput.validate();
 
       if (latticeInput.type == consts::LatticeType::SIMPLE_CUBIC) {

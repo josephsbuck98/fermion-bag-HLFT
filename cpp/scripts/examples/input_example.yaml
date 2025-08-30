@@ -1,13 +1,9 @@
 control:
-  # hamil_model: random         ###########
   stop_sweeps_patience: 3          
   stop_sweeps_tol: 0.1
   scale_num_updates: 1
   max_sweeps: 100
   init_num_time_groups: 5     # Initial number of time groups. 
-
-  # accept_prob: 0.5            ############ Prob of accepting (vs. deleting) update. 0 to 1.
-  # insert_prob: 0.5            ############ Prob of bond insert (vs. delete). 0 to 1.
 
 lattice:
   type: simple-cubic  
@@ -40,12 +36,6 @@ configuration:
   float_tol: 1e-5
   beta: 70
   max_nbonds_per_group: 30    # Maximum number of bonds there can be in a single group.
-  # bond_type_props:            ############ Will be defined internally in the future
-  #   1: 10
-  #   2: 20
-  #   3: 30
-  #   4: 25
-  #   5: 15
 
 consts:
   pi: 3.141592653589793

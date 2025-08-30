@@ -29,9 +29,6 @@ struct ControlInput {
   int max_sweeps = 100;
   int initNumTimeGroups = 5;
 
-  // double acceptProb = 0.5;
-  // double insertProb = 0.5;
-
   void validate() const {
     if (stopSweepsPatience <= 0) throw std::runtime_error("ControlInput: "
         "'stop_sweeps_patience' must be greater than 0.");
@@ -43,10 +40,6 @@ struct ControlInput {
         "must be greater than 0.");
     if (initNumTimeGroups <= 0) throw std::runtime_error("ConfigurationInput: "
         "'init_num_time_groups' must be greater than 0.");
-    // if (acceptProb < 0 || acceptProb > 1) throw std::runtime_error(""
-    //     "ControlInput: 'accept_prob' must be between 0 and 1.");
-    // if (insertProb < 0 || insertProb > 1) throw std::runtime_error(""
-    //     "ControlInput: 'insert_prob' must be between 0 and 1.");
   }
 };
 
@@ -56,19 +49,6 @@ struct convert<ControlInput> {
   static bool decode(const Node& node, ControlInput& rhs) {
     if (!node.IsMap()) return false;
 
-    // if (node["hamil_model"]) {
-    //   std::string hamil_type = getRequiredScalar<std::string>(node, "hamil_model");
-    //   auto it_HA = consts::HAMIL_MODEL_MAP.find(hamil_type);
-    //   if (it_HA == consts::HAMIL_MODEL_MAP.end()) {
-    //     std::string message = "ControlInput: "
-    //       "'hamil_model' must be one of: ";
-    //     for (const auto& kv : consts::HAMIL_MODEL_MAP) {
-    //       message += kv.first + ", ";
-    //     }
-    //     throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-    //   }
-    //   rhs.hamil_model = it_HA->second;
-    // }
     if (node["stop_sweeps_patience"]) rhs.stopSweepsPatience = 
         getRequiredScalar<int>(node, "stop_sweeps_patience");
     if (node["stop_sweeps_tol"]) rhs.stopSweepsTol = 
@@ -79,10 +59,6 @@ struct convert<ControlInput> {
         getRequiredScalar<int>(node, "max_sweeps");
     if (node["init_num_time_groups"]) rhs.initNumTimeGroups = 
         getRequiredScalar<int>(node, "init_num_time_groups");
-    // if (node["accept_prob"]) rhs.acceptProb = 
-    //     getRequiredScalar<double>(node, "accept_prob");
-    // if (node["insert_prob"]) rhs.insertProb = 
-    //     getRequiredScalar<double>(node, "insert_prob");
 
     return true;
   }
@@ -120,31 +96,8 @@ struct convert<LatticeInput> {
   static bool decode(const Node& node, LatticeInput& rhs) {
     if (!node.IsMap()) return false;
 
-    if (node["type"]) {
-      std::string lat_type = getRequiredScalar<std::string>(node, "type");
-      auto it_LAT = consts::LATTICE_TYPE_MAP.find(lat_type);
-      if (it_LAT == consts::LATTICE_TYPE_MAP.end()) {
-        std::string message = "LatticeInput: 'type' must be one of: ";
-        for (const auto& kv : consts::LATTICE_TYPE_MAP) {
-          message += kv.first + ", ";
-        }
-        throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-      }
-      rhs.type = it_LAT->second;
-    }
-
-    if (node["dims"]) {
-      int dims = getRequiredScalar<int>(node, "dims");
-      auto it_DIMS = consts::DIMS_TYPE_MAP.find(dims);
-      if (it_DIMS == consts::DIMS_TYPE_MAP.end()) {
-        std::string message = "LatticeInput: 'dims' must be one of: ";
-        for (const auto& kv : consts::DIMS_TYPE_MAP) {
-          message += kv.first + ", ";
-        }
-        throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-      }
-      rhs.dims = it_DIMS->second;
-    }
+    assignFromMap<std::string>(node, "type", consts::LATTICE_TYPE_MAP, rhs.type, "LatticeInput");
+    assignFromMap<int>(node, "dims", consts::DIMS_TYPE_MAP, rhs.dims, "LatticeInput");
     
     if (node["a"]) rhs.a = getRequiredScalar<double>(node, "a");
     if (node["b"]) rhs.b = getRequiredScalar<double>(node, "b");
@@ -156,19 +109,8 @@ struct convert<LatticeInput> {
     if (node["lims"]) {
       if (node["lims"]["x"]) {
         auto x = node["lims"]["x"];
-        if (x["bc_type"]) {
-          std::string x_bc = getRequiredScalar<std::string>(x, "bc_type");
-          auto it_BND = consts::BOUND_TYPE_MAP.find(x_bc);
-          if (it_BND == consts::BOUND_TYPE_MAP.end()) {
-            std::string message = "LatticeInput: 'x_bc_type' must be one of: ";
-            for (const auto& kv : consts::BOUND_TYPE_MAP) {
-              message += kv.first + ", ";
-            }
-            throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-          }
-          rhs.x_bc_type = it_BND->second;
-        }
-        
+        assignFromMap<std::string>(x, "bc_type", consts::BOUND_TYPE_MAP, rhs.x_bc_type, "LatticeInput");
+
         if (x["min"]) rhs.x_min = getRequiredScalar<double>(x, "min");
         if (x["nsites"]) rhs.x_nsites = getRequiredScalar<double>(x, "nsites");
       }
@@ -192,9 +134,7 @@ struct HamiltonianInput {
         "ControlInput: 'accept_prob' must be between 0 and 1.");
     if (insertProb < 0 || insertProb > 1) throw std::runtime_error(""
         "ControlInput: 'insert_prob' must be between 0 and 1.");
-    for (int i = 0; i < bondTypeProps.size(); i++) {
-      if 
-    }
+    // Don't need to validate model or bondTypeProps here because they are validated on read in.
   }
 };
 
@@ -203,20 +143,9 @@ template<>
 struct convert<HamiltonianInput> {
   static bool decode(const Node& node, HamiltonianInput& rhs) {
     if (!node.IsMap()) return false;
-    
-    if (node["hamil_model"]) {
-      std::string hamilType = getRequiredScalar<std::string>(node, "hamil_model");
-      auto it_HA = consts::HAMIL_MODEL_MAP.find(hamilType);
-      if (it_HA == consts::HAMIL_MODEL_MAP.end()) {
-        std::string message = "ControlInput: "
-          "'hamil_model' must be one of: ";
-        for (const auto& kv : consts::HAMIL_MODEL_MAP) {
-          message += kv.first + ", ";
-        }
-        throw std::runtime_error(message.substr(0, message.size() - 2) + ".");
-      }
-      rhs.model = it_HA->second;
-    }
+
+    assignFromMap<std::string>(node, "model", consts::HAMIL_MODEL_MAP, rhs.model, "HamiltonianInput");
+
     if (node["accept_prob"]) rhs.acceptProb = 
         getRequiredScalar<double>(node, "accept_prob");
     if (node["insert_prob"]) rhs.insertProb = 
@@ -234,6 +163,8 @@ struct convert<HamiltonianInput> {
         }
       }
     }
+
+    return true;
   }
 };
 }
@@ -243,18 +174,17 @@ struct convert<HamiltonianInput> {
 struct ConfigurationInput {
   double float_tol = 1e-5;
   double beta = 0.0;
-  int initNumTimeGroups = 5;
+  int initNumTimeGroups = 5; //NOTE: Keep this here. It doesn't get read in here but it gets copied over from ControlInput
   int maxNbondsPerGroup = 30;
-  // std::map<int, double> bond_type_props; 
 
-  void validate() const { //TODO: Validate bond_type_props!!!!!
+  void validate() const { 
     if (float_tol < 1e-15) throw std::runtime_error("ConfigurationInput: "
         "'float_tol' must be greater than 1e-15 and non-negative.");
     if (beta <= 0) throw std::runtime_error("ConfigurationInput: "
         "'beta' must be greater than 0.");
     if (maxNbondsPerGroup <= 1) throw std::runtime_error("ConfigurationInput: " 
         "'max_nbonds_per_group' must be greater than 1.");
-  } //NOTE: Don't validate bond_type_props now, because it will be replaced by physics in the future.
+  }
 };
 
 namespace YAML {
@@ -267,15 +197,6 @@ struct convert<ConfigurationInput> {
     if (node["beta"]) rhs.beta = getRequiredScalar<double>(node, "beta");
     if (node["max_nbonds_per_group"]) rhs.maxNbondsPerGroup = 
         getRequiredScalar<int>(node, "max_nbonds_per_group");
-    // if (node["bond_type_props"]) {
-    //   for (auto bond_size : node["bond_type_props"]) { //TODO: Handle empty bond_type_props
-    //     if (bond_size.second.IsNull()) { 
-    //       rhs.bond_type_props[bond_size.first.as<int>()] = 0.0;
-    //     } else {
-    //       rhs.bond_type_props[bond_size.first.as<int>()] = bond_size.second.as<double>();
-    //     }
-    //   }
-    // }
 
     return true;
   }
