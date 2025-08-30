@@ -23,17 +23,17 @@
 
 struct ControlInput {
   // consts::HamilModel hamil_model;
-  int stopSweepsPatience = 3;
-  double stopSweepsTol = 0.1;
+  int equilSweepsPatience = 3;
+  double equilSweepsTol = 0.1;
   double scaleNumUpdates = 1;
   int max_sweeps = 100;
   int initNumTimeGroups = 5;
 
   void validate() const {
-    if (stopSweepsPatience <= 0) throw std::runtime_error("ControlInput: "
-        "'stop_sweeps_patience' must be greater than 0.");
-    if (stopSweepsTol < 0 || stopSweepsTol > 1) throw std::runtime_error(""
-        "ControlInput: 'stop_sweeps_tol' must be between 0 and 1.");
+    if (equilSweepsPatience <= 0) throw std::runtime_error("ControlInput: "
+        "'equil_sweeps_patience' must be greater than 0.");
+    if (equilSweepsTol < 0 || equilSweepsTol > 1) throw std::runtime_error(""
+        "ControlInput: 'equil_sweeps_tol' must be between 0 and 1.");
     if (scaleNumUpdates <= 0) throw std::runtime_error("ConfigurationInput: "
         "'scale_num_updates' must be greater than 0.");
     if (max_sweeps < 0) throw std::runtime_error("ControlInput: 'max_sweeps'"
@@ -49,10 +49,10 @@ struct convert<ControlInput> {
   static bool decode(const Node& node, ControlInput& rhs) {
     if (!node.IsMap()) return false;
 
-    if (node["stop_sweeps_patience"]) rhs.stopSweepsPatience = 
-        getRequiredScalar<int>(node, "stop_sweeps_patience");
-    if (node["stop_sweeps_tol"]) rhs.stopSweepsTol = 
-        getRequiredScalar<double>(node, "stop_sweeps_tol");
+    if (node["equil_sweeps_patience"]) rhs.equilSweepsPatience = 
+        getRequiredScalar<int>(node, "equil_sweeps_patience");
+    if (node["equil_sweeps_tol"]) rhs.equilSweepsTol = 
+        getRequiredScalar<double>(node, "equil_sweeps_tol");
     if (node["scale_num_updates"]) rhs.scaleNumUpdates =
         getRequiredScalar<double>(node, "scale_num_updates");
     if (node["max_sweeps"]) rhs.max_sweeps = 

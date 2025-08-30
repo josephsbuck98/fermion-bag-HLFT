@@ -6,8 +6,8 @@
 
 Driver::Driver(ControlInput input) {
   // hamilModel = input.hamil_model;
-  stopSweepsPatience = input.stopSweepsPatience; 
-  stopSweepsTol = input.stopSweepsTol; 
+  equilSweepsPatience = input.equilSweepsPatience; 
+  equilSweepsTol = input.equilSweepsTol; 
   scaleNumUpdates = input.scaleNumUpdates;
   maxSweeps = input.max_sweeps;
   initNumTimeGroups = input.initNumTimeGroups;

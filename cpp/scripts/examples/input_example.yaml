@@ -1,12 +1,12 @@
 control:
-  stop_sweeps_patience: 3          
-  stop_sweeps_tol: 0.1
+  equil_sweeps_patience: 3
+  equil_sweeps_tol: 0.1
   scale_num_updates: 1
   max_sweeps: 100
   init_num_time_groups: 5     # Initial number of time groups. 
 
 lattice:
-  type: simple-cubic  
+  type: simple-cubic
   dims: 1
   a: 3.77945                  # in Bohr radii. 2.00 A.
   b: 3.77945

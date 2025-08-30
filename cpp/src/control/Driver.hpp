@@ -17,8 +17,8 @@ public:
 private:
   // Data members read directly from input
   // consts::HamilModel hamilModel;
-  int stopSweepsPatience;
-  double stopSweepsTol;
+  int equilSweepsPatience;
+  double equilSweepsTol;
   double scaleNumUpdates;
   int maxSweeps;
   int initNumTimeGroups; //TODO: Might not need this here?
