@@ -6,8 +6,7 @@
 #include "Configuration.hpp"
 #include "InputParser.hpp"
 #include "Lattice.hpp"
-#include "Random.hpp"
-#include "TVModel.hpp"
+#include "Update.hpp"
 
 class Sweep { //This is the only class that will both define the loop structure AND handle the majority of the inner workings of each iteration. It will loop over the different time groupings, and within each grouping it will loop for a specified number of times, calling update each iteration.,
 public:

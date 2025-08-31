@@ -2,12 +2,15 @@
 
 #include <vector>
 
+#include "Configuration.hpp"
+#include "Lattice.hpp"
+
 
 class Random {
 public:
   Random();
 
-  void applyUpdate();
+  void applyUpdate(Configuration& configuration, const Lattice& lattice) const;
 
 private:
   double acceptProb = 0.5;

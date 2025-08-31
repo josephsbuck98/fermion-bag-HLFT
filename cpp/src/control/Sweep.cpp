@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "Sweep.hpp"
-#include "Update.hpp"
 
 
 int calcNumUpdatesPerGroup(double scale, double beta, int numSites, 

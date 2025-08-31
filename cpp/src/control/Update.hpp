@@ -2,6 +2,7 @@
 
 #include "Constants.hpp"
 #include "Random.hpp"
+#include "TVModel.hpp"
 
 
 template<typename HamiltonianType>
@@ -12,7 +13,7 @@ public:
     groupUpperBound = upperBound;
   }
 
-  void run(Configuration& configuration, Lattice& lattice, 
+  void run(Configuration& configuration, const Lattice& lattice, 
       const HamiltonianType& hamiltonian) {
     hamiltonian.applyUpdate(configuration, lattice);
   }
