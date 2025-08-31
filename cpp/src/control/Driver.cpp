@@ -36,7 +36,7 @@ void Driver::run(Configuration& configuration, const Lattice& lattice) {
     }
   };
 
-  std::vector<Sweep> sweeps; // Is it ever 
+  std::vector<Sweep> sweeps;
   for (int sweep_iter = 0; sweep_iter < maxSweeps; sweep_iter++) {
     if (equilibrationSweeps < 0) { // If equilibration hasn't been reached...
       updateEquilTestingParams(configuration.getNumBonds());

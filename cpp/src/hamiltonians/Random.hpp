@@ -1,19 +1,24 @@
 #pragma once
 
-#include <vector>
+#include <map>
 
 #include "Configuration.hpp"
+#include "InputParser.hpp"
 #include "Lattice.hpp"
 
 
 class Random {
 public:
-  Random();
+  Random(InputParser::ParsedInput input);
+  void normalizeBondTypeProps();
 
-  void applyUpdate(Configuration& configuration, const Lattice& lattice) const;
+  void applyUpdate(Configuration& configuration, const Lattice& lattice,
+      int groupLowerBound, int groupUpperBound) const;
 
 private:
   double acceptProb = 0.5;
   double insertProb = 0.5;
-  std::vector<double> bondTypeProps = {0.10, 0.20, 0.30, 0.25, 0.15}; //TODO: Validate values when importing. Any missing or 
+  std::map<int, double> bondTypeProps = {
+    {1, 0.10}, {2, 0.20}, {3, 0.30}, {4, 0.25}, {5, 0.15}
+  }; //TODO: Validate values when importing. Any missing or 
 };

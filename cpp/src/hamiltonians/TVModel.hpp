@@ -6,7 +6,7 @@
 
 class TVModel {
 public:
-  TVModel();
+  TVModel(InputParser::ParsedInput input);
 
   void applyUpdate(Configuration& configuration, const Lattice& lattice) const;
 

@@ -15,38 +15,22 @@ public:
   void run(Configuration& configuration, const Lattice& lattice);
 
   template<typename HamiltonianType>
-  void loopOverGroups(Configuration& configuration, const Lattice& lattice,
+  void executeGroupUpdates(Configuration& configuration, const Lattice& lattice,
       const HamiltonianType& hamiltonian) {
-    std::map<double, Bond> bonds = configuration.getBonds();
-    std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
 
-    int groupNum = 0;
-    auto currIter = bonds.begin();
-    while (currIter != bonds.end()) {
-      if (groupNum + 1 == numTimeGroups || 
-          currIter->first >= configuration.getTauGroupStarts()[groupNum + 1]) { // When the if executes, we have entered a new time group
-        runGroupUpdates(configuration, lattice, hamiltonian, groupNum);
-        if (groupNum + 1 == numTimeGroups) break; // This ensures we break out before currIter gets to bonds.end()
-        groupNum++;
+    std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
+    // Loop over each time group
+    for (int groupNum = 1; groupNum <= tauGroupStarts.size(); groupNum++) {
+      // Get the time bounds for the group
+      double lowerBound = tauGroupStarts[groupNum - 1];
+      double upperBound = groupNum == tauGroupStarts.size() ? 
+          configuration.getBeta() : tauGroupStarts[groupNum];
+
+      // Create Update classes and call their run functions 
+      for (int i = 0; i < numUpdatesPerGroup; i++) {
+        Update<HamiltonianType> update(lowerBound, upperBound);
+        update.run(configuration, lattice, hamiltonian);
       }
-      currIter++; 
-    }
-  }
-
-  template<typename HamiltonianType>
-  void runGroupUpdates(Configuration& configuration, const Lattice& lattice,
-      const HamiltonianType& hamiltonian, int groupNum) {
-    // Get the time bounds for the group
-    std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
-    double lowerBound = tauGroupStarts[groupNum];
-    double upperBound = groupNum + 1 == tauGroupStarts.size() ? 
-        configuration.getBeta() : tauGroupStarts[groupNum + 1];
-    std::pair<double, double> groupBounds(lowerBound, upperBound); 
-
-    // Create Update classes and call their run functions //TODO: Run in parallel?
-    for (int i = 0; i < numUpdatesPerGroup; i++) {
-      Update<HamiltonianType> update(lowerBound, upperBound);
-      update.run(configuration, lattice, hamiltonian);
     }
   }
 

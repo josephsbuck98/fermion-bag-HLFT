@@ -1,7 +1,7 @@
 #include "TVModel.hpp"
 
 
-TVModel::TVModel() {
+TVModel::TVModel(InputParser::ParsedInput input) {
 
 }
 

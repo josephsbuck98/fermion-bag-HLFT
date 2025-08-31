@@ -15,7 +15,8 @@ public:
 
   void run(Configuration& configuration, const Lattice& lattice, 
       const HamiltonianType& hamiltonian) {
-    hamiltonian.applyUpdate(configuration, lattice);
+    hamiltonian.applyUpdate(configuration, lattice, groupLowerBound, 
+        groupUpperBound);
   }
 
 private:
