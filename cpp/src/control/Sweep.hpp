@@ -4,18 +4,56 @@
 #include <vector>
 
 #include "Configuration.hpp"
-#include "Input.hpp"
+#include "InputParser.hpp"
 #include "Lattice.hpp"
-// #include "Update.hpp"
+#include "Random.hpp"
+#include "TVModel.hpp"
 
-//TODO: Just pass in controlInput?
 class Sweep { //This is the only class that will both define the loop structure AND handle the majority of the inner workings of each iteration. It will loop over the different time groupings, and within each grouping it will loop for a specified number of times, calling update each iteration.,
 public:
-  Sweep(int initNumTimeGroups, double scaleNumUpdates);
+  Sweep(InputParser::ParsedInput input);
 
   void run(Configuration& configuration, const Lattice& lattice);
 
+  template<typename HamiltonianType>
+  void loopOverGroups(Configuration& configuration, const Lattice& lattice,
+      const HamiltonianType& hamiltonian) {
+    std::map<double, Bond> bonds = configuration.getBonds();
+    std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
+
+    int groupNum = 0;
+    auto currIter = bonds.begin();
+    while (currIter != bonds.end()) {
+      if (groupNum + 1 == numTimeGroups || 
+          currIter->first >= configuration.getTauGroupStarts()[groupNum + 1]) { // When the if executes, we have entered a new time group
+        runGroupUpdates(configuration, lattice, hamiltonian, groupNum);
+        if (groupNum + 1 == numTimeGroups) break; // This ensures we break out before currIter gets to bonds.end()
+        groupNum++;
+      }
+      currIter++; 
+    }
+  }
+
+  template<typename HamiltonianType>
+  void runGroupUpdates(Configuration& configuration, const Lattice& lattice,
+      const HamiltonianType& hamiltonian, int groupNum) {
+    // Get the time bounds for the group
+    std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
+    double lowerBound = tauGroupStarts[groupNum];
+    double upperBound = groupNum + 1 == tauGroupStarts.size() ? 
+        configuration.getBeta() : tauGroupStarts[groupNum + 1];
+    std::pair<double, double> groupBounds(lowerBound, upperBound); 
+
+    // Create Update classes and call their run functions //TODO: Run in parallel?
+    for (int i = 0; i < numUpdatesPerGroup; i++) {
+      Update<HamiltonianType> update(lowerBound, upperBound);
+      update.run(configuration, lattice, hamiltonian);
+    }
+  }
+
 private: 
+  InputParser::ParsedInput input;
+
   // Read in members
   int initNumTimeGroups;
   int numTimeGroups;

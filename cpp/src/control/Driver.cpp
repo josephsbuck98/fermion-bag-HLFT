@@ -7,15 +7,18 @@
 
 double calcError(int origVal, int newVal);
 
-Driver::Driver(ControlInput input) {
-  equilSweepsPatience = input.equilSweepsPatience; 
-  equilSweepsTol = input.equilSweepsTol; 
-  scaleNumUpdates = input.scaleNumUpdates;
-  maxSweeps = input.max_sweeps;
-  initNumTimeGroups = input.initNumTimeGroups;
+Driver::Driver(InputParser::ParsedInput input) {
+  ControlInput controlInput = input.controlInput;
+
+  this->input = input;
+  equilSweepsPatience = controlInput.equilSweepsPatience; 
+  equilSweepsTol = controlInput.equilSweepsTol; 
+  scaleNumUpdates = controlInput.scaleNumUpdates;
+  maxSweeps = controlInput.max_sweeps;
+  initNumTimeGroups = controlInput.initNumTimeGroups;
 }
 
-void Driver::run(Configuration& configuration, const Lattice& lattice) { //TODO: Remove lattice as an input?
+void Driver::run(Configuration& configuration, const Lattice& lattice) {
   auto calcError = [this](int currNbonds) {
     return std::abs((currStableNbonds - currNbonds) 
         / static_cast<double>(currStableNbonds));
@@ -41,7 +44,7 @@ void Driver::run(Configuration& configuration, const Lattice& lattice) { //TODO:
     if (currNumSweepsWithinTol >= equilSweepsPatience) { // If patience exceeded
       equilibrationSweeps = sweep_iter; // Don't add 1, b/c on new iter anyways
     }
-    Sweep newSweep = Sweep(initNumTimeGroups, scaleNumUpdates);
+    Sweep newSweep = Sweep(input);
     newSweep.run(configuration, lattice);
     sweeps.push_back(newSweep);
     //TODO: Store sweep object and other loop iteration data

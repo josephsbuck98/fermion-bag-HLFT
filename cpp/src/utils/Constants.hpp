@@ -14,10 +14,11 @@ namespace consts {
   
   // Input consts
   enum class HamilModel {
-    RANDOM
+    RANDOM, TVModel
   };
   inline const std::unordered_map<std::string, HamilModel> HAMIL_MODEL_MAP = {
-    {"random", HamilModel::RANDOM}
+    {"random", HamilModel::RANDOM},
+    {"tV", HamilModel::TVModel} //TODO: Case insensitive?
   };
 
   enum class LatticeType {

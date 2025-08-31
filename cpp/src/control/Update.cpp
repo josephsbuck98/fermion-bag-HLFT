@@ -1,17 +1,9 @@
 //TODO: At first, just implement all of the RANDOM Hamiltonian logic here. But
 //TODO: in the future, Hamiltonian specific logic will go in hamiltonians, and
 //TODO: this will be just a driver for an individual, general update.
-#include <iostream>
-
-#include "Update.hpp"
 
 
-Update::Update() {
-
-}
-
-
-void run() { //TODO: Move all the random-specific functionality to hamiltonian. Make this general to all hamiltonians
+//TODO: Move all the random-specific functionality to hamiltonian. Make this general to all hamiltonians
   //TODO: Compute accept/reject with acceptProb. Return if reject.
   //TODO: Compute insert/delete with insertProb. 
   //TODO: If insert
@@ -22,4 +14,3 @@ void run() { //TODO: Move all the random-specific functionality to hamiltonian. 
   //TODO: If delete
   //TODO:     Select a tau at random from the taus in configuration.taus.
   //TODO:     Use that tau to remove the bond. 
-}

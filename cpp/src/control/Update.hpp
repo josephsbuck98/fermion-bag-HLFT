@@ -1,18 +1,23 @@
 #pragma once
 
 #include "Constants.hpp"
+#include "Random.hpp"
 
 
+template<typename HamiltonianType>
 class Update {
 public:
-  Update();
+  Update(double lowerBound, double upperBound) {
+    groupLowerBound = lowerBound;
+    groupUpperBound = upperBound;
+  }
 
-  void run();
+  void run(Configuration& configuration, Lattice& lattice, 
+      const HamiltonianType& hamiltonian) {
+    hamiltonian.applyUpdate(configuration, lattice);
+  }
 
 private:
-  // consts::HamilModel hamilModel;
-  // double acceptProb;
-  // double insertProb;
   double groupLowerBound;
   double groupUpperBound;
 

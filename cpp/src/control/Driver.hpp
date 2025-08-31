@@ -2,16 +2,19 @@
 
 #include <vector>
 
+#include "Random.hpp"
 #include "Sweep.hpp"
 
 
 class Driver {
 public:
-  Driver(ControlInput input);
+  Driver(InputParser::ParsedInput input);
 
   void run(Configuration& curr_configuration, const Lattice& lattice);
 
 private:
+  InputParser::ParsedInput input;
+
   // "Static" data members read directly from input
   int equilSweepsPatience;
   double equilSweepsTol;

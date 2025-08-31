@@ -12,6 +12,7 @@ public:
   Configuration(ConfigurationInput input);
 
   void setTauGroupStarts(std::vector<double> newTauGroupStarts);
+  const std::vector<double>& getTauGroupStarts() const;
 
   std::set<double> getTaus() const;
 

@@ -3,6 +3,7 @@
 
 #include "Configuration.hpp"
 #include "Driver.hpp"
+#include "Random.hpp"
 #include "InputParser.hpp"
 #include "Lattice.hpp"
 
@@ -27,14 +28,14 @@ int main(int argc, char* argv[]) {
   std::cout << "Input parameters successfully imported and validated.\n\n";
 
 
-  // Generate initial Configuration (empty Configuration) and Lattice.
+  // Generate initial Configuration, Lattice, and Hamiltonian classes
   std::cout << "Generating lattice and initial configuration.\n"; 
   Configuration configuration = Configuration(input.configurationInput);
   Lattice lattice = Lattice(input.latticeInput);
   std::cout << "Finished generating lattice and initial configuration.\n\n";
 
   // Create Driver object and call its .run() function.
-  Driver driver = Driver(input.controlInput);
+  Driver driver = Driver(input);
   driver.run(configuration, lattice);
 
   

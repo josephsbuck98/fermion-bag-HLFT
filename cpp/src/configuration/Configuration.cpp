@@ -20,6 +20,11 @@ void Configuration::setTauGroupStarts(std::vector<double> newTauGroupStarts) {
   tauGroupStarts = newTauGroupStarts; 
 }
 
+const std::vector<double>& Configuration::getTauGroupStarts() const {
+  return tauGroupStarts;
+}
+
+
 std::set<double> Configuration::getTaus() const {
   return taus;
 }
