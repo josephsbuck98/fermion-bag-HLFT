@@ -15,6 +15,11 @@ public:
   void applyUpdate(Configuration& configuration, const Lattice& lattice,
       int groupLowerBound, int groupUpperBound) const;
 
+  void handleInsert(Configuration& configuration, const Lattice& lattice,
+    int groupLowerBound, int groupUpperBound) const;
+
+  void handleRemoval(Configuration& configuration) const;
+  
 private:
   double acceptProb = 0.5;
   double insertProb = 0.5;

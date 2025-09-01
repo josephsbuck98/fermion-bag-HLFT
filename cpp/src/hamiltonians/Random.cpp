@@ -1,4 +1,9 @@
+#include <random>
+#include <algorithm>
+
+#include "Constants.cpp"
 #include "Random.hpp"
+#include "RandomHelpers.hpp"
 
 
 Random::Random(InputParser::ParsedInput input) {
@@ -34,15 +39,51 @@ void Random::normalizeBondTypeProps() {
 
 void Random::applyUpdate(Configuration& configuration, const Lattice& lattice,
     int groupLowerBound, int groupUpperBound) const {
-  //TODO: Handle trying to insert an already existing key? Just add/subtract tolerance repeatedly until a free space is found?
   
-  //TODO: Using acceptProb, randomly choose true or false for accepting the proposal
-  //TODO: If accepted, use insertProb to randomly choose true for insert, or false for delete.
-  //TODO: If inserting, use bondTypeProps to choose a bond size. Use bounds and uniform distribution to choose
+  bool acceptResult = bernoulli(acceptProb);
+  if (!acceptResult) return consts::BondActionType::REJECTION;
+
+  bool insertResult = bernoulli(insertProb);
+  if (insertResult) {
+    handleInsert(configuration, lattice, groupLowerBound, groupUpperBound);
+    return consts::BondActionType::INSERTION;
+  } else {
+    handleRemoval(configuration, groupLowerBound, groupUpperBound);
+    return consts::BondActionType::REMOVAL;
+  }
+}
+
+
+void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
+    int groupLowerBound, int groupUpperBound) const {
+  //TODO: Use bondTypeProps to choose a bond size. Use bounds and uniform distribution to choose
   //TODO:     a random tau. Insert into the map, and handle preexisting key. If it can be inserted close enough 
   //TODO:     to its original random tau, choose a new random tau. Repeat until success.
-  //TODO: If deleting, get a vector of bonds currently within the time group. Randomly choose an index using
-  //TODO:     a uniform distribution. Delete it from the map. 
-  //TODO: 
-  //TODO: Return enum-ed values indicating rejection, insertion, removal?
+  //TODO: Handle trying to insert an already existing key? Just add/subtract tolerance repeatedly until a free space is found?
+
+}
+
+
+void Random::handleRemoval(Configuration& configuration, 
+    int groupLowerBound, int groupUpperBound) const {
+  std::vector<double> deletableTaus;
+  std::set<double> taus = configuration.getTaus();
+
+  auto it =  taus.begin();
+  while (it != taus.end()) {
+    if (it->first > groupLowerBound && it->first < groupUpperBound) {
+      deletableTaus.push_back(it->first);
+    }
+  }
+
+  if (deletableTaus.empty()) return;
+  std::uniform_int_distribution<size_t> dist(0, deletableTaus.size() - 1);
+  size_t tauToDelete = deletableTaus[dist(globalRNG())];
+
+  try {
+    configuration.delBond(tauToDelete);
+  } catch(err) {
+    std::cout << "Bond deletion failed.\n";
+  }
+
 }

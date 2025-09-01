@@ -55,6 +55,11 @@ namespace consts {
     {"z", DirsType::Z}
   };
 
+  enum class BondActionType {
+    REJECTION, INSERTION, REMOVAL
+  };
+  inline const std::unordered_map<
+
 }
 
 namespace std {
