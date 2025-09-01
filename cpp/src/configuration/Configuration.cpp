@@ -29,6 +29,10 @@ std::set<double> Configuration::getTaus() const {
   return taus;
 }
 
+double Configuration::getTolerance() const {
+  return tolerance;
+}
+
 int Configuration::getAvgNbondsPerGroup() const {
   return avgNbondsPerGroup;
 }

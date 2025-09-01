@@ -58,7 +58,6 @@ namespace consts {
   enum class BondActionType {
     REJECTION, INSERTION, REMOVAL
   };
-  inline const std::unordered_map<
 
 }
 

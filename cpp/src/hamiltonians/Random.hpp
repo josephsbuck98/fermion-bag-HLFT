@@ -12,13 +12,14 @@ public:
   Random(InputParser::ParsedInput input);
   void normalizeBondTypeProps();
 
-  void applyUpdate(Configuration& configuration, const Lattice& lattice,
-      int groupLowerBound, int groupUpperBound) const;
+  consts::BondActionType applyUpdate(Configuration& configuration, 
+      const Lattice& lattice, int groupLowerBound, int groupUpperBound) const;
 
   void handleInsert(Configuration& configuration, const Lattice& lattice,
     int groupLowerBound, int groupUpperBound) const;
 
-  void handleRemoval(Configuration& configuration) const;
+  void handleRemoval(Configuration& configuration, int groupLowerBound,
+     int groupUpperBound) const;
   
 private:
   double acceptProb = 0.5;

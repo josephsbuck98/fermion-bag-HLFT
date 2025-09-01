@@ -16,6 +16,8 @@ public:
 
   std::set<double> getTaus() const;
 
+  double getTolerance() const;
+
   int getAvgNbondsPerGroup() const;
 
   int calcNumTimeGroups(int initNumTimeGroups);

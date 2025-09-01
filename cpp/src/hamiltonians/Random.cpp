@@ -1,7 +1,8 @@
 #include <random>
 #include <algorithm>
 
-#include "Constants.cpp"
+#include "Bond.hpp"
+#include "Constants.hpp"
 #include "Random.hpp"
 #include "RandomHelpers.hpp"
 
@@ -37,7 +38,7 @@ void Random::normalizeBondTypeProps() {
 }
 
 
-void Random::applyUpdate(Configuration& configuration, const Lattice& lattice,
+consts::BondActionType Random::applyUpdate(Configuration& configuration, const Lattice& lattice,
     int groupLowerBound, int groupUpperBound) const {
   
   bool acceptResult = bernoulli(acceptProb);
@@ -56,11 +57,52 @@ void Random::applyUpdate(Configuration& configuration, const Lattice& lattice,
 
 void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
     int groupLowerBound, int groupUpperBound) const {
-  //TODO: Use bondTypeProps to choose a bond size. Use bounds and uniform distribution to choose
-  //TODO:     a random tau. Insert into the map, and handle preexisting key. If it can be inserted close enough 
-  //TODO:     to its original random tau, choose a new random tau. Repeat until success.
-  //TODO: Handle trying to insert an already existing key? Just add/subtract tolerance repeatedly until a free space is found?
+      
+  int bondSize = chooseWeightedRandInt(bondTypeProps);
+  double tauToInsert = chooseUnifRandDoubWithBounds(
+      groupLowerBound, groupUpperBound); 
+  int latticeBondStart = chooseUnifRandIntWithBounds(0, 
+      lattice.getNumSites(consts::DirsType::X) - bondSize);
+  std::set<int> bondSites;
+  for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
+    bondSites.insert(i);
+  }
+  Bond newBond(bondSites);
 
+  // Ensure bondSize is less than or equal to Nsites
+  if (bondSize > lattice.getNumSites(consts::DirsType::X)) {
+    throw std::runtime_error("bondSize=" + std::to_string(bondSize) + "is " +
+        "larger than Nsites=" + std::to_string(lattice.getNumSites(consts::DirsType::X)));
+  }
+
+  // Insert into the bond with retries for duplicate taus
+  double tauCandidate = tauToInsert; //TODO: PUT THIS INTO THE CONFIGURATION CLASS
+  double tol = configuration.getTolerance();
+  int maxAttempts = 100;
+  for (int attempts = 0; attempts < maxAttempts; ++attempts) {
+    try {
+      configuration.addBond(tauCandidate, newBond);
+      return;
+    } catch(const std::exception& ex) {
+      double tauUp = tauCandidate + tol;
+      if (tauUp < groupUpperBound) {
+        tauCandidate = tauUp;
+        continue;
+      }
+      double tauDown = tauCandidate - tol;
+      if (tauDown > groupLowerBound) {
+        tauCandidate = tauDown;
+        continue;
+      }
+      std::string message = "Could not insert tau=" + 
+          std::to_string(tauToInsert) + " within " +
+          "bounds [" + std::to_string(groupLowerBound) + ", " +
+          std::to_string(groupUpperBound) + "] after " + 
+          std::to_string(maxAttempts) + " attempts.";
+      std::cout << message << std::endl;
+      throw std::runtime_error(message);
+    }
+  }
 }
 
 
@@ -71,19 +113,20 @@ void Random::handleRemoval(Configuration& configuration,
 
   auto it =  taus.begin();
   while (it != taus.end()) {
-    if (it->first > groupLowerBound && it->first < groupUpperBound) {
-      deletableTaus.push_back(it->first);
+    if (*it > groupLowerBound && *it < groupUpperBound) {
+      deletableTaus.push_back(*it);
     }
+    ++it;
   }
 
   if (deletableTaus.empty()) return;
-  std::uniform_int_distribution<size_t> dist(0, deletableTaus.size() - 1);
-  size_t tauToDelete = deletableTaus[dist(globalRNG())];
+  int indToDelete = chooseUnifRandIntWithBounds(0, deletableTaus.size());
+  size_t tauToDelete = deletableTaus[indToDelete];
 
   try {
     configuration.delBond(tauToDelete);
-  } catch(err) {
-    std::cout << "Bond deletion failed.\n";
+  } catch(const std::exception& ex) {
+    std::cout << "Bond deletion failed: " << ex.what() << std::endl;
   }
 
 }
