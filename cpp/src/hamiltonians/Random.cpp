@@ -76,7 +76,7 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
   }
 
   // Insert into the bond with retries for duplicate taus
-  double tauCandidate = tauToInsert; //TODO: PUT THIS INTO THE CONFIGURATION CLASS
+  double tauCandidate = tauToInsert; //TODO: PUT THIS INTO THE CONFIGURATION CLASS. TEST IT WELL.
   double tol = configuration.getTolerance();
   int maxAttempts = 100;
   for (int attempts = 0; attempts < maxAttempts; ++attempts) {
@@ -111,7 +111,7 @@ void Random::handleRemoval(Configuration& configuration,
   std::vector<double> deletableTaus;
   std::set<double> taus = configuration.getTaus();
 
-  auto it =  taus.begin();
+  auto it = taus.begin();
   while (it != taus.end()) {
     if (*it > groupLowerBound && *it < groupUpperBound) {
       deletableTaus.push_back(*it);
@@ -121,7 +121,7 @@ void Random::handleRemoval(Configuration& configuration,
 
   if (deletableTaus.empty()) return;
   int indToDelete = chooseUnifRandIntWithBounds(0, deletableTaus.size());
-  size_t tauToDelete = deletableTaus[indToDelete];
+  double tauToDelete = deletableTaus[indToDelete];
 
   try {
     configuration.delBond(tauToDelete);

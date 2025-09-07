@@ -20,7 +20,7 @@ inline double chooseUnifRandDoubWithBounds(double low, double high) {
 }
 
 inline int chooseUnifRandIntWithBounds(int low, int high) {
-    std::uniform_int_distribution<int> dist(low, high);
+    std::uniform_int_distribution<int> dist(low, high - 1);
     return dist(globalRNG()); 
 }
 
