@@ -7,7 +7,7 @@ int calcNumUpdatesPerGroup(double scale, double beta, int numSites,
     int numTimeGroups);
 
 
-Sweep::Sweep(InputParser::ParsedInput input) { //TODO: Just pass in controlInput?
+Sweep::Sweep(InputParser::ParsedInput input) { 
   ControlInput controlInput = input.controlInput;
 
   this->input = input;

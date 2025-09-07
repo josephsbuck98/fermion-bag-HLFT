@@ -36,18 +36,29 @@ void Driver::run(Configuration& configuration, const Lattice& lattice) {
     }
   };
 
+  int outSweepsPatience = input.outputInput.outSweepsPatience;
   std::vector<Sweep> sweeps;
   for (int sweep_iter = 0; sweep_iter < maxSweeps; sweep_iter++) {
+    // Equilibration actions
+    //TODO: LOG EQUILIBRATION DATA
     if (equilibrationSweeps < 0) { // If equilibration hasn't been reached...
       updateEquilTestingParams(configuration.getNumBonds());
     }
     if (currNumSweepsWithinTol >= equilSweepsPatience) { // If patience exceeded
       equilibrationSweeps = sweep_iter; // Don't add 1, b/c on new iter anyways
     }
+
+    // Run current sweep
     Sweep newSweep = Sweep(input);
     newSweep.run(configuration, lattice);
+
+    // Handle data output logic
     sweeps.push_back(newSweep);
-    //TODO: Store sweep object and other loop iteration data
+    if (sweeps.size() == outSweepsPatience - 1 || sweep_iter == maxSweeps - 1) {
+      //TODO: Output to data files (func), reset sweeps
+    }
+
+
     //TODO: Log equilibration data and any other data.
   }
 }

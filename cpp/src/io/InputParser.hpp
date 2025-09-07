@@ -8,12 +8,14 @@ namespace InputParser {
 
   struct ParsedInput {
     ControlInput controlInput;
+    OutputInput outputInput;
     LatticeInput latticeInput;
     HamiltonianInput hamiltonianInput;
     ConfigurationInput configurationInput;
 
     void validate() const {
       controlInput.validate();
+      outputInput.validate();
       latticeInput.validate();
       hamiltonianInput.validate();
       configurationInput.validate();
@@ -47,9 +49,12 @@ struct convert<InputParser::ParsedInput> {
   static bool decode(const Node& node, InputParser::ParsedInput& rhs) {
     if (!node.IsMap()) return false;
     if (node["control"]) rhs.controlInput = node["control"].as<ControlInput>();
+    if (node["output"]) rhs.outputInput = node["output"].as<OutputInput>();
     if (node["lattice"]) rhs.latticeInput = node["lattice"].as<LatticeInput>();
-    if (node["hamiltonian"]) rhs.hamiltonianInput = node["hamiltonian"].as<HamiltonianInput>();
-    if (node["configuration"]) rhs.configurationInput = node["configuration"].as<ConfigurationInput>();
+    if (node["hamiltonian"]) rhs.hamiltonianInput = 
+      node["hamiltonian"].as<HamiltonianInput>();
+    if (node["configuration"]) rhs.configurationInput = 
+      node["configuration"].as<ConfigurationInput>();
     
     rhs.validate();
     return true;

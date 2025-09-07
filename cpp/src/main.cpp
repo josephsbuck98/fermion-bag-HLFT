@@ -28,12 +28,19 @@ int main(int argc, char* argv[]) {
   std::cout << "Input parameters successfully imported and validated.\n\n";
 
 
+  // Initialize the output directory
+  //TODO: Check for existence. 
+  //TODO: Create if nonexistant
+  //TODO: Clear if exists
+
+
   // Generate initial Configuration, Lattice, and Hamiltonian classes
   std::cout << "Generating lattice and initial configuration.\n"; 
   Configuration configuration = Configuration(input.configurationInput);
   Lattice lattice = Lattice(input.latticeInput);
   std::cout << "Finished generating lattice and initial configuration.\n\n";
 
+  
   // Create Driver object and call its .run() function.
   Driver driver = Driver(input);
   driver.run(configuration, lattice);
@@ -45,11 +52,7 @@ int main(int argc, char* argv[]) {
 
 
   // Call loop driver and pass in configuration and lattice by reference
-  
 
-  //TODO: Store number of each type of bond at each time step.
-
-  // Return  
 
   return 0;
 }

@@ -5,6 +5,10 @@ control:
   max_sweeps: 100
   init_num_time_groups: 5     # Initial number of time groups. 
 
+output:
+  out_sweeps_patience: 20
+  out_dir: out
+
 lattice:
   type: simple-cubic
   dims: 1

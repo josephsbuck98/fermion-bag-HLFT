@@ -14,15 +14,9 @@
 // The function templates in the YAML namespace tell YAML how to decode the
 // input file into the correct variables of the correct classes.
 
-//TODO: Unify all functions that do string input validation and use enums
-
 //TODO: SWITCH ALL VARIABLES IN THE ACTUAL CODE TO CAMEL CASE
 
-//TODO: Have the program create a default ParsedInput obj with all the minimal
-//TODO: default values. Then it gets overwritten and added to by actual input.
-
 struct ControlInput {
-  // consts::HamilModel hamil_model;
   int equilSweepsPatience = 3;
   double equilSweepsTol = 0.1;
   double scaleNumUpdates = 1;
@@ -60,6 +54,37 @@ struct convert<ControlInput> {
     if (node["init_num_time_groups"]) rhs.initNumTimeGroups = 
         getRequiredScalar<int>(node, "init_num_time_groups");
 
+    return true;
+  }
+};
+}
+
+
+
+struct OutputInput {
+  int outSweepsPatience = 20;
+  std::string outDir = "out";
+
+  void validate() const {
+    if (outSweepsPatience < 1) throw std::runtime_error("OutputInput: "
+      "'out_sweeps_patience' must be greater than 1.");
+    if (outDir.empty() || outDir.find("/") != std::string::npos) 
+      throw std::runtime_error("OutputInput: 'out_dir' must be non-empty and "
+      "must not contain the '/' character.");
+  }
+};
+
+namespace YAML {
+template <>
+struct convert<OutputInput> {
+  static bool decode(const Node& node, OutputInput& rhs) {
+    if (!node.IsMap()) return false;
+
+    if (node["out_sweeps_patience"]) rhs.outSweepsPatience = 
+      getRequiredScalar<int>(node, "out_sweeps_patience");
+    if (node["out_dir"]) rhs.outDir = 
+      getRequiredScalar<std::string>(node, "out_dir");
+    
     return true;
   }
 };
