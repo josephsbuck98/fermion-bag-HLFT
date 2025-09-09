@@ -64,6 +64,8 @@ struct convert<ControlInput> {
 struct OutputInput {
   int outSweepsPatience = 20;
   std::string outDir = "out";
+  bool printBondsPerType = false;
+  bool restarts = false;
 
   void validate() const {
     if (outSweepsPatience < 1) throw std::runtime_error("OutputInput: "
@@ -84,6 +86,10 @@ struct convert<OutputInput> {
       getRequiredScalar<int>(node, "out_sweeps_patience");
     if (node["out_dir"]) rhs.outDir = 
       getRequiredScalar<std::string>(node, "out_dir");
+    if (node["print_bonds_per_type"]) rhs.printBondsPerType =
+      getRequiredScalar<bool>(node, "print_bonds_per_type");
+    if (node["restarts"]) rhs.restarts = 
+      getRequiredScalar<bool>(node, "restarts");
     
     return true;
   }

@@ -8,6 +8,8 @@ control:
 output:
   out_sweeps_patience: 20
   out_dir: out
+  print_bonds_per_type: true
+  restarts: true
 
 lattice:
   type: simple-cubic
