@@ -13,9 +13,9 @@ public:
     groupUpperBound = upperBound;
   }
 
-  void run(Configuration& configuration, const Lattice& lattice, 
+  consts::BondActionType run(Configuration& configuration, const Lattice& lattice, 
       const HamiltonianType& hamiltonian) {
-    hamiltonian.applyUpdate(configuration, lattice, groupLowerBound, 
+    return hamiltonian.applyUpdate(configuration, lattice, groupLowerBound, 
         groupUpperBound);
   }
 

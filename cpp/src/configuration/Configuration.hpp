@@ -30,6 +30,7 @@ public:
   const Bond& getBond(double tau) const;
   const std::map<double, Bond>& getBonds() const;
   int getNumBonds() const;
+  std::map<int, int> getBondsPerType() const;
 
   double getBeta() const;
 
@@ -43,10 +44,13 @@ private:
 
   double tolerance; 
   double beta;
+
   std::map<double, Bond> bonds;
   std::set<double> taus;
+
   int avgNbondsPerGroup;
   std::vector<double> tauGroupStarts;
+  std::map<int, int> bondsPerType;
 
 };
 

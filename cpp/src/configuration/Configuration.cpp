@@ -57,17 +57,24 @@ void Configuration::addBond(double tau, Bond& bond) {
   double tauTrunc = truncateToTolerance(tau);
   auto retSetPair = taus.insert(tauTrunc);
   auto retMapPair = bonds.insert({tauTrunc, bond});
-  if (!retSetPair.second || !retMapPair.second) { 
-    delBond(tau);
-    throw std::runtime_error("Insert failed: Bond with tau" 
-                  "=" + std::to_string(tau) + " already exists.");
+
+  std::string eMS = "Configuration insert failed: tau=" + std::to_string(tau);
+  if (!retSetPair.second) {
+    if (!retMapPair.second) {
+      throw std::runtime_error(eMS + " already exists in both taus and bonds.");
+    } else {
+      throw std::runtime_error(eMS + " already exists in taus.");
+    }
+  } else if (!retMapPair.second) {
+    throw std::runtime_error(eMS + " already exists in bonds.");
   }
+  bondsPerType[bond.getNumSites()]++;
 }
 
 void Configuration::addBonds(std::vector<double> newTaus, std::vector<Bond> newBonds) {
   if (newTaus.size() != newBonds.size()) {
-    throw std::runtime_error("Lengths of newTaus and newBonds must be the same, "
-                  "but were " + std::to_string(newTaus.size()) + " and" 
+    throw std::runtime_error("Lengths of newTaus and newBonds must be the "
+                  "same, but were " + std::to_string(newTaus.size()) + " and"
                   " " + std::to_string(newBonds.size()));
   }
   for (int i = 0; i < newBonds.size(); i++) {
@@ -81,17 +88,30 @@ void Configuration::addBonds(std::vector<double> newTaus, std::vector<Bond> newB
 
 void Configuration::delBond(double tau) {
   double tauTrunc = truncateToTolerance(tau);
+
+  int numSites = 0; // Get the number of sites associated with the bond
+  auto it = bonds.find(tauTrunc);
+  if (it != bonds.end()) {
+    numSites = it->second.getNumSites();
+  }
+
   size_t retSet = taus.erase(tauTrunc);
   size_t retMap = bonds.erase(tauTrunc);
-  if (retSet == 0 || retMap == 0) {
+  if (numSites == 0 || retSet == 0 || retMap == 0) {
     std::runtime_error err("Cannot delete element with tau"
               "=" + std::to_string(tau) + ". Element does not exist.");
     std::cout << err.what() << std::endl;
+    throw err;
   }
+
+  bondsPerType[numSites]--; // Decrement the number of bonds of this size
+  if (bondsPerType[numSites] == 0) bondsPerType.erase(numSites);
 }
 
 void Configuration::delBonds() {
-  bonds = {};
+  bonds = std::map<double, Bond>();
+  taus = std::set<double>();
+  bondsPerType = std::map<int, int>();
 }
 
 const Bond& Configuration::getBond(double tau) const {
@@ -109,6 +129,10 @@ const std::map<double, Bond>& Configuration::getBonds() const {
 
 int Configuration::getNumBonds() const {
   return taus.size();
+}
+
+std::map<int, int> Configuration::getBondsPerType() const {
+  return bondsPerType;
 }
 
 double Configuration::getBeta() const {

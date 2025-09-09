@@ -29,9 +29,18 @@ public:
       // Create Update classes and call their run functions 
       for (int i = 0; i < numUpdatesPerGroup; i++) {
         Update<HamiltonianType> update(lowerBound, upperBound);
-        update.run(configuration, lattice, hamiltonian);
+        auto updateType = update.run(configuration, lattice, hamiltonian);
+        switch (updateType) {
+          case consts::BondActionType::REJECTION: finNumRejects++; break;
+          case consts::BondActionType::INSERTION: finNumInserts++; break;
+          case consts::BondActionType::REMOVAL: finNumRemoves++; break;
+        }
       }
     }
+
+    finNumBondsPerType = configuration.getBondsPerType();
+    finNumTimeGroups = tauGroupStarts.size();
+    finNumBonds = configuration.getNumBonds();
   }
 
 private: 
@@ -46,13 +55,11 @@ private:
   int numUpdatesPerGroup;
   
   // Final data members
-  std::vector<int> finNumBondsPerGroup; //NOTE: The length of this vector will be equal to initNumTimeGroups, not finNumTimeGroups, b/c in order to report the number of bonds in each time group, you have to use the same time groups you just used.
   std::map<int, int> finNumBondsPerType;
-  int finNumTimeGroups;
-  int finNumAccepts;
-  int finNumRejects;
-  int finNumInserts;
-  int finNumRemoves;
-  int finNumBonds;
+  int finNumTimeGroups = 0;
+  int finNumRejects = 0;
+  int finNumInserts = 0;
+  int finNumRemoves = 0;
+  int finNumBonds = 0;
 
 };
