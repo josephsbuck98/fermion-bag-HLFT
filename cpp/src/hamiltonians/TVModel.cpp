@@ -6,7 +6,7 @@ TVModel::TVModel(InputParser::ParsedInput input) {
 }
 
 
-void TVModel::applyUpdate(Configuration& configuration, const Lattice& lattice, 
+consts::BondActionType TVModel::applyUpdate(Configuration& configuration, const Lattice& lattice, 
     int groupLowerBound, int groupUpperBound) const {
-
+  return consts::BondActionType::INSERTION;
 }
