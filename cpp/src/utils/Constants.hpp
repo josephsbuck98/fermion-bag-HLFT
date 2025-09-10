@@ -55,6 +55,17 @@ namespace consts {
     {"z", DirsType::Z}
   };
 
+  enum class OutFileType {
+    STD_OUT_POSTFIX, SWEEPS, BONDS_PER_TYPE, INPUT, RESTART
+  };
+  inline const std::unordered_map<std::string, OutFileType> OUTFILE_TYPE_MAP {
+    {".out", OutFileType::STD_OUT_POSTFIX},
+    {"sweeps.dat", OutFileType::SWEEPS},
+    {"bonds-per-type.dat", OutFileType::BONDS_PER_TYPE},
+    {"INPUT", OutFileType::INPUT},
+    {"RESTART", OutFileType::RESTART}
+  };
+
   enum class BondActionType {
     REJECTION, INSERTION, REMOVAL
   };

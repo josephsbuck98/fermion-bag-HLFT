@@ -15,8 +15,11 @@ Output::Output(InputParser::ParsedInput input, std::string inFileName) {
   // Generate initial output files
   createOutFiles(input.outputInput.outDirName, inFileName);
 
+  // Write the header
+  writeHeader();
+
   // Initialize the vector of Sweeps
-  Sweep sweepPlaceholder = Sweep(input, 0); // Only here to facilitate build
+  Sweep sweepPlaceholder = Sweep(input, -1); // Only here to facilitate build
   sweepsCache.resize(input.outputInput.outSweepsPatience, sweepPlaceholder);
 
 }
@@ -70,6 +73,7 @@ void Output::createOutFiles(std::string outDirName, std::string inFileName) {
 
 
 
+// Functions to store and write sweep data
 void Output::storeSweep(Sweep newSweep) {
   //TODO: Set the next elem of vector to newSweep. Indexed using newSweep.id
   //TODO: If the index you just input at the end of the vector (in other words,
@@ -101,7 +105,9 @@ void Output::readRestartFile(Configuration configuration) {
 
 //TODO: Standard write-outs of sweep starts, time usage, progress, equilibration data, etc. 
 void Output::writeHeader() {
-  // Include an estimate for how long it will take.
+  //TODO: Use outDir (data member), input (data member) and enum'd outfile name
+  //TODO: to write out simulation parameters, user choices, start time, etc.
+
 }
 
 void Output::writeSweepStart() {
@@ -109,7 +115,7 @@ void Output::writeSweepStart() {
 }
 
 void Output::writeSweepEnd() {
-
+  // Include an estimate for how long it will take.
 }
 
 void Output::writeDecadeReport() {

@@ -10,7 +10,7 @@
 int main(int argc, char* argv[]) {
   // Ensure you get an input file
   if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " <input.yaml>\n";
+    std::cerr << "Usage: " << argv[0] << " \"input.yaml\" > \"output.txt\"\n";
     return 1;
   }
 
