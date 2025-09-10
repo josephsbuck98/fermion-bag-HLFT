@@ -111,13 +111,13 @@ void Output::writeRestartFile() { // Make sure you only write restarts if restar
 void Output::readRestartFile(Configuration configuration) {
   //TODO: Implement checks for RESTART presence. If not present, start from 
   //TODO: scratch. If present, load into configuration, return start_sweep, and
-  //TODO: delete RESTART. Ensure start_sweeps is less than max_sweeps. Throw 
+  //TODO: delete RESTART. Ensure startSweeps is less than maxSweeps. Throw 
   //TODO: prior to deleting restart file if reading was unsuccessful.
 }
 
 
 
-//TODO: Standard write-outs of sweep starts, time usage, progress, equilibration data, etc. 
+// Standard write-out functions
 void Output::writeHeader() {
   std::ostringstream header;
 
@@ -131,11 +131,9 @@ void Output::writeHeader() {
   header << createSeparator(60, '-');
   header << "\n";
   header << "Date: " << buf << "\n";
-  header << "Random Seed: " << std::to_string(randSeed) << "\n"; //TODO: Include as an input parameter, print out there.
   header << createParameterString(input);
-
-  //TODO: Use outDir (data member), input (data member) and enum'd outfile name
-  //TODO: to write out simulation parameters, user choices, start time, etc.
+  header << "\n";
+  header << createSeparator(60, '-');
 
 }
 

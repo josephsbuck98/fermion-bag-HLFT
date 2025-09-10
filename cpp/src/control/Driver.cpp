@@ -15,7 +15,7 @@ Driver::Driver(InputParser::ParsedInput input) {
   equilSweepsPatience = controlInput.equilSweepsPatience; 
   equilSweepsTol = controlInput.equilSweepsTol; 
   scaleNumUpdates = controlInput.scaleNumUpdates;
-  maxSweeps = controlInput.max_sweeps;
+  maxSweeps = controlInput.maxSweeps;
   initNumTimeGroups = controlInput.initNumTimeGroups;
 }
 

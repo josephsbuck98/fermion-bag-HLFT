@@ -21,8 +21,9 @@ struct ControlInput {
   int equilSweepsPatience = 3;
   double equilSweepsTol = 0.1;
   double scaleNumUpdates = 1;
-  int max_sweeps = 100;
+  int maxSweeps = 100; //TODO: Change to camel case
   int initNumTimeGroups = 5;
+  uint64_t randomSeed = 0;
 
   void validate() const {
     if (equilSweepsPatience <= 0) throw std::runtime_error("ControlInput: "
@@ -31,7 +32,7 @@ struct ControlInput {
         "ControlInput: 'equil_sweeps_tol' must be between 0 and 1.");
     if (scaleNumUpdates <= 0) throw std::runtime_error("ConfigurationInput: "
         "'scale_num_updates' must be greater than 0.");
-    if (max_sweeps < 0) throw std::runtime_error("ControlInput: 'max_sweeps'"
+    if (maxSweeps < 0) throw std::runtime_error("ControlInput: 'max_sweeps'"
         "must be greater than 0.");
     if (initNumTimeGroups <= 0) throw std::runtime_error("ConfigurationInput: "
         "'init_num_time_groups' must be greater than 0.");
@@ -40,9 +41,10 @@ struct ControlInput {
   friend std::ostream& operator<<(std::ostream& os, 
       const ControlInput& contIn) {
     os << "  Control:\n";
-    os << "    Maximum number of sweeps - " << contIn.max_sweeps << "\n";
+    os << "    Maximum number of sweeps - " << contIn.maxSweeps << "\n";
     os << "    Equilibration tolerance & patience - " << 
         contIn.equilSweepsTol << " & " << contIn.equilSweepsPatience << "\n";
+    os << "    Random seed - " << contIn.randomSeed << "\n";
     return os;
   }
 };
@@ -59,11 +61,13 @@ struct convert<ControlInput> {
         getRequiredScalar<double>(node, "equil_sweeps_tol");
     if (node["scale_num_updates"]) rhs.scaleNumUpdates =
         getRequiredScalar<double>(node, "scale_num_updates");
-    if (node["max_sweeps"]) rhs.max_sweeps = 
+    if (node["max_sweeps"]) rhs.maxSweeps = 
         getRequiredScalar<int>(node, "max_sweeps");
     if (node["init_num_time_groups"]) rhs.initNumTimeGroups = 
         getRequiredScalar<int>(node, "init_num_time_groups");
-
+    if (node["random_seed"]) rhs.randomSeed = 
+        getRequiredScalar<uint64_t>(node, "random_seed");
+    
     return true;
   }
 };

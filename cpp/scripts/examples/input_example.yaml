@@ -4,6 +4,7 @@ control:
   scale_num_updates: 1
   max_sweeps: 100
   init_num_time_groups: 5     # Initial number of time groups. 
+  random_seed: 0
 
 output:
   out_sweeps_patience: 20
