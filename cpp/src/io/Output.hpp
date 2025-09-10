@@ -32,6 +32,11 @@ public:
   void writeBondsPerTypeLine();
 
 private:
+  std::string createSeparator(int len, char character);
+  std::string createCenteredTitle(int lineLen, 
+      const std::string& title, char spacer);
+  std::string createParameterString(const InputParser::ParsedInput& input);
+
   InputParser::ParsedInput input;
   fs::path outDir;
   std::vector<Sweep> sweepsCache;

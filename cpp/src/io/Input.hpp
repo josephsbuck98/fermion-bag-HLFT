@@ -35,6 +35,15 @@ struct ControlInput {
     if (initNumTimeGroups <= 0) throw std::runtime_error("ConfigurationInput: "
         "'init_num_time_groups' must be greater than 0.");
   }
+
+  friend std::ostream& operator<<(std::ostream& os, 
+      const ControlInput& contIn) {
+    os << "  Control:\n";
+    os << "    Maximum number of sweeps - " << contIn.max_sweeps << "\n";
+    os << "    Equilibration tolerance & patience - " << 
+        contIn.equilSweepsTol << " & " << contIn.equilSweepsPatience << "\n";
+    return os;
+  }
 };
 
 namespace YAML {
@@ -73,6 +82,17 @@ struct OutputInput {
     if (outDirName.empty() || outDirName.find("/") != std::string::npos) 
       throw std::runtime_error("OutputInput: 'out_dir' must be non-empty and "
       "must not contain the '/' character.");
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, 
+      const OutputInput& outIn) {
+    os << "  Output:\n";
+    os << "    Output directory - " << outIn.outDirName << "\n";
+    os << "    Number of sweeps between outfile writes - " << 
+        outIn.outSweepsPatience << "\n";
+    if (outIn.printBondsPerType) os << "    Will output bondsPerType\n";
+    if (outIn.restarts) os << "    Will output RESTART files\n";
+    return os;
   }
 };
 
@@ -118,6 +138,23 @@ struct LatticeInput {
     if ((alpha > 0 && alpha > consts::pi) || (beta > 0 && beta > consts::pi)
       || (gamma > 0 && gamma > consts::pi)) throw std::runtime_error(
       "Lattice Input: angles must be between 0 and pi.");
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, 
+      const LatticeInput& latIn) {
+    os << "  Lattice:\n";
+    os << "    Lattice type - " << 
+        keyFromValue<std::string, consts::LatticeType>
+        (consts::LATTICE_TYPE_MAP, latIn.type) << "\n";
+    os << "    Number of dimensions - " << 
+        keyFromValue<int, consts::DimsType>
+        (consts::DIMS_TYPE_MAP, latIn.dims) << "\n";
+    os << "    Boundary conditions - " << //TODO: Output for each dim
+        keyFromValue<std::string, consts::BoundType>
+        (consts::BOUND_TYPE_MAP, latIn.x_bc_type) << "\n";
+    os << "    Total number of sites - " << latIn.x_nsites << "\n"; //TODO: Compute based on dims
+    os << "    Site spacing - " << latIn.a << "\n"; //TODO: Do for each dim
+    return os;
   }
 };
 
@@ -167,6 +204,19 @@ struct HamiltonianInput {
         "ControlInput: 'insert_prob' must be between 0 and 1.");
     // Don't need to validate model or bondTypeProps here because they are validated on read in.
   }
+
+  friend std::ostream& operator<<(std::ostream& os, 
+      const HamiltonianInput& hamilIn) {
+    os << "  Hamiltonian:\n";
+    os << "    Hamiltonian type - " << 
+        keyFromValue<std::string, consts::HamilModel>
+        (consts::HAMIL_MODEL_MAP, hamilIn.model) << "\n";
+    os << "    Probability of accepting a proposed update - " << 
+        hamilIn.acceptProb << "\n"; //TODO: Adjust what is printed depending on the model
+    os << "    Probability of a proposal being an insert - " << 
+        hamilIn.insertProb << "\n";
+    return os;
+  }
 };
 
 namespace YAML {
@@ -215,6 +265,15 @@ struct ConfigurationInput {
         "'beta' must be greater than 0.");
     if (avgNbondsPerGroup <= 1) throw std::runtime_error("ConfigurationInput: " 
         "'avg_nbonds_per_group' must be greater than 1.");
+  }
+
+  friend std::ostream& operator<<(std::ostream& os, 
+      const ConfigurationInput& configIn) {
+    os << "  Configuration:\n";
+    os << "    Float tolerance for tau - " << configIn.float_tol << "\n";
+    os << "    Beta (inverse temperature or imaginary time) - " 
+        << configIn.beta << "\n";
+    return os;
   }
 };
 

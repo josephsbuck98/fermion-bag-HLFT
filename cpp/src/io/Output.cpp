@@ -1,6 +1,10 @@
+#include <ctime>
 #include <fstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 
+#include "Input.hpp"
 #include "Output.hpp"
 
 
@@ -16,6 +20,7 @@ Output::Output(InputParser::ParsedInput input, std::string inFileName) {
   createOutFiles(input.outputInput.outDirName, inFileName);
 
   // Write the header
+  //TODO: Only write the header if either restarts=false, or restarts=true AND RESTART is not present.
   writeHeader();
 
   // Initialize the vector of Sweeps
@@ -105,6 +110,21 @@ void Output::readRestartFile(Configuration configuration) {
 
 //TODO: Standard write-outs of sweep starts, time usage, progress, equilibration data, etc. 
 void Output::writeHeader() {
+  std::ostringstream header;
+
+  // Timestamp
+  std::time_t now = std::time(nullptr);
+  char buf[64];
+  std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+
+  header << createSeparator(60, '-');
+  header << createCenteredTitle(60, "Fermion Bag HLFT Output", '-');
+  header << createSeparator(60, '-');
+  header << "\n";
+  header << "Date: " << buf << "\n";
+  header << "Random Seed: " << std::to_string(randSeed) << "\n";
+  header << createParameterString(input);
+
   //TODO: Use outDir (data member), input (data member) and enum'd outfile name
   //TODO: to write out simulation parameters, user choices, start time, etc.
 
@@ -134,4 +154,41 @@ void Output::writeSweepsLine() {
 
 void Output::writeBondsPerTypeLine() {
 
+}
+
+
+//TODO: Private functions to act as helpers
+std::string Output::createSeparator(int len, char character) {
+  std::string separator(len, character);
+  separator += "\n";
+  return std::string(len, character) + "\n";
+}
+
+std::string Output::createCenteredTitle(int lineLen, 
+    const std::string& title, char spacer) {
+  int titleLen = static_cast<int>(title.size()) + 2; // Add 2 for spaces
+  if (titleLen > lineLen) return title;
+  int padding = lineLen - titleLen;
+  int left = padding / 2; int right = padding - left;
+  std::string line = std::string(left, spacer) + " " + title + " " + 
+      std::string(right, spacer);
+  if (line.size() > lineLen) {
+    return line.substr(0, lineLen) + "\n";
+  } else if (line.size() < lineLen) {
+    return line + std::string(lineLen - line.size(), spacer) + "\n";
+  }
+  return line + "\n";
+}
+
+std::string Output::createParameterString(const InputParser::ParsedInput& input) {
+  std::ostringstream paramStr; //TODO: Make a print function in each of those input classes (overload << ?)
+
+  paramStr << "Important Parameters:\n";
+  paramStr << input.controlInput;
+  paramStr << input.outputInput;
+  paramStr << input.latticeInput;
+  paramStr << input.hamiltonianInput;
+  paramStr << input.configurationInput;
+
+  return paramStr.str();
 }
