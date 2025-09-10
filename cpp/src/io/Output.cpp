@@ -10,7 +10,7 @@
 
 
 Output::Output(InputParser::ParsedInput input, std::string inFileName) {
-  this->input = input; //TODO: Just pass in and use outputInput?
+  this->input = input;
   outDir = fs::current_path() / input.outputInput.outDirName;
 
   // Create or verify creation of outDir
@@ -50,27 +50,36 @@ void Output::createOutDir() {
 void Output::createOutFiles(std::string outDirName, std::string inFileName) {
   bool throwError = false;
   
-  //TODO: All of these file name strings (including the .out postfix) should be enum constants
-  fs::path stdOutPath = outDir / (outDirName + ".out");
+  std::string stdOutPostfix = keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::STD_OUT_POSTFIX);
+  fs::path stdOutPath = outDir / (outDirName + stdOutPostfix);
   if (!fs::exists(stdOutPath)) {
-    std::ofstream ofs(stdOutPath); 
+    std::ofstream ofs(stdOutPath);
     if (!ofs) throwError = true;
   }
 
-  fs::path sweepsDatPath = outDir / "sweeps.dat";
+  std::string sweepsFileName = keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::SWEEPS);
+  fs::path sweepsDatPath = outDir / sweepsFileName;
   if (!fs::exists(sweepsDatPath)) {
     std::ofstream ofs(sweepsDatPath);
     if (!ofs) throwError = true;
   }
 
-  fs::path bondsPerTypeDatPath = outDir / "bonds-per-type.dat";
+  std::string bondsPerTypeFileName = 
+      keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::BONDS_PER_TYPE);
+  fs::path bondsPerTypeDatPath = outDir / bondsPerTypeFileName;
   if (!fs::exists(bondsPerTypeDatPath)) {
     std::ofstream ofs(bondsPerTypeDatPath);
     if (!ofs) throwError = true;
   }
 
-  fs::copy_file(fs::current_path() / inFileName, outDir / "INPUT", 
-      fs::copy_options::overwrite_existing);
+  std::string inputGenericFileName = 
+      keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::INPUT);
+  fs::copy_file(fs::current_path() / inFileName, 
+      outDir / inputGenericFileName, fs::copy_options::overwrite_existing);
   
   if (throwError) throw std::runtime_error("Outfile Creation Error: Some of "
       "the output files could not be created");
@@ -122,7 +131,7 @@ void Output::writeHeader() {
   header << createSeparator(60, '-');
   header << "\n";
   header << "Date: " << buf << "\n";
-  header << "Random Seed: " << std::to_string(randSeed) << "\n";
+  header << "Random Seed: " << std::to_string(randSeed) << "\n"; //TODO: Include as an input parameter, print out there.
   header << createParameterString(input);
 
   //TODO: Use outDir (data member), input (data member) and enum'd outfile name

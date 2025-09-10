@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Constants.hpp"
+#include "EnumHelpers.hpp"
 #include "YAMLHelpers.hpp"
 
 // The function templates in the YAML namespace tell YAML how to decode the
