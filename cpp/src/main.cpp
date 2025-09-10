@@ -3,9 +3,9 @@
 
 #include "Configuration.hpp"
 #include "Driver.hpp"
-#include "Random.hpp"
 #include "InputParser.hpp"
 #include "Lattice.hpp"
+#include "Output.hpp"
 
 int main(int argc, char* argv[]) {
   // Ensure you get an input file
@@ -17,21 +17,15 @@ int main(int argc, char* argv[]) {
 
   // Read in the inputs and handle errors
   InputParser::ParsedInput input;
-  std::string filepath = argv[1];
+  std::string filename = argv[1];
   std::cout << "Reading input file..." << std::endl;
   try {
-    input = InputParser::parseInputFile(filepath);
+    input = InputParser::parseInputFile(filename);
   } catch (const std::exception& e) {
     std::cerr << "Error parsing input file: " << e.what() << "\n";
     return 1;
   }
   std::cout << "Input parameters successfully imported and validated.\n\n";
-
-
-  // Initialize the output directory
-  //TODO: Check for existence. 
-  //TODO: Create if nonexistant
-  //TODO: Clear if exists
 
 
   // Generate initial Configuration, Lattice, and Hamiltonian classes
@@ -40,18 +34,17 @@ int main(int argc, char* argv[]) {
   Lattice lattice = Lattice(input.latticeInput);
   std::cout << "Finished generating lattice and initial configuration.\n\n";
 
+
+  // Initialize the output directory and load restart file (if user specified)
+  Output output(input, filename);
+  if (input.outputInput.restarts) {
+    output.readRestartFile(configuration);
+  }
+
   
   // Create Driver object and call its .run() function.
   Driver driver = Driver(input);
-  driver.run(configuration, lattice);
-
-  
-  // Report some key parameters or variables perhaps not given in input file.
-  //TODO: Report all non-trivial parameters of the code (but don't be pedantic).
-  //TODO: REPORT COMPUTED LATTICE PARAMETERS HERE
-
-
-  // Call loop driver and pass in configuration and lattice by reference
+  driver.run(configuration, lattice); //TODO: Pass in Output class
 
 
   return 0;

@@ -7,12 +7,13 @@ int calcNumUpdatesPerGroup(double scale, double beta, int numSites,
     int numTimeGroups);
 
 
-Sweep::Sweep(InputParser::ParsedInput input) { 
+Sweep::Sweep(InputParser::ParsedInput input, int id) { 
   ControlInput controlInput = input.controlInput;
 
   this->input = input;
   this->initNumTimeGroups = controlInput.initNumTimeGroups;
   this->scaleNumUpdates = controlInput.scaleNumUpdates;
+  this->id = id;
 }
 
 

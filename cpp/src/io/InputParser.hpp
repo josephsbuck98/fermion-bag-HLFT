@@ -39,7 +39,7 @@ namespace InputParser {
     }//TODO: Validate y, z, honeycomb, and other hamiltonians later.
   };
 
-  ParsedInput parseInputFile(const std::string& filepath);
+  ParsedInput parseInputFile(const std::string& filename);
 
 }
 

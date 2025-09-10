@@ -8,9 +8,9 @@
 #include "Lattice.hpp"
 #include "Update.hpp"
 
-class Sweep { //This is the only class that will both define the loop structure AND handle the majority of the inner workings of each iteration. It will loop over the different time groupings, and within each grouping it will loop for a specified number of times, calling update each iteration.,
+class Sweep { 
 public:
-  Sweep(InputParser::ParsedInput input);
+  Sweep(InputParser::ParsedInput input, int id);
 
   void run(Configuration& configuration, const Lattice& lattice);
 
@@ -61,5 +61,6 @@ private:
   int finNumInserts = 0;
   int finNumRemoves = 0;
   int finNumBonds = 0;
+  int id = -1;
 
 };

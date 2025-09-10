@@ -7,6 +7,7 @@
 
 double calcError(int origVal, int newVal);
 
+//TODO: INPUT CURRENT SWEEP ITERATION IN CASE THIS IS A RESTART
 Driver::Driver(InputParser::ParsedInput input) {
   ControlInput controlInput = input.controlInput;
 
@@ -49,13 +50,13 @@ void Driver::run(Configuration& configuration, const Lattice& lattice) {
     }
 
     // Run current sweep
-    Sweep newSweep = Sweep(input);
+    Sweep newSweep = Sweep(input, sweep_iter);
     newSweep.run(configuration, lattice);
 
     // Handle data output logic
     sweeps.push_back(newSweep);
     if (sweeps.size() == outSweepsPatience - 1 || sweep_iter == maxSweeps - 1) {
-      //TODO: Output to data files (func), reset sweeps
+      //TODO: Move this logic to Output
     }
 
 

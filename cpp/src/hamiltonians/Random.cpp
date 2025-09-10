@@ -62,7 +62,7 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
   double tauToInsert = chooseUnifRandDoubWithBounds(
       groupLowerBound, groupUpperBound); 
   int latticeBondStart = chooseUnifRandIntWithBounds(0, 
-      lattice.getNumSites(consts::DirsType::X) - bondSize);
+      lattice.getNumSites(consts::DirsType::X) - bondSize); //TODO: For periodic boundary conditions, any site can be chosen as the start, then use modulus (%) to get correct sites.
   std::set<int> bondSites;
   for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
     bondSites.insert(i);

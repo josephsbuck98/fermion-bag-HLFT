@@ -63,14 +63,14 @@ struct convert<ControlInput> {
 
 struct OutputInput {
   int outSweepsPatience = 20;
-  std::string outDir = "out";
+  std::string outDirName = "";
   bool printBondsPerType = false;
   bool restarts = false;
 
   void validate() const {
     if (outSweepsPatience < 1) throw std::runtime_error("OutputInput: "
       "'out_sweeps_patience' must be greater than 1.");
-    if (outDir.empty() || outDir.find("/") != std::string::npos) 
+    if (outDirName.empty() || outDirName.find("/") != std::string::npos) 
       throw std::runtime_error("OutputInput: 'out_dir' must be non-empty and "
       "must not contain the '/' character.");
   }
@@ -84,7 +84,7 @@ struct convert<OutputInput> {
 
     if (node["out_sweeps_patience"]) rhs.outSweepsPatience = 
       getRequiredScalar<int>(node, "out_sweeps_patience");
-    if (node["out_dir"]) rhs.outDir = 
+    if (node["out_dir"]) rhs.outDirName = 
       getRequiredScalar<std::string>(node, "out_dir");
     if (node["print_bonds_per_type"]) rhs.printBondsPerType =
       getRequiredScalar<bool>(node, "print_bonds_per_type");
