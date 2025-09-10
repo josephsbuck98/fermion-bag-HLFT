@@ -35,4 +35,5 @@ private:
   InputParser::ParsedInput input;
   fs::path outDir;
   std::vector<Sweep> sweepsCache;
+  
 };

@@ -16,7 +16,8 @@ Output::Output(InputParser::ParsedInput input, std::string inFileName) {
   createOutFiles(input.outputInput.outDirName, inFileName);
 
   // Initialize the vector of Sweeps
-  sweepsCache.resize(input.outputInput.outSweepsPatience);
+  Sweep sweepPlaceholder = Sweep(input, 0); // Only here to facilitate build
+  sweepsCache.resize(input.outputInput.outSweepsPatience, sweepPlaceholder);
 
 }
 
