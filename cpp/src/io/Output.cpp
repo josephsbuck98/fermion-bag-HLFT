@@ -1,5 +1,6 @@
 #include <ctime>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -9,7 +10,8 @@
 
 
 
-Output::Output(InputParser::ParsedInput input, std::string inFileName) {
+Output::Output(InputParser::ParsedInput input, std::string inFileName, 
+    Configuration& configuration) : configuration(configuration) {
   this->input = input;
   outDir = fs::current_path() / input.outputInput.outDirName;
 
@@ -19,9 +21,17 @@ Output::Output(InputParser::ParsedInput input, std::string inFileName) {
   // Generate initial output files
   createOutFiles(input.outputInput.outDirName, inFileName);
 
-  // Write the header
-  //TODO: Only write the header if either restarts=false, or restarts=true AND RESTART is not present.
-  writeHeader();
+  // Write the headers for standard outfile and dat files
+  fs::path restartPath = 
+      outDir / keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::RESTART);
+  if (!(input.outputInput.restarts && fs::exists(restartPath))) {
+    writeHeader();
+    writeSweepsHeader();
+    if (input.outputInput.writeBondsPerType) {
+      writeBondsPerTypeHeader();
+    }
+  }
 
   // Initialize the vector of Sweeps
   Sweep sweepPlaceholder = Sweep(input, -1); // Only here to facilitate build
@@ -88,24 +98,35 @@ void Output::createOutFiles(std::string outDirName, std::string inFileName) {
 
 
 // Functions to store and write sweep data
-void Output::storeSweep(Sweep newSweep) {
-  //TODO: Set the next elem of vector to newSweep. Indexed using newSweep.id
-  //TODO: If the index you just input at the end of the vector (in other words,
-  //TODO: if newSweep.id % outSweepsPatience == sweepsCache.size()), call a 
-  //TODO: func to write out the data in the vector to the dat files. Use input
-  //TODO: to determine which files to write to. Clear data in sweepsCache.
+void Output::storeSweep(Sweep sweep) {
+  int outSweepsPatience = input.outputInput.outSweepsPatience;
+  int index = sweep.getId() % outSweepsPatience;
+  sweepsCache[index] = std::move(sweep);
+
+  if (index == outSweepsPatience - 1) {
+    writeAndClearSweepCache();
+  }
 }
 
 void Output::writeAndClearSweepCache() {
-  //TODO: Write to the different dat files by calling writeSweepsLine and 
-  //TODO: writeBondsPerTypeLine. Use input to determine what to write.
+  for (int i = 0; i < sweepsCache.size(); i++) {
+    writeSweepsLine(sweepsCache[i]);
+    if (input.outputInput.writeBondsPerType) {
+      writeBondsPerTypeLine(sweepsCache[i]);
+    }
+    if (input.outputInput.restarts) {
+      writeRestartFile(); //TODO: Pass in configuration and iteration + 1. 
+    }
+  }
 }
 
 
 
 // Functions to write out and read restart files
-void Output::writeRestartFile() { // Make sure you only write restarts if restarts is true OR RESTART is present (even if empty. user can add it during a simulation to switch to writing out restarts.)
-  //TODO: Implement RESTART file write outs
+//TODO: Allow user to simply create a RESTART file in the outdir during a run, and it will start writing RESTARTs 
+void Output::writeRestartFile() {
+  
+  //TODO: Call a configuration public member function to write out the configuration, and pass in the next id.
 }
 
 void Output::readRestartFile(Configuration configuration) {
@@ -122,22 +143,54 @@ void Output::writeHeader() {
   std::ostringstream header;
 
   // Timestamp
-  std::time_t now = std::time(nullptr);
-  char buf[64];
-  std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+  auto now = std::chrono::system_clock::now();
+  std::time_t nowC = std::chrono::system_clock::to_time_t(now);
 
   header << createSeparator(60, '-');
   header << createCenteredTitle(60, "Fermion Bag HLFT Output", '-');
   header << createSeparator(60, '-');
   header << "\n";
-  header << "Date: " << buf << "\n";
+  header << "Date: " << std::put_time(std::localtime(&nowC), 
+      "%Y-%m-%d %H:%M:%S") << "\n";
   header << createParameterString(input);
   header << "\n";
   header << createSeparator(60, '-');
+  header << "\n"; // Extra line after separator
 
+  std::ofstream outFile(outDir / getStdOutFilename(), std::ios::trunc);
+  outFile << header.str();
 }
 
-void Output::writeSweepStart() {
+void Output::writeSweepsHeader() {
+  std::ostringstream header;
+  header << "sweepID  ";
+  header << "numTimeGroups  ";
+  header << "numRejects  ";
+  header << "numInserts  ";
+  header << "numRemoves  ";
+  header << "numBonds  ";
+  header << "\n";
+  header << createSeparator(80, '-');
+  
+  std::ofstream outFile(outDir / getSweepsFilename(), std::ios::trunc);
+  outFile << header.str();
+}
+
+void Output::writeBondsPerTypeHeader() {
+  int width = 7;
+  std::ostringstream header;
+  header << std::left;
+  for (const auto& [key, value] : input.hamiltonianInput.bondTypeProps) {
+    header << std::setw(width) << key;
+  }
+  header << "\n";
+  header << createSeparator(60, '-');
+
+  std::ofstream outFile(outDir / getBondsPerTypeFilename(), std::ios::trunc);
+  outFile << header.str();
+}
+
+void Output::writeSweepBegin() {
 
 }
 
@@ -154,17 +207,36 @@ void Output::writeFinalReport() {
 }
 
 
-//TODO: Dat file writeouts
-void Output::writeSweepsLine() {
+// Dat file write-outs
+void Output::writeSweepsLine(const Sweep& sweep) {
+  int width = 7;
+  std::ostringstream line;
+  line << std::left;
+  line << std::setw(width) << sweep.getId();
+  line << std::setw(width) << sweep.getFinNumTimeGroups();
+  line << std::setw(width) << sweep.getNumRejects();
+  line << std::setw(width) << sweep.getNumRemoves();
+  line << std::setw(width) << sweep.getNumBonds();
 
+  std::ofstream outFile(outDir / getSweepsFilename(), std::ios::app);
+  outFile << line.str();
 }
 
-void Output::writeBondsPerTypeLine() {
+void Output::writeBondsPerTypeLine(const Sweep& sweep) {
+  int width = 7;
+  std::ostringstream line;
+  line << std::left;
+  for (const auto& [key, value] : sweep.getNumBondsPerType()) {
+    line << std::setw(width) << value;
+  }
+  line << "\n";
 
+  std::ofstream outFile(outDir / getBondsPerTypeFilename(), std::ios::app);
+  outFile << line.str();
 }
 
 
-//TODO: Private functions to act as helpers
+// Private helper functions
 std::string Output::createSeparator(int len, char character) {
   std::string separator(len, character);
   separator += "\n";
@@ -188,7 +260,7 @@ std::string Output::createCenteredTitle(int lineLen,
 }
 
 std::string Output::createParameterString(const InputParser::ParsedInput& input) {
-  std::ostringstream paramStr; //TODO: Make a print function in each of those input classes (overload << ?)
+  std::ostringstream paramStr; 
 
   paramStr << "Important Parameters:\n";
   paramStr << input.controlInput;
@@ -198,4 +270,21 @@ std::string Output::createParameterString(const InputParser::ParsedInput& input)
   paramStr << input.configurationInput;
 
   return paramStr.str();
+}
+
+std::string Output::getStdOutFilename() {
+  std::string outDirName = input.outputInput.outDirName;
+  std::string stdOutPostfix = keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::STD_OUT_POSTFIX);
+  return outDirName + stdOutPostfix;
+}
+
+std::string Output::getSweepsFilename() {
+  return keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::SWEEPS);
+}
+
+std::string Output::getBondsPerTypeFilename() {
+  return keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::BONDS_PER_TYPE);
 }

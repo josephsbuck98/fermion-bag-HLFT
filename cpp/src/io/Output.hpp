@@ -11,7 +11,8 @@ namespace fs = std::filesystem;
 
 class Output {
 public:
-  Output(InputParser::ParsedInput input, std::string inFileName);
+  Output(InputParser::ParsedInput input, std::string inFileName, 
+      Configuration& configuration);
 
   void createOutDir(); //TODO: Private
   void createOutFiles(std::string outDirName, std::string inFileName); //TODO: Private
@@ -23,22 +24,29 @@ public:
   void readRestartFile(Configuration configuration);
 
   void writeHeader();
-  void writeSweepStart();
+  void writeSweepsHeader();
+  void writeBondsPerTypeHeader();
+
+  void writeSweepBegin();
   void writeSweepEnd();
   void writeDecadeReport();
   void writeFinalReport();
   
-  void writeSweepsLine();
-  void writeBondsPerTypeLine();
+  void writeSweepsLine(const Sweep& sweep);
+  void writeBondsPerTypeLine(const Sweep& sweep);
 
 private:
   std::string createSeparator(int len, char character);
   std::string createCenteredTitle(int lineLen, 
       const std::string& title, char spacer);
   std::string createParameterString(const InputParser::ParsedInput& input);
-
-  InputParser::ParsedInput input;
+  std::string getStdOutFilename();
+  std::string getSweepsFilename();
+  std::string getBondsPerTypeFilename();
+  
+  Configuration& configuration;
   fs::path outDir;
+  InputParser::ParsedInput input;
   std::vector<Sweep> sweepsCache;
   
 };

@@ -78,7 +78,7 @@ struct convert<ControlInput> {
 struct OutputInput {
   int outSweepsPatience = 20;
   std::string outDirName = "";
-  bool printBondsPerType = false;
+  bool writeBondsPerType = false;
   bool restarts = false;
 
   void validate() const {
@@ -95,7 +95,7 @@ struct OutputInput {
     os << "    Output directory - " << outIn.outDirName << "\n";
     os << "    Number of sweeps between outfile writes - " << 
         outIn.outSweepsPatience << "\n";
-    if (outIn.printBondsPerType) os << "    Will output bondsPerType\n";
+    if (outIn.writeBondsPerType) os << "    Will output bondsPerType\n";
     if (outIn.restarts) os << "    Will output RESTART files\n";
     return os;
   }
@@ -111,8 +111,8 @@ struct convert<OutputInput> {
       getRequiredScalar<int>(node, "out_sweeps_patience");
     if (node["out_dir"]) rhs.outDirName = 
       getRequiredScalar<std::string>(node, "out_dir");
-    if (node["print_bonds_per_type"]) rhs.printBondsPerType =
-      getRequiredScalar<bool>(node, "print_bonds_per_type");
+    if (node["write_bonds_per_type"]) rhs.writeBondsPerType =
+      getRequiredScalar<bool>(node, "write_bonds_per_type");
     if (node["restarts"]) rhs.restarts = 
       getRequiredScalar<bool>(node, "restarts");
     

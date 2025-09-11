@@ -43,6 +43,14 @@ public:
     finNumBonds = configuration.getNumBonds();
   }
 
+  std::map<int, int> getNumBondsPerType() const {return finNumBondsPerType;}
+  int getFinNumTimeGroups() const {return finNumTimeGroups;}
+  int getNumRejects() const {return finNumRejects;}
+  int getNumInserts() const {return finNumInserts;}
+  int getNumRemoves() const {return finNumRemoves;}
+  int getNumBonds() const {return finNumBonds;}
+  int getId() const {return id;}
+
 private: 
   InputParser::ParsedInput input;
 

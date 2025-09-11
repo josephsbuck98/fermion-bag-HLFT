@@ -9,8 +9,8 @@ control:
 output:
   out_sweeps_patience: 20
   out_dir: out
-  print_bonds_per_type: true
-  restarts: true
+  write_bonds_per_type: true
+  restarts: false
 
 lattice:
   type: simple-cubic

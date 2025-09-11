@@ -7,6 +7,8 @@
 #include "Lattice.hpp"
 #include "Output.hpp"
 
+//TODO: SHOULD I BE PASSING ALL INPUT OBJECTS AS CONST & SO COPIES AREN'T BEING MADE EVERYWHERE?
+
 int main(int argc, char* argv[]) {
   // Ensure you get an input file
   if (argc < 2) {
@@ -36,7 +38,7 @@ int main(int argc, char* argv[]) {
 
 
   // Initialize the output directory and load restart file (if user specified)
-  Output output(input, filename);
+  Output output(input, filename, configuration);
   if (input.outputInput.restarts) {
     output.readRestartFile(configuration);
   }
