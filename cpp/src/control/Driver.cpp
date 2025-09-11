@@ -19,7 +19,8 @@ Driver::Driver(InputParser::ParsedInput input) {
   initNumTimeGroups = controlInput.initNumTimeGroups;
 }
 
-void Driver::run(Configuration& configuration, const Lattice& lattice) {
+void Driver::run(Configuration& configuration, const Lattice& lattice, 
+    Output& output) {
   auto calcError = [this](int currNbonds) {
     return std::abs((currStableNbonds - currNbonds) 
         / static_cast<double>(currStableNbonds));
@@ -38,7 +39,6 @@ void Driver::run(Configuration& configuration, const Lattice& lattice) {
   };
 
   int outSweepsPatience = input.outputInput.outSweepsPatience;
-  std::vector<Sweep> sweeps;
   for (int sweep_iter = 0; sweep_iter < maxSweeps; sweep_iter++) {
     // Equilibration actions
     //TODO: LOG EQUILIBRATION DATA
@@ -54,11 +54,7 @@ void Driver::run(Configuration& configuration, const Lattice& lattice) {
     newSweep.run(configuration, lattice);
 
     // Handle data output logic
-    sweeps.push_back(newSweep);
-    if (sweeps.size() == outSweepsPatience - 1 || sweep_iter == maxSweeps - 1) {
-      //TODO: Move this logic to Output
-    }
-
+    output.storeSweep(newSweep);
 
     //TODO: Log equilibration data and any other data.
   }

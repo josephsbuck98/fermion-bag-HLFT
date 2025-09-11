@@ -17,7 +17,7 @@ Random::Random(InputParser::ParsedInput input) {
 
 
 void Random::normalizeBondTypeProps() { 
-  //NOTE: Currently, only supports integer bond sizes from 1 to 6. 
+  //NOTE: Currently, only supports integer bond sizes from 1 to 6. ISNT BONDTYPEPROPS A MAP???
   double total = 0.0;
   for (int i = 1; i <= 6; i++) { //TODO: Use an enum for 6?
     double& val = bondTypeProps[i];
@@ -39,7 +39,7 @@ void Random::normalizeBondTypeProps() {
 
 
 consts::BondActionType Random::applyUpdate(Configuration& configuration, const Lattice& lattice,
-    int groupLowerBound, int groupUpperBound) const {
+    double groupLowerBound, double groupUpperBound) const {
   
   bool acceptResult = bernoulli(acceptProb);
   if (!acceptResult) return consts::BondActionType::REJECTION;
@@ -100,6 +100,7 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
           std::to_string(groupUpperBound) + "] after " + 
           std::to_string(maxAttempts) + " attempts.";
       std::cout << message << std::endl;
+      
       throw std::runtime_error(message);
     }
   }

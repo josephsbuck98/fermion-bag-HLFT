@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "Output.hpp"
 #include "Sweep.hpp"
 
 
@@ -9,7 +10,8 @@ class Driver {
 public:
   Driver(InputParser::ParsedInput input);
 
-  void run(Configuration& curr_configuration, const Lattice& lattice);
+  void run(Configuration& curr_configuration, const Lattice& lattice,
+      Output& output);
 
 private:
   InputParser::ParsedInput input;

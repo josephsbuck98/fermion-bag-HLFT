@@ -18,8 +18,8 @@ public:
   void handleInsert(Configuration& configuration, const Lattice& lattice,
     int groupLowerBound, int groupUpperBound) const;
 
-  void handleRemoval(Configuration& configuration, int groupLowerBound,
-     int groupUpperBound) const;
+  void handleRemoval(Configuration& configuration, double groupLowerBound,
+     double groupUpperBound) const;
   
 private:
   double acceptProb = 0.5;

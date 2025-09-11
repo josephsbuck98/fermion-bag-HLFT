@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
   
   // Create Driver object and call its .run() function.
   Driver driver = Driver(input);
-  driver.run(configuration, lattice); //TODO: Pass in Output class
+  driver.run(configuration, lattice, output);
 
 
   return 0;
