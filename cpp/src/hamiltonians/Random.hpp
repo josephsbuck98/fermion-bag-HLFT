@@ -13,10 +13,10 @@ public:
   void normalizeBondTypeProps();
 
   consts::BondActionType applyUpdate(Configuration& configuration, 
-      const Lattice& lattice, int groupLowerBound, int groupUpperBound) const;
+      const Lattice& lattice, double groupLowerBound, double groupUpperBound) const;
 
   void handleInsert(Configuration& configuration, const Lattice& lattice,
-    int groupLowerBound, int groupUpperBound) const;
+    double groupLowerBound, double groupUpperBound) const;
 
   void handleRemoval(Configuration& configuration, double groupLowerBound,
      double groupUpperBound) const;

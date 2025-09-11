@@ -109,10 +109,10 @@ void Output::storeSweep(Sweep sweep) {
 }
 
 void Output::writeAndClearSweepCache() {
-  for (int i = 0; i < sweepsCache.size(); i++) {
+  for (int i = 0; i < sweepsCache.size(); i++) { //TODO: If maxSweeps is reached, write out even if cache isn't full
     writeSweepsLine(sweepsCache[i]);
     if (input.outputInput.writeBondsPerType) {
-      writeBondsPerTypeLine(sweepsCache[i]);
+      writeBondsPerTypeLine(sweepsCache[i]); //TODO: THIS IS NOT WORKING FOR SOME REASON
     }
     if (input.outputInput.restarts) {
       writeRestartFile(); //TODO: Pass in configuration and iteration + 1. 
@@ -125,7 +125,6 @@ void Output::writeAndClearSweepCache() {
 // Functions to write out and read restart files
 //TODO: Allow user to simply create a RESTART file in the outdir during a run, and it will start writing RESTARTs 
 void Output::writeRestartFile() {
-  
   //TODO: Call a configuration public member function to write out the configuration, and pass in the next id.
 }
 
@@ -215,8 +214,10 @@ void Output::writeSweepsLine(const Sweep& sweep) {
   line << std::setw(width) << sweep.getId();
   line << std::setw(width) << sweep.getFinNumTimeGroups();
   line << std::setw(width) << sweep.getNumRejects();
+  line << std::setw(width) << sweep.getNumInserts();
   line << std::setw(width) << sweep.getNumRemoves();
   line << std::setw(width) << sweep.getNumBonds();
+  line << "\n";
 
   std::ofstream outFile(outDir / getSweepsFilename(), std::ios::app);
   outFile << line.str();

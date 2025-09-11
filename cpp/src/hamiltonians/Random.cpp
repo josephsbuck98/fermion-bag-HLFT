@@ -56,7 +56,7 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
 
 
 void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
-    int groupLowerBound, int groupUpperBound) const {
+    double groupLowerBound, double groupUpperBound) const {
       
   int bondSize = chooseWeightedRandInt(bondTypeProps);
   double tauToInsert = chooseUnifRandDoubWithBounds(
@@ -108,7 +108,7 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
 
 
 void Random::handleRemoval(Configuration& configuration, 
-    int groupLowerBound, int groupUpperBound) const {
+    double groupLowerBound, double groupUpperBound) const {
   std::vector<double> deletableTaus;
   std::set<double> taus = configuration.getTaus();
 

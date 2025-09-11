@@ -55,5 +55,6 @@ void Sweep::run(Configuration& configuration, const Lattice& lattice) {
 int calcNumUpdatesPerGroup(double scale, double beta, 
     int numSites, int numTimeGroups) {
   double width = beta  / numTimeGroups;
-  return scale * width * numSites;
+  int numUpdates = static_cast<int>(std::ceil(scale * width * numSites));
+  return numUpdates < 1 ? 1 : numUpdates;
 }
