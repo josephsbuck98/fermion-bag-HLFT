@@ -25,7 +25,7 @@ public:
       double lowerBound = tauGroupStarts[groupNum - 1];
       double upperBound = groupNum == tauGroupStarts.size() ? 
           configuration.getBeta() : tauGroupStarts[groupNum];
-
+          
       // Create Update classes and call their run functions 
       for (int i = 0; i < numUpdatesPerGroup; i++) {
         Update<HamiltonianType> update(lowerBound, upperBound);

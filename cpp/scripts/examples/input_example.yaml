@@ -8,7 +8,7 @@ control:
 
 output:
   out_sweeps_patience: 20
-  out_dir: out
+  out_dir: out #TODO: INCLUDE A FORCE OUTDIR CLEAR PARAM TO OVERWRITE. IF NOT TRUE, RUN ABORTS
   write_bonds_per_type: true
   restarts: false
 

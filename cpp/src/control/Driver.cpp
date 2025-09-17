@@ -58,6 +58,10 @@ void Driver::run(Configuration& configuration, const Lattice& lattice,
 
     //TODO: Log equilibration data and any other data.
   }
+  
+  // Force a final sweep writeout
+  output.writeAndClearSweepCache();
+
 }
 
 double calcError(int origVal, int newVal) {

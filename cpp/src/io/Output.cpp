@@ -105,17 +105,20 @@ void Output::storeSweep(Sweep sweep) {
 
   if (index == outSweepsPatience - 1) {
     writeAndClearSweepCache();
+    if (input.outputInput.restarts) {
+      writeRestartFile(); //TODO: Pass in configuration and iteration + 1. 
+    }
   }
 }
 
-void Output::writeAndClearSweepCache() {
-  for (int i = 0; i < sweepsCache.size(); i++) { //TODO: If maxSweeps is reached, write out even if cache isn't full
+void Output::writeAndClearSweepCache() { 
+  for (int i = 0; i < sweepsCache.size(); i++) { 
     writeSweepsLine(sweepsCache[i]);
-    if (input.outputInput.writeBondsPerType) {
+    if (input.outputInput.writeBondsPerType) { 
       writeBondsPerTypeLine(sweepsCache[i]); //TODO: THIS IS NOT WORKING FOR SOME REASON
     }
-    if (input.outputInput.restarts) {
-      writeRestartFile(); //TODO: Pass in configuration and iteration + 1. 
+    if (input.controlInput.maxSweeps - 1 == sweepsCache[i].getId()) {
+      break;
     }
   }
 }
