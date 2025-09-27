@@ -20,7 +20,7 @@ public:
   void storeSweep(Sweep newSweep);
   void writeAndClearSweepCache(); //TODO: Private
 
-  void writeRestartFile();
+  void writeRestartFiles(int currSweepId);
   void readRestartFile(Configuration configuration);
 
   void writeHeader();
@@ -35,8 +35,10 @@ public:
   void writeSweepsLine(const Sweep& sweep);
   void writeBondsPerTypeLine(const Sweep& sweep);
 
-private:
-  std::string createSeparator(int len, char character);
+  std::string getRestartPath(); //TODO: Make this return std::filesystem::path
+
+  private:
+  std::string createSeparator(int len, char character); //TODO: Reorganize these so they are grouped by common structure actions
   std::string createCenteredTitle(int lineLen, 
       const std::string& title, char spacer);
   std::string createParameterString(const InputParser::ParsedInput& input);

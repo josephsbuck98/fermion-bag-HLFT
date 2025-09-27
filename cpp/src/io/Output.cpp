@@ -2,11 +2,13 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <string>
 
 #include "Input.hpp"
 #include "Output.hpp"
+#include "RandomHelpers.hpp"
 
 
 
@@ -22,9 +24,7 @@ Output::Output(InputParser::ParsedInput input, std::string inFileName,
   createOutFiles(input.outputInput.outDirName, inFileName);
 
   // Write the headers for standard outfile and dat files
-  fs::path restartPath = 
-      outDir / keyFromValue<std::string, consts::OutFileType>
-      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::RESTART);
+  fs::path restartPath = getRestartPath();
   if (!(input.outputInput.restarts && fs::exists(restartPath))) {
     writeHeader();
     writeSweepsHeader();
@@ -47,7 +47,7 @@ void Output::createOutDir() {
     // Not restarting and outDir is present
     try {
       for (const auto& entry : fs::directory_iterator(outDir)) {
-        fs::remove_all(entry);
+        fs::remove_all(entry); //TODO: Input parameter to force removal. If not true, throw error
       }
     } catch (const fs::filesystem_error& err) {
       throw std::runtime_error(std::string("Error clearing directory: ") 
@@ -58,7 +58,7 @@ void Output::createOutDir() {
 }
 
 void Output::createOutFiles(std::string outDirName, std::string inFileName) {
-  bool throwError = false;
+  bool throwError = false; //TODO: Replace keyFromValue with funcs at very bottom
   
   std::string stdOutPostfix = keyFromValue<std::string, consts::OutFileType>
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::STD_OUT_POSTFIX);
@@ -105,20 +105,23 @@ void Output::storeSweep(Sweep sweep) {
 
   if (index == outSweepsPatience - 1) {
     writeAndClearSweepCache();
-    if (input.outputInput.restarts) {
-      writeRestartFile(); //TODO: Pass in configuration and iteration + 1. 
-    }
   }
+
+  if (fs::exists(getRestartPath())) input.outputInput.restarts = true;
 }
 
-void Output::writeAndClearSweepCache() { 
-  for (int i = 0; i < sweepsCache.size(); i++) { 
+void Output::writeAndClearSweepCache() {
+  for (int i = 0; i < sweepsCache.size(); i++) {
     writeSweepsLine(sweepsCache[i]);
     if (input.outputInput.writeBondsPerType) { 
       writeBondsPerTypeLine(sweepsCache[i]); //TODO: THIS IS NOT WORKING FOR SOME REASON
     }
-    if (input.controlInput.maxSweeps - 1 == sweepsCache[i].getId()) {
-      break;
+    if (input.controlInput.maxSweeps - 1 == sweepsCache[i].getId() ||
+        sweepsCache.size() - 1 == i) {
+      if (input.outputInput.restarts) { 
+        writeRestartFiles(sweepsCache[i].getId());
+      }
+      break; // Should break whether or not restarts are written
     }
   }
 }
@@ -126,12 +129,28 @@ void Output::writeAndClearSweepCache() {
 
 
 // Functions to write out and read restart files
-//TODO: Allow user to simply create a RESTART file in the outdir during a run, and it will start writing RESTARTs 
-void Output::writeRestartFile() {
-  //TODO: Call a configuration public member function to write out the configuration, and pass in the next id.
+void Output::writeRestartFiles(int currSweepId) {
+  std::cout << "Writing restart file..." << std::endl;
+
+  std::ofstream restartStream(getRestartPath());
+  if (!restartStream) {
+    // Log failure to standard output (not output file)
+    std::cout << "Failed to write RESTART file at sweep " << 
+      currSweepId << std::endl;
+    return;
+  }
+
+  std::mt19937_64& rng = globalRNG();
+
+  restartStream << currSweepId << "\n";
+  restartStream << configuration << "\n"; //TODO: Make sure you implement >> as well so reading in is easy.
+
+  restartStream << input.controlInput.randomSeed << "\n";
+  restartStream << rng << "\n";
+
 }
 
-void Output::readRestartFile(Configuration configuration) {
+void Output::readRestartFile(Configuration configuration) { //TODO: MOVE READ RESTART FILE TO AN INPUT FILE?????
   //TODO: Implement checks for RESTART presence. If not present, start from 
   //TODO: scratch. If present, load into configuration, return start_sweep, and
   //TODO: delete RESTART. Ensure startSweeps is less than maxSweeps. Throw 
@@ -143,6 +162,8 @@ void Output::readRestartFile(Configuration configuration) {
 // Standard write-out functions
 void Output::writeHeader() {
   std::ostringstream header;
+
+  //TODO: IF RESTARTS IS SELECTED, OUTPUT A MESSAGE SAYING YOU MUST USE THE EXACT SAME INPUT YAML AS THE ORIGINAL RUNS.
 
   // Timestamp
   auto now = std::chrono::system_clock::now();
@@ -291,4 +312,9 @@ std::string Output::getSweepsFilename() {
 std::string Output::getBondsPerTypeFilename() {
   return keyFromValue<std::string, consts::OutFileType>
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::BONDS_PER_TYPE);
+}
+
+std::string Output::getRestartPath() {
+  return outDir / keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::RESTART);
 }

@@ -157,15 +157,55 @@ bool Configuration::operator!=(const Configuration& other) const {
   return !(*this == other);
 }
 
-std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
-  std::map<double, Bond> bonds = configuration.getBonds();
-  os << "Configuration:{\n";
-  for (auto it = bonds.begin(); it != bonds.end(); ++it) {
-    os << "Tau: " << it->first << ", " << it ->second;
+std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {  
+  os << "[CONFIGURATION]" << std::endl;
+  os << "[TOLERANCE] " << configuration.getTolerance() << std::endl;
+  os << "[BETA] " << configuration.getBeta() << std::endl;
+  os << "[AVG_NBONDS_PER_GROUP] " << configuration.getAvgNbondsPerGroup() << std::endl;
+  
+  std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
+  os << "[TAU_GROUP_STARTS]" << std::endl;
+  for (int i = 0; i < tauGroupStarts.size(); i++) {
+    if (i % 5 == 0 && i != 0) {
+      os << std::endl;
+    }
+    os << tauGroupStarts[i] << " ";
   }
-  os << "}\n\n";
+  os << std::endl;
+
+  std::map<int, int> bondsPerType = configuration.getBondsPerType();
+  os << "[BONDS_PER_TYPE]" << std::endl;
+  for (const auto& [key, value] : bondsPerType) {
+    os << key << " " << value << std::endl;
+  }
+  
+  std::set<double> taus = configuration.getTaus();
+  os << "[TAUS]" << std::endl;
+  int i = 0;
+  for (const auto& tau : taus) {
+    std::cout << i << " " << taus.size() - 1 << std::endl;
+    if (i % 5 == 0 && i != 0) { // Don't subtract 1 from taus.size()
+      os << std::endl;
+    }
+    os << tau << " ";
+    i += 1;
+  }
+  os << std::endl;
+
+  std::map<double, Bond> bonds = configuration.getBonds();
+  os << "[BONDS]" << std::endl;
+  for (const auto& [key, value] : bonds) {
+    os << key << " " << value << std::endl;
+  }
+  
   return os;
 }
+
+std::istream& operator>>(std::istream& is, const Configuration& configuration) {
+  //TODO: Implement this read in.
+  return is;
+}
+
 
 double Configuration::truncateToTolerance(double key) const {
   return std::round(key / tolerance) * tolerance;

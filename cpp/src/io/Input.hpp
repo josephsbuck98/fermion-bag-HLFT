@@ -21,7 +21,7 @@ struct ControlInput {
   int equilSweepsPatience = 3;
   double equilSweepsTol = 0.1;
   double scaleNumUpdates = 1;
-  int maxSweeps = 100; //TODO: Change to camel case
+  int maxSweeps = 100; 
   int initNumTimeGroups = 5;
   uint64_t randomSeed = 0;
 

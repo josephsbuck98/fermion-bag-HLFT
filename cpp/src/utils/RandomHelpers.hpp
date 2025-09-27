@@ -1,29 +1,31 @@
+#pragma once
+
 #include <random>
 #include <algorithm>
 #include <map>
 #include <vector>
 
-inline std::mt19937_64& globalRNG() {
-  //TODO: Use the randomSeed from user input 
+inline std::mt19937_64& globalRNG(uint64_t seed = 0, bool force = false) {
+  static thread_local std::mt19937_64 rng;
+  static thread_local bool seeded = false;
 
-  // static thread_local std::mt19937_64 rng;
-  //   static thread_local bool seeded = false;
+  if (!seeded || force) {
+    if (seed == 0) {
+      // Fall back to nondeterministic
+      rng.seed(std::random_device{}());
+    } else {
+      // Deterministic
+      rng.seed(seed);
+    }
+    seeded = true;
+  }
 
-  //   if (!seeded || force) {
-  //       if (seed == 0) {
-  //           // fallback: nondeterministic
-  //           rng.seed(std::random_device{}());
-  //       } else {
-  //           // deterministic
-  //           rng.seed(seed);
-  //       }
-  //       seeded = true;
-  //   }
-
-  //   return rng;
-  
-  static thread_local std::mt19937_64 rng{std::random_device{}()};
   return rng;
+}
+
+inline void restoreRNG(int seed, std::mt19937_64 state) {
+  std::mt19937_64& rng = globalRNG(seed, true);
+  rng = state;
 }
 
 inline int bernoulli(double p) {

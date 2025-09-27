@@ -6,8 +6,11 @@
 #include "InputParser.hpp"
 #include "Lattice.hpp"
 #include "Output.hpp"
+#include "RandomHelpers.hpp"
 
 //TODO: SHOULD I BE PASSING ALL INPUT OBJECTS AS CONST & SO COPIES AREN'T BEING MADE EVERYWHERE?
+
+
 
 int main(int argc, char* argv[]) {
   // Ensure you get an input file
@@ -18,32 +21,71 @@ int main(int argc, char* argv[]) {
 
 
   // Read in the inputs and handle errors
-  InputParser::ParsedInput input;
   std::string filename = argv[1];
   std::cout << "Reading input file..." << std::endl;
+  InputParser::ParsedInput input;
   try {
     input = InputParser::parseInputFile(filename);
   } catch (const std::exception& e) {
-    std::cerr << "Error parsing input file: " << e.what() << "\n";
+    std::cerr << "Error parsing input files: " << e.what() << "\n";
     return 1;
   }
   std::cout << "Input parameters successfully imported and validated.\n\n";
 
 
-  // Generate initial Configuration, Lattice, and Hamiltonian classes
+
+  // Initialize Configuration, Lattice, and Output classes
   std::cout << "Generating lattice and initial configuration.\n"; 
   Configuration configuration = Configuration(input.configurationInput);
   Lattice lattice = Lattice(input.latticeInput);
-  std::cout << "Finished generating lattice and initial configuration.\n\n";
-
-
-  // Initialize the output directory and load restart file (if user specified)
   Output output(input, filename, configuration);
+  std::cout << "Finished initializing configuration, lattice, and output.\n\n";
+
+
+
+  // Init restartInput, load RESTART if spec, overwrite userin if RESTART exists
+  RestartInputParser::ParsedRestartInput restartInput;
+  std::string restartPath = output.getRestartPath();
+  if (fs::exists(restartPath)) input.outputInput.restarts = true;
   if (input.outputInput.restarts) {
-    output.readRestartFile(configuration);
+    restartInput = RestartInputParser::parseRestartInputFile(restartPath);
   }
 
+
+
+  // If restart was populated, use its data accordingly
+  if (restartInput.restartPopulated) {
+    //TODO: Store NEXT sweep id. Note that on restart, it is possible that parameters such as write out frequency were changed, which will break current write out logic. Also, pass in starting sweep to Driver.run.
+    int startSweepId = restartInput.currSweepId + 1;
+    configuration = restartInput.configuration;
+    restoreRNG(restartInput.seed, restartInput.state);
+
+    //TODO: IF RESTART WAS POPULATED AND INPUT IN OUTDIR IS NOT EXACTLY THE SAME AS INPUT YAML IN HOME, PRINT WARNING TO USE THE INPUT IN OUTDIR AND RETURN
+
+  } else {
+    globalRNG(input.controlInput.randomSeed);
+  }
+
+
+
+
+
+
+
+
+
+
+
+  // std::exit(EXIT_FAILURE);
+
+
+
+
   
+
+
+
+
   // Create Driver object and call its .run() function.
   Driver driver = Driver(input);
   driver.run(configuration, lattice, output);

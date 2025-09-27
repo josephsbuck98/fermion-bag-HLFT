@@ -9,6 +9,7 @@
 
 class Configuration {
 public:
+  Configuration() = default;
   Configuration(ConfigurationInput input);
 
   void setTauGroupStarts(std::vector<double> newTauGroupStarts);
@@ -38,6 +39,7 @@ public:
   bool operator!=(const Configuration& other) const;
 
   friend std::ostream& operator<<(std::ostream& os, const Configuration& configuration);
+  friend std::istream& operator>>(std::istream& is, const Configuration& configuration);
 
 private:
   double truncateToTolerance(double key) const;

@@ -1,8 +1,14 @@
 #pragma once
 
-#include <string>
+#include <fstream>
 #include <map>
+#include <random>
+#include <string>
+
+#include "Configuration.hpp"
 #include "Input.hpp"
+
+
 
 namespace InputParser {
 
@@ -48,6 +54,7 @@ template<>
 struct convert<InputParser::ParsedInput> {
   static bool decode(const Node& node, InputParser::ParsedInput& rhs) {
     if (!node.IsMap()) return false;
+
     if (node["control"]) rhs.controlInput = node["control"].as<ControlInput>();
     if (node["output"]) rhs.outputInput = node["output"].as<OutputInput>();
     if (node["lattice"]) rhs.latticeInput = node["lattice"].as<LatticeInput>();
@@ -60,4 +67,26 @@ struct convert<InputParser::ParsedInput> {
     return true;
   }
 };
+}
+
+
+
+namespace RestartInputParser {
+
+  struct ParsedRestartInput {
+    bool restartPopulated = false;
+
+    Configuration configuration;
+    int currSweepId;
+
+    uint64_t seed = 0;
+    std::mt19937_64 state;
+
+    void validate() const {
+      //TODO: Implement validation of data read in
+    }
+  };
+
+  ParsedRestartInput parseRestartInputFile(std::string restartPath); //TODO: Change input to std::filesystem::path
+
 }
