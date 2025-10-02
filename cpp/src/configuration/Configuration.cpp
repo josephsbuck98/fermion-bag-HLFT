@@ -183,7 +183,7 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
   os << "[TAUS]" << std::endl;
   int i = 0;
   for (const auto& tau : taus) {
-    std::cout << i << " " << taus.size() - 1 << std::endl;
+    // std::cout << i << " " << taus.size() - 1 << std::endl;
     if (i % 5 == 0 && i != 0) { // Don't subtract 1 from taus.size()
       os << std::endl;
     }

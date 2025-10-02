@@ -38,20 +38,58 @@ void Random::normalizeBondTypeProps() {
 }
 
 
+// double getAcceptRemoveProb(int ns, double beta, int k, int ntg) {
+double getAcceptRemoveProb(int ns, double dtau, int nbr) {
+  // double prob = k * ntg / (2 * ns * beta);
+  double prob = nbr / (2 * ns * dtau);
+  return prob > 1.0 ? 1.0 : prob;
+}
+
+
+// double getAcceptInsertProb(int ns, double beta, int k, int ntg) {
+double getAcceptInsertProb(int ns, double dtau, int nbr) {
+  // double prob = 2 * ns * beta / ((k + 1) * ntg);
+  double prob = nbr == 0 ? 1 : 2 * ns * dtau / nbr;
+  return prob > 1.0 ? 1.0 : prob;
+}
+
+
 consts::BondActionType Random::applyUpdate(Configuration& configuration, const Lattice& lattice,
     double groupLowerBound, double groupUpperBound) const {
+
+  //TODO: REFACTOR
+  //TODO: Don't do this at every removal
+  std::set<double> taus = configuration.getTaus();
+  int nbr = 0;
+  auto it = taus.begin();
+  while (it != taus.end()) {
+    if (*it > groupUpperBound) {
+      break;
+    }
+    if (*it >= groupLowerBound) {
+      nbr += 1;
+    }
+    ++it;
+  }
   
-  bool acceptResult = bernoulli(acceptProb);
-  if (!acceptResult) return consts::BondActionType::REJECTION;
 
   bool insertResult = bernoulli(insertProb);
   if (insertResult) {
-    handleInsert(configuration, lattice, groupLowerBound, groupUpperBound);
-    return consts::BondActionType::INSERTION;
+    double tempAcceptInsertProb = getAcceptInsertProb(lattice.getNumSites(consts::DirsType::X), groupUpperBound - groupLowerBound, nbr);
+    bool tempAcceptInsert = bernoulli(tempAcceptInsertProb);
+    if (tempAcceptInsert) {
+      handleInsert(configuration, lattice, groupLowerBound, groupUpperBound);
+      return consts::BondActionType::INSERTION;
+    }
   } else {
-    handleRemoval(configuration, groupLowerBound, groupUpperBound);
-    return consts::BondActionType::REMOVAL;
+    double tempAcceptRemoveProb = getAcceptRemoveProb(lattice.getNumSites(consts::DirsType::X), groupUpperBound - groupLowerBound, nbr);
+    bool tempAcceptRemove = bernoulli(tempAcceptRemoveProb);
+    if (tempAcceptRemove) {
+      handleRemoval(configuration, groupLowerBound, groupUpperBound);
+      return consts::BondActionType::REMOVAL;
+    }
   }
+  return consts::BondActionType::REJECTION;
 }
 
 
@@ -112,9 +150,10 @@ void Random::handleRemoval(Configuration& configuration,
   std::vector<double> deletableTaus;
   std::set<double> taus = configuration.getTaus();
 
+  //TODO: Don't do this at every removal
   auto it = taus.begin();
   while (it != taus.end()) {
-    if (*it > groupLowerBound && *it < groupUpperBound) {
+    if (*it >= groupLowerBound && *it < groupUpperBound) {
       deletableTaus.push_back(*it);
     }
     ++it;
