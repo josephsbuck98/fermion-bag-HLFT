@@ -10,7 +10,8 @@ public:
   TVModel(InputParser::ParsedInput input);
 
   consts::BondActionType applyUpdate(Configuration& configuration, 
-      const Lattice& lattice, int groupLowerBound, int groupUpperBound) const;
+      const Lattice& lattice, int groupLowerBound, int groupUpperBound, 
+      int groupNum) const;
 
 private:
 

@@ -41,7 +41,6 @@ void Driver::run(Configuration& configuration, const Lattice& lattice,
   int outSweepsPatience = input.outputInput.outSweepsPatience;
   for (int sweep_iter = 0; sweep_iter < maxSweeps; sweep_iter++) {
     // Equilibration actions
-    //TODO: LOG EQUILIBRATION DATA
     if (equilibrationSweeps < 0) { // If equilibration hasn't been reached...
       updateEquilTestingParams(configuration.getNumBonds());
     }

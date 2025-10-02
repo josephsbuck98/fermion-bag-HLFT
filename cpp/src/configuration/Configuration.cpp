@@ -18,6 +18,22 @@ Configuration::Configuration(ConfigurationInput input) {
 
 void Configuration::setTauGroupStarts(std::vector<double> newTauGroupStarts) {
   tauGroupStarts = newTauGroupStarts; 
+
+  std::vector<std::pair<double, int>> updatedTaus;
+
+  for (const auto& tau : taus) {
+    double tauVal = tau.first;
+
+    int groupNum = 0;
+    while (groupNum < tauGroupStarts.size() && tauVal >= tauGroupStarts[groupNum]) {
+      groupNum++;
+    }
+
+    updatedTaus.push_back({tauVal, groupNum});
+  }
+
+  taus.clear();
+  taus.insert(updatedTaus.begin(), updatedTaus.end());
 }
 
 const std::vector<double>& Configuration::getTauGroupStarts() const {
@@ -25,7 +41,7 @@ const std::vector<double>& Configuration::getTauGroupStarts() const {
 }
 
 
-std::set<double> Configuration::getTaus() const {
+std::set<std::pair<double, int>> Configuration::getTaus() const {
   return taus;
 }
 
@@ -53,12 +69,13 @@ std::vector<double> generateTauGroupStarts(double beta, int initNumTimeGroups) {
   return tauGroupStarts;
 }
 
-void Configuration::addBond(double tau, Bond& bond) {
-  double tauTrunc = truncateToTolerance(tau);
+void Configuration::addBond(std::pair<double, int> tau, Bond& bond) {
+  std::pair<double, int> tauTrunc = std::pair<double, int>
+      (truncateToTolerance(tau.first), tau.second);
   auto retSetPair = taus.insert(tauTrunc);
-  auto retMapPair = bonds.insert({tauTrunc, bond});
+  auto retMapPair = bonds.insert({tauTrunc.first, bond});
 
-  std::string eMS = "Configuration insert failed: tau=" + std::to_string(tau);
+  std::string eMS = "Insert failed: tau=" + std::to_string(tau.first);
   if (!retSetPair.second) {
     if (!retMapPair.second) {
       throw std::runtime_error(eMS + " already exists in both taus and bonds.");
@@ -71,7 +88,8 @@ void Configuration::addBond(double tau, Bond& bond) {
   bondsPerType[bond.getNumSites()]++;
 }
 
-void Configuration::addBonds(std::vector<double> newTaus, std::vector<Bond> newBonds) {
+void Configuration::addBonds(std::vector<std::pair<double, int>> newTaus, 
+      std::vector<Bond> newBonds) {
   if (newTaus.size() != newBonds.size()) {
     throw std::runtime_error("Lengths of newTaus and newBonds must be the "
                   "same, but were " + std::to_string(newTaus.size()) + " and"
@@ -86,20 +104,21 @@ void Configuration::addBonds(std::vector<double> newTaus, std::vector<Bond> newB
   }
 }
 
-void Configuration::delBond(double tau) {
-  double tauTrunc = truncateToTolerance(tau);
+void Configuration::delBond(std::pair<double, int> tau) {
+  std::pair<double, int> tauTrunc = 
+      std::pair<double, int>(truncateToTolerance(tau.first), tau.second);
 
   int numSites = 0; // Get the number of sites associated with the bond
-  auto it = bonds.find(tauTrunc);
+  auto it = bonds.find(tauTrunc.first);
   if (it != bonds.end()) {
     numSites = it->second.getNumSites();
   }
 
   size_t retSet = taus.erase(tauTrunc);
-  size_t retMap = bonds.erase(tauTrunc);
+  size_t retMap = bonds.erase(tauTrunc.first);
   if (numSites == 0 || retSet == 0 || retMap == 0) {
     std::runtime_error err("Cannot delete element with tau"
-              "=" + std::to_string(tau) + ". Element does not exist.");
+              "=" + std::to_string(tau.first) + ". Element does not exist.");
     std::cout << err.what() << std::endl;
     throw err;
   }
@@ -110,7 +129,7 @@ void Configuration::delBond(double tau) {
 
 void Configuration::delBonds() {
   bonds = std::map<double, Bond>();
-  taus = std::set<double>();
+  taus = std::set<std::pair<double, int>>();
   bondsPerType = std::map<int, int>();
 }
 
@@ -179,7 +198,7 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
     os << key << " " << value << std::endl;
   }
   
-  std::set<double> taus = configuration.getTaus();
+  std::set<std::pair<double, int>> taus = configuration.getTaus();
   os << "[TAUS]" << std::endl;
   int i = 0;
   for (const auto& tau : taus) {
@@ -187,7 +206,7 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
     if (i % 5 == 0 && i != 0) { // Don't subtract 1 from taus.size()
       os << std::endl;
     }
-    os << tau << " ";
+    os << tau.first << " " << tau.second << " ";
     i += 1;
   }
   os << std::endl;

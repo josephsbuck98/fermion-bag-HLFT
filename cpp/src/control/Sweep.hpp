@@ -20,7 +20,7 @@ public:
 
     std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
     // Loop over each time group
-    for (int groupNum = 1; groupNum <= tauGroupStarts.size(); groupNum++) {
+    for (int groupNum = 0; groupNum <= tauGroupStarts.size() - 1; groupNum++) {
       // Get the time bounds for the group
       double lowerBound = tauGroupStarts[groupNum - 1];
       double upperBound = groupNum == tauGroupStarts.size() ? 
@@ -28,7 +28,7 @@ public:
           
       // Create Update classes and call their run functions 
       for (int i = 0; i < numUpdatesPerGroup; i++) {
-        Update<HamiltonianType> update(lowerBound, upperBound);
+        Update<HamiltonianType> update(lowerBound, upperBound, groupNum);
         auto updateType = update.run(configuration, lattice, hamiltonian);
         switch (updateType) {
           case consts::BondActionType::REJECTION: finNumRejects++; break;

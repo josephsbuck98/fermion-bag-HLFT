@@ -15,7 +15,7 @@ public:
   void setTauGroupStarts(std::vector<double> newTauGroupStarts);
   const std::vector<double>& getTauGroupStarts() const;
 
-  std::set<double> getTaus() const;
+  std::set<std::pair<double, int>> getTaus() const;
 
   double getTolerance() const;
 
@@ -23,9 +23,9 @@ public:
 
   int calcNumTimeGroups(int initNumTimeGroups);
 
-  void addBond(double tau, Bond& newBond);
-  void addBonds(std::vector<double> taus, std::vector<Bond> newBonds);
-  void delBond(double tau);
+  void addBond(std::pair<double, int> tau, Bond& newBond);
+  void addBonds(std::vector<std::pair<double, int>> newTaus, std::vector<Bond> newBonds);
+  void delBond(std::pair<double, int> tau);
   void delBonds();
 
   const Bond& getBond(double tau) const;
@@ -48,7 +48,8 @@ private:
   double beta;
 
   std::map<double, Bond> bonds;
-  std::set<double> taus;
+  // std::set<double> taus;
+  std::set<std::pair<double, int>> taus;
 
   int avgNbondsPerGroup;
   std::vector<double> tauGroupStarts;
