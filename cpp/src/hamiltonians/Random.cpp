@@ -38,18 +38,14 @@ void Random::normalizeBondTypeProps() {
 }
 
 
-// double getAcceptRemoveProb(int ns, double beta, int k, int ntg) {
-double getAcceptRemoveProb(int ns, double dtau, int nbr) {
-  // double prob = k * ntg / (2 * ns * beta);
-  double prob = nbr / (2 * ns * dtau);
-  return prob > 1.0 ? 1.0 : prob;
-}
-
-
-// double getAcceptInsertProb(int ns, double beta, int k, int ntg) {
-double getAcceptInsertProb(int ns, double dtau, int nbr) {
-  // double prob = 2 * ns * beta / ((k + 1) * ntg);
-  double prob = nbr == 0 ? 1 : 2 * ns * dtau / nbr;
+double getAcceptProb(consts::BondActionType actionType, int numSites, 
+    double tauGroupWidth, int numBondsInRegion) {
+  double prob;
+  if (actionType == consts::BondActionType::INSERTION) {
+    prob = numBondsInRegion / (2 * numSites * tauGroupWidth); //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES
+  } else if (actionType == consts::BondActionType::REMOVAL) {
+    prob = 2 * numSites * tauGroupWidth / numBondsInRegion;
+  } 
   return prob > 1.0 ? 1.0 : prob;
 }
 
@@ -71,20 +67,23 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
     }
     ++it;
   }
-  
 
+  int numSites = lattice.getNumSites(consts::DirsType::X);
+  double tauGroupWidth = groupUpperBound - groupLowerBound;
   bool insertResult = bernoulli(insertProb);
   if (insertResult) {
-    double tempAcceptInsertProb = getAcceptInsertProb(lattice.getNumSites(consts::DirsType::X), groupUpperBound - groupLowerBound, nbr);
-    bool tempAcceptInsert = bernoulli(tempAcceptInsertProb);
-    if (tempAcceptInsert) {
+    double acceptInsertProb = getAcceptProb(
+        consts::BondActionType::INSERTION, numSites, tauGroupWidth, nbr);
+    bool acceptInsert = bernoulli(acceptInsertProb);
+    if (acceptInsert) {
       handleInsert(configuration, lattice, groupLowerBound, groupUpperBound);
       return consts::BondActionType::INSERTION;
     }
   } else {
-    double tempAcceptRemoveProb = getAcceptRemoveProb(lattice.getNumSites(consts::DirsType::X), groupUpperBound - groupLowerBound, nbr);
-    bool tempAcceptRemove = bernoulli(tempAcceptRemoveProb);
-    if (tempAcceptRemove) {
+    double acceptRemoveProb = getAcceptProb(
+        consts::BondActionType::REMOVAL, numSites, tauGroupWidth, nbr);
+    bool acceptRemove = bernoulli(acceptRemoveProb);
+    if (acceptRemove) {
       handleRemoval(configuration, groupLowerBound, groupUpperBound);
       return consts::BondActionType::REMOVAL;
     }
