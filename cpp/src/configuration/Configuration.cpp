@@ -177,10 +177,10 @@ bool Configuration::operator!=(const Configuration& other) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {  
-  os << "[CONFIGURATION]" << std::endl;
-  os << "[TOLERANCE] " << configuration.getTolerance() << std::endl;
-  os << "[BETA] " << configuration.getBeta() << std::endl;
-  os << "[AVG_NBONDS_PER_GROUP] " << configuration.getAvgNbondsPerGroup() << std::endl;
+  os << "[[CONFIGURATION]]" << std::endl;
+  os << "[TOLERANCE]\n" << configuration.getTolerance() << std::endl;
+  os << "[BETA]\n" << configuration.getBeta() << std::endl;
+  os << "[AVG_NBONDS_PER_GROUP]\n" << configuration.getAvgNbondsPerGroup() << std::endl;
   
   std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
   os << "[TAU_GROUP_STARTS]" << std::endl;
@@ -200,21 +200,26 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
   
   std::set<std::pair<double, int>> taus = configuration.getTaus();
   os << "[TAUS]" << std::endl;
+  int numTaus = taus.size();
   int i = 0;
   for (const auto& tau : taus) {
-    // std::cout << i << " " << taus.size() - 1 << std::endl;
-    if (i % 5 == 0 && i != 0) { // Don't subtract 1 from taus.size()
+    os << "(" << tau.first << ", " << tau.second << ")";
+    if (i != numTaus - 1) os << ", ";
+    if ((i + 1) % 5 == 0) { // Don't subtract 1 from taus.size()
       os << std::endl;
     }
-    os << tau.first << " " << tau.second << " ";
     i += 1;
   }
   os << std::endl;
 
   std::map<double, Bond> bonds = configuration.getBonds();
   os << "[BONDS]" << std::endl;
+  int numBonds = configuration.getNumBonds();
+  i = 0;
   for (const auto& [key, value] : bonds) {
-    os << key << " " << value << std::endl;
+    os << key << std::endl << value;
+    if (i != numBonds - 1) os << std::endl;
+    i++;
   }
   
   return os;

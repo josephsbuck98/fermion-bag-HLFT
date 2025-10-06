@@ -142,11 +142,11 @@ void Output::writeRestartFiles(int currSweepId) {
 
   std::mt19937_64& rng = globalRNG();
 
-  restartStream << currSweepId << "\n";
-  restartStream << configuration << "\n"; //TODO: Make sure you implement >> as well so reading in is easy.
+  restartStream << "<<<\n[[CURR_SWEEP_ID]]\n" << currSweepId << "\n";
+  restartStream << "<<<\n" << configuration << "\n"; //TODO: Make sure you implement >> as well so reading in is easy.
 
-  restartStream << input.controlInput.randomSeed << "\n";
-  restartStream << rng << "\n";
+  restartStream << "<<<\n[[RANDOM_SEED]]\n" << input.controlInput.randomSeed << "\n";
+  restartStream << "<<<\n[[RNG_STATE]]\n" << rng << "\n";
 
 }
 
