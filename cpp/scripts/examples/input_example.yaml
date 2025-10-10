@@ -3,7 +3,7 @@ control:
   equil_sweeps_tol: 0.1
   scale_num_updates: 1
   max_sweeps: 100
-  init_num_time_groups: 5     # Initial number of time groups. 
+  init_num_time_groups: 5    #TODO: WHY DOES THE LAST TIME GROUP ALWAYS HAVE SO FEW BONDS IN IT? I THINK THAT THERE MIGHT BE AN ISSUE WITH TIME GROUP INDEX STARTING FROM 1 VERSUS 0. 
   random_seed: 0
 
 output:

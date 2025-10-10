@@ -25,7 +25,10 @@ void Configuration::setTauGroupStarts(std::vector<double> newTauGroupStarts) {
     double tauVal = tau.first;
 
     int groupNum = 0;
-    while (groupNum < tauGroupStarts.size() && tauVal >= tauGroupStarts[groupNum]) {
+    while (true) {
+      if (groupNum == tauGroupStarts.size() - 1) break;
+      if ((tauVal >= tauGroupStarts[groupNum]) && 
+          (tauVal < tauGroupStarts[groupNum + 1])) break;
       groupNum++;
     }
 
@@ -200,7 +203,7 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
     }
     os << tauGroupStarts[i] << " ";
   }
-  os << std::endl;
+  os << std::endl; //TODO: HANDLE WHEN THIS OUTPUTS A BLANK LINE
 
   std::map<int, int> bondsPerType = configuration.getBondsPerType();
   os << "[BONDS_PER_TYPE]" << std::endl;
@@ -214,21 +217,14 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
   std::set<std::pair<double, int>> taus = configuration.getTaus();
   os << "[TAUS]" << std::endl;
   int numTaus = taus.size();
-  int i = 0;
   for (const auto& tau : taus) {
-    os << "(" << tau.first << ", " << tau.second << ")";
-    if (i != numTaus - 1) os << ", ";
-    // if ((i + 1) % 5 == 0) {
-    os << std::endl;
-    // }
-    i += 1;
+    os << tau.first << " " << tau.second << std::endl;
   }
-  os << std::endl;
 
   std::map<double, Bond> bonds = configuration.getBonds();
   os << "[BONDS]" << std::endl;
   int numBonds = configuration.getNumBonds();
-  i = 0;
+  int i = 0;
   for (const auto& [key, value] : bonds) {
     os << key << std::endl << value;
     if (i != numBonds - 1) os << std::endl; //TODO: MIGHT NOT NEED THIS IF IT'S ADDING A BLANK LINE
@@ -275,7 +271,7 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
           }
         } else { //TODO: Adjust so all the ifs that use this form can use the same func. Use template func probably? Or just ifs inside of the inner while.
           is.seekg(pos);
-          continue;
+          break;
         }
       }
     } else if (title == "BONDS_PER_TYPE") {
@@ -291,7 +287,7 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
           configuration.bondsPerType[key] = val;
         } else {
           is.seekg(pos);
-          continue;
+          break;
         }
       }
     } else if (title == "TAUS") {
@@ -301,15 +297,13 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
           return is;
         }
         if (line.find("[") == std::string::npos) {
-          char ch; int timeGroupInd; double tauVal;
+          int timeGroupInd; double tauVal;
           std::istringstream ss(line);
-          ss >> ch; //TOOD: CHANGE OUTPUTTING AND READING IN SO THAT YOU DON'T NEED TO WORRY ABOUT "(", ",", AND ")".
-          ss >> tauVal; ss >> ch;
-          ss >> timeGroupInd; ss >> ch;
+          ss >> tauVal; ss >> timeGroupInd;
           configuration.taus.insert(std::pair<double, int>(tauVal, timeGroupInd));
         } else {
           is.seekg(pos);
-          continue;
+          break;
         }
       }
     } else if (title == "BONDS") {
@@ -318,7 +312,7 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
         if (!std::getline(is, line)) {
           return is;
         }
-        if (line.find("[") ==- std::string::npos) {
+        if (line.find("[") == std::string::npos) {
           std::istringstream ss(line);
 
           double tau;
@@ -340,7 +334,7 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
           configuration.bonds.at(tau) = Bond(inds);
         } else {
           is.seekg(pos);
-          continue;
+          break;
         }
       }
     } else {

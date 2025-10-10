@@ -20,11 +20,11 @@ public:
 
     std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
     // Loop over each time group
-    for (int groupNum = 0; groupNum <= tauGroupStarts.size() - 1; groupNum++) {
+    for (int groupNum = 0; groupNum < tauGroupStarts.size(); groupNum++) {
       // Get the time bounds for the group
-      double lowerBound = tauGroupStarts[groupNum - 1];
-      double upperBound = groupNum == tauGroupStarts.size() ? 
-          configuration.getBeta() : tauGroupStarts[groupNum];
+      double lowerBound = tauGroupStarts[groupNum];
+      double upperBound = groupNum == tauGroupStarts.size() - 1 ? 
+          configuration.getBeta() : tauGroupStarts[groupNum + 1];
           
       // Create Update classes and call their run functions 
       for (int i = 0; i < numUpdatesPerGroup; i++) {

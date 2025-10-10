@@ -54,7 +54,7 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
     double groupLowerBound, double groupUpperBound, int groupNum) const {
 
   //TODO: REFACTOR
-  //TODO: Don't do this at every removal
+  //TODO: Don't do this at every removal. Can do once before this and pass in info.
   std::set<std::pair<double, int>> taus = configuration.getTaus();
   int nbr = 0;
   auto it = taus.begin();
@@ -70,7 +70,7 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
 
   int numSites = lattice.getNumSites(consts::DirsType::X);
   double tauGroupWidth = groupUpperBound - groupLowerBound;
-  bool insertResult = bernoulli(insertProb);
+  bool insertResult = bernoulli(insertProb); //TODO: ON FIRST SWEEP, THIS ALWAYS RETURNS FALSE. WHY???
   if (insertResult) {
     double acceptInsertProb = getAcceptProb(
         consts::BondActionType::INSERTION, numSites, tauGroupWidth, nbr);
