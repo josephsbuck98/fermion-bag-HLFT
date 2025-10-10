@@ -21,7 +21,6 @@ public:
   void writeAndClearSweepCache(); //TODO: Private
 
   void writeRestartFiles(int currSweepId);
-  void readRestartFile(Configuration configuration);
 
   void writeHeader();
   void writeSweepsHeader();

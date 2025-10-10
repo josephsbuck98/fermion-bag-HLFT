@@ -142,19 +142,13 @@ void Output::writeRestartFiles(int currSweepId) {
 
   std::mt19937_64& rng = globalRNG();
 
-  restartStream << "<<<\n[[CURR_SWEEP_ID]]\n" << currSweepId << "\n";
-  restartStream << "<<<\n" << configuration << "\n"; //TODO: Make sure you implement >> as well so reading in is easy.
+  restartStream << "[[CURR_SWEEP_ID]]\n" << currSweepId << "\n";
+  
+  restartStream << "[[RANDOM_SEED]]\n" << input.controlInput.randomSeed << "\n";
+  restartStream << "[[RNG_STATE]]\n" << rng << "\n";
 
-  restartStream << "<<<\n[[RANDOM_SEED]]\n" << input.controlInput.randomSeed << "\n";
-  restartStream << "<<<\n[[RNG_STATE]]\n" << rng << "\n";
+  restartStream << configuration << "\n";
 
-}
-
-void Output::readRestartFile(Configuration configuration) { //TODO: MOVE READ RESTART FILE TO AN INPUT FILE?????
-  //TODO: Implement checks for RESTART presence. If not present, start from 
-  //TODO: scratch. If present, load into configuration, return start_sweep, and
-  //TODO: delete RESTART. Ensure startSweeps is less than maxSweeps. Throw 
-  //TODO: prior to deleting restart file if reading was unsuccessful.
 }
 
 

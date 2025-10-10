@@ -17,6 +17,7 @@ public:
 
   std::set<std::pair<double, int>> getTaus() const;
 
+  bool setTolerance(double tol);
   double getTolerance() const;
 
   int getAvgNbondsPerGroup() const;
@@ -33,13 +34,14 @@ public:
   int getNumBonds() const;
   std::map<int, int> getBondsPerType() const;
 
+  bool setBeta(double b);
   double getBeta() const;
 
   bool operator==(const Configuration& other) const;
   bool operator!=(const Configuration& other) const;
 
   friend std::ostream& operator<<(std::ostream& os, const Configuration& configuration);
-  friend std::istream& operator>>(std::istream& is, const Configuration& configuration);
+  friend std::istream& operator>>(std::istream& is, Configuration& configuration);
 
 private:
   double truncateToTolerance(double key) const;
@@ -48,7 +50,6 @@ private:
   double beta;
 
   std::map<double, Bond> bonds;
-  // std::set<double> taus;
   std::set<std::pair<double, int>> taus;
 
   int avgNbondsPerGroup;

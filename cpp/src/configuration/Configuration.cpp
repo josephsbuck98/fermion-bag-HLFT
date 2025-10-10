@@ -45,6 +45,11 @@ std::set<std::pair<double, int>> Configuration::getTaus() const {
   return taus;
 }
 
+bool Configuration::setTolerance(double tol) {
+  tolerance = tol;
+  return true;
+}
+
 double Configuration::getTolerance() const {
   return tolerance;
 }
@@ -154,6 +159,11 @@ std::map<int, int> Configuration::getBondsPerType() const {
   return bondsPerType;
 }
 
+bool Configuration::setBeta(double b) {
+  beta = b;
+  return true;
+}
+
 double Configuration::getBeta() const {
   return beta;
 }
@@ -194,6 +204,9 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
 
   std::map<int, int> bondsPerType = configuration.getBondsPerType();
   os << "[BONDS_PER_TYPE]" << std::endl;
+  if (bondsPerType.size() == 0) {
+    os << 1 << " " << 0 << std::endl;
+  }
   for (const auto& [key, value] : bondsPerType) {
     os << key << " " << value << std::endl;
   }
@@ -205,9 +218,9 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
   for (const auto& tau : taus) {
     os << "(" << tau.first << ", " << tau.second << ")";
     if (i != numTaus - 1) os << ", ";
-    if ((i + 1) % 5 == 0) { // Don't subtract 1 from taus.size()
-      os << std::endl;
-    }
+    // if ((i + 1) % 5 == 0) {
+    os << std::endl;
+    // }
     i += 1;
   }
   os << std::endl;
@@ -218,15 +231,124 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
   i = 0;
   for (const auto& [key, value] : bonds) {
     os << key << std::endl << value;
-    if (i != numBonds - 1) os << std::endl;
+    if (i != numBonds - 1) os << std::endl; //TODO: MIGHT NOT NEED THIS IF IT'S ADDING A BLANK LINE
     i++;
   }
   
   return os;
 }
 
-std::istream& operator>>(std::istream& is, const Configuration& configuration) {
-  //TODO: Implement this read in.
+std::istream& operator>>(std::istream& is, Configuration& configuration) {
+  std::streampos pos = is.tellg();
+  std::string line;
+  while (std::getline(is, line)) { //TODO: Just output bonds, and then add them back in exactly as if they were being added by the algorithm?
+    size_t start = line.find("["); size_t end = line.find("]");
+    if (start == std::string::npos || end == std::string::npos) {
+      std::cout << "NOT A TITLE..." << std::endl;
+      std::cout << line << std::endl;
+      continue;
+    }
+    std::string title = line.substr(start + 1, end - (start + 1));
+    if (title == "TOLERANCE") {
+      if (std::getline(is, line)) { //TODO: Just set tolerance directly?
+        configuration.setTolerance(std::stod(line));
+      }
+    } else if (title == "BETA") {
+      if (std::getline(is, line)) { //TODO: Just set beta directly?
+        configuration.setBeta(std::stod(line));
+      }
+    } else if (title == "AVG_NBONDS_PER_GROUP") {
+      if (std::getline(is, line)) {
+        configuration.avgNbondsPerGroup = std::stoi(line);
+      }
+    } else if (title == "TAU_GROUP_STARTS") {
+      while (true) {
+        pos = is.tellg();
+        if (!std::getline(is, line)) {
+          return is;
+        }
+        if (line.find("[") == std::string::npos) {
+          std::stringstream ss(line);
+          double num;
+          while (ss >> num) {
+            configuration.tauGroupStarts.push_back(num);
+          }
+        } else { //TODO: Adjust so all the ifs that use this form can use the same func. Use template func probably? Or just ifs inside of the inner while.
+          is.seekg(pos);
+          continue;
+        }
+      }
+    } else if (title == "BONDS_PER_TYPE") {
+      while (true) {
+        pos = is.tellg();
+        if (!std::getline(is, line)) {
+          return is;
+        }
+        if (line.find("[") == std::string::npos) {
+          std::stringstream ss(line);
+          int key; int val;
+          ss >> key; ss >> val;
+          configuration.bondsPerType[key] = val;
+        } else {
+          is.seekg(pos);
+          continue;
+        }
+      }
+    } else if (title == "TAUS") {
+      while (true) {
+        pos = is.tellg();
+        if (!std::getline(is, line)) {
+          return is;
+        }
+        if (line.find("[") == std::string::npos) {
+          char ch; int timeGroupInd; double tauVal;
+          std::istringstream ss(line);
+          ss >> ch; //TOOD: CHANGE OUTPUTTING AND READING IN SO THAT YOU DON'T NEED TO WORRY ABOUT "(", ",", AND ")".
+          ss >> tauVal; ss >> ch;
+          ss >> timeGroupInd; ss >> ch;
+          configuration.taus.insert(std::pair<double, int>(tauVal, timeGroupInd));
+        } else {
+          is.seekg(pos);
+          continue;
+        }
+      }
+    } else if (title == "BONDS") {
+      while (true) {
+        pos = is.tellg();
+        if (!std::getline(is, line)) {
+          return is;
+        }
+        if (line.find("[") ==- std::string::npos) {
+          std::istringstream ss(line);
+
+          double tau;
+          ss >> tau;
+
+          if (!std::getline(is, line)) {
+            return is;
+          }
+
+          ss.clear();
+          ss.str(line);
+
+          std::set<int> inds;
+          int ind;
+          while (ss >> ind) {
+            inds.insert(ind);
+          }
+
+          configuration.bonds.at(tau) = Bond(inds);
+        } else {
+          is.seekg(pos);
+          continue;
+        }
+      }
+    } else {
+      //TODO: Handle when you reach the end of the configuration section
+      return is;
+    }
+  }
+
   return is;
 }
 

@@ -45,11 +45,16 @@ int main(int argc, char* argv[]) {
 
   // Init restartInput, load RESTART if spec, overwrite userin if RESTART exists
   RestartInputParser::ParsedRestartInput restartInput;
-  std::string restartPath = output.getRestartPath();
+  fs::path restartPath = output.getRestartPath();
   if (fs::exists(restartPath)) input.outputInput.restarts = true;
-  if (input.outputInput.restarts) {
+  if (input.outputInput.restarts && fs::exists(restartPath)) {
     restartInput = RestartInputParser::parseRestartInputFile(restartPath);
   }
+  //TODO: PROTECT AGAINST RUNNING THE ABOVE STUFF WHEN IT IS THE FIRST RUN
+  //TODO: Implement checks for RESTART presence. If not present, start from 
+  //TODO: scratch. If present, load into configuration, return start_sweep, and
+  //TODO: delete RESTART. Ensure startSweeps is less than maxSweeps. Throw 
+  //TODO: prior to deleting restart file if reading was unsuccessful.
 
 
 
@@ -88,8 +93,10 @@ int main(int argc, char* argv[]) {
 
   // Create Driver object and call its .run() function.
   Driver driver = Driver(input);
+
   driver.run(configuration, lattice, output);
 
+  std::cout << configuration.getNumBonds() << std::endl;
 
   return 0;
 }

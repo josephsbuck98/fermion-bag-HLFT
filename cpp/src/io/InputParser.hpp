@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <fstream>
 #include <map>
 #include <random>
@@ -9,6 +10,8 @@
 #include "Input.hpp"
 
 
+
+namespace fs = std::filesystem;
 
 namespace InputParser {
 
@@ -76,17 +79,20 @@ namespace RestartInputParser {
   struct ParsedRestartInput {
     bool restartPopulated = false;
 
-    Configuration configuration;
     int currSweepId;
+    Configuration configuration;
 
     uint64_t seed = 0;
     std::mt19937_64 state;
 
     void validate() const {
-      //TODO: Implement validation of data read in
+      //TODO: Ensure the starting sweep number is less than the max sweeps number.
+      //TODO: Ensure the number of taus is the same as the number of bonds
+      std::cout << "INSIDE VALIDATE" << std::endl;
+
     }
   };
 
-  ParsedRestartInput parseRestartInputFile(std::string restartPath); //TODO: Change input to std::filesystem::path
+  ParsedRestartInput parseRestartInputFile(const fs::path& restartPath);
 
 }
