@@ -20,7 +20,7 @@ Driver::Driver(InputParser::ParsedInput input) {
 }
 
 void Driver::run(Configuration& configuration, const Lattice& lattice, 
-    Output& output) {
+    Output& output, int startSweepId) {
   auto calcError = [this](int currNbonds) {
     return std::abs((currStableNbonds - currNbonds) 
         / static_cast<double>(currStableNbonds));
@@ -38,8 +38,9 @@ void Driver::run(Configuration& configuration, const Lattice& lattice,
     }
   };
 
+  int sweep_iter = startSweepId;
   int outSweepsPatience = input.outputInput.outSweepsPatience;
-  for (int sweep_iter = 0; sweep_iter < maxSweeps; sweep_iter++) {
+  while (sweep_iter < maxSweeps) {
     // Equilibration actions
     if (equilibrationSweeps < 0) { // If equilibration hasn't been reached...
       updateEquilTestingParams(configuration.getNumBonds());
@@ -56,6 +57,7 @@ void Driver::run(Configuration& configuration, const Lattice& lattice,
     output.storeSweep(newSweep);
 
     //TODO: Log equilibration data and any other data.
+    sweep_iter++;
   }
   
   // Force a final sweep writeout

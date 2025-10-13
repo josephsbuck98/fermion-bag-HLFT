@@ -59,18 +59,14 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
   int nbr = 0;
   auto it = taus.begin();
   while (it != taus.end()) {
-    if ((*it).first > groupUpperBound) {
-      break;
-    }
-    if ((*it).first >= groupLowerBound) {
-      nbr += 1;
-    }
+    if ((*it).first > groupUpperBound) break;
+    if ((*it).first >= groupLowerBound) nbr += 1;
     ++it;
   }
 
   int numSites = lattice.getNumSites(consts::DirsType::X);
   double tauGroupWidth = groupUpperBound - groupLowerBound;
-  bool insertResult = bernoulli(insertProb); //TODO: ON FIRST SWEEP, THIS ALWAYS RETURNS FALSE. WHY???
+  bool insertResult = bernoulli(insertProb); 
   if (insertResult) {
     double acceptInsertProb = getAcceptProb(
         consts::BondActionType::INSERTION, numSites, tauGroupWidth, nbr);

@@ -51,6 +51,8 @@ public:
   int getNumBonds() const {return finNumBonds;}
   int getId() const {return id;}
 
+  bool setId(int newId) {id = newId; return true;}
+
 private: 
   InputParser::ParsedInput input;
 

@@ -240,8 +240,8 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
   while (std::getline(is, line)) { //TODO: Just output bonds, and then add them back in exactly as if they were being added by the algorithm?
     size_t start = line.find("["); size_t end = line.find("]");
     if (start == std::string::npos || end == std::string::npos) {
-      std::cout << "NOT A TITLE..." << std::endl;
-      std::cout << line << std::endl;
+      // std::cout << "NOT A TITLE..." << std::endl;
+      // std::cout << line << std::endl;
       continue;
     }
     std::string title = line.substr(start + 1, end - (start + 1));
@@ -257,7 +257,7 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
       if (std::getline(is, line)) {
         configuration.avgNbondsPerGroup = std::stoi(line);
       }
-    } else if (title == "TAU_GROUP_STARTS") {
+    } else {
       while (true) {
         pos = is.tellg();
         if (!std::getline(is, line)) {
@@ -265,82 +265,53 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
         }
         if (line.find("[") == std::string::npos) {
           std::stringstream ss(line);
-          double num;
-          while (ss >> num) {
-            configuration.tauGroupStarts.push_back(num);
-          }
-        } else { //TODO: Adjust so all the ifs that use this form can use the same func. Use template func probably? Or just ifs inside of the inner while.
-          is.seekg(pos);
-          break;
-        }
-      }
-    } else if (title == "BONDS_PER_TYPE") {
-      while (true) {
-        pos = is.tellg();
-        if (!std::getline(is, line)) {
-          return is;
-        }
-        if (line.find("[") == std::string::npos) {
-          std::stringstream ss(line);
-          int key; int val;
-          ss >> key; ss >> val;
-          configuration.bondsPerType[key] = val;
-        } else {
-          is.seekg(pos);
-          break;
-        }
-      }
-    } else if (title == "TAUS") {
-      while (true) {
-        pos = is.tellg();
-        if (!std::getline(is, line)) {
-          return is;
-        }
-        if (line.find("[") == std::string::npos) {
-          int timeGroupInd; double tauVal;
-          std::istringstream ss(line);
-          ss >> tauVal; ss >> timeGroupInd;
-          configuration.taus.insert(std::pair<double, int>(tauVal, timeGroupInd));
-        } else {
-          is.seekg(pos);
-          break;
-        }
-      }
-    } else if (title == "BONDS") {
-      while (true) {
-        pos = is.tellg();
-        if (!std::getline(is, line)) {
-          return is;
-        }
-        if (line.find("[") == std::string::npos) {
-          std::istringstream ss(line);
 
-          double tau;
-          ss >> tau;
+          
+          if (title == "TAU_GROUP_STARTS") {
+            double num;
+            while (ss >> num) {
+              configuration.tauGroupStarts.push_back(
+                  configuration.truncateToTolerance(num));
+            }
+          } else if (title == "BONDS_PER_TYPE") {
+            int key; int val;
+            ss >> key; ss >> val;
+            configuration.bondsPerType[key] = val;
+          } else if (title == "TAUS") {
+            int timeGroupInd; double tauVal;
+            ss >> tauVal; ss >> timeGroupInd;
+            tauVal = configuration.truncateToTolerance(tauVal);
+            configuration.taus.insert(std::pair<double, int>(tauVal, timeGroupInd));
 
-          if (!std::getline(is, line)) {
+          } else if (title == "BONDS") {
+            double tau;
+            ss >> tau;
+            tau = configuration.truncateToTolerance(tau);
+
+            if (!std::getline(is, line)) {
+              return is;
+            }
+
+            ss.clear();
+            ss.str(line);
+
+            std::set<int> inds;
+            int ind;
+            while (ss >> ind) {
+              inds.insert(ind);
+            }
+
+            configuration.bonds.insert({tau, Bond(inds)});
+            // std::cout << "Tau: " << tau << std::endl;
+          } else {
             return is;
           }
-
-          ss.clear();
-          ss.str(line);
-
-          std::set<int> inds;
-          int ind;
-          while (ss >> ind) {
-            inds.insert(ind);
-          }
-
-          configuration.bonds.at(tau) = Bond(inds);
         } else {
           is.seekg(pos);
           break;
         }
       }
-    } else {
-      //TODO: Handle when you reach the end of the configuration section
-      return is;
-    }
+    } 
   }
 
   return is;

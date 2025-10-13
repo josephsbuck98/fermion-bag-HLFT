@@ -105,24 +105,28 @@ void Output::storeSweep(Sweep sweep) {
 
   if (index == outSweepsPatience - 1) {
     writeAndClearSweepCache();
+    sweepsCache[0].setId(-1); // Purpose is so cache isn't double outputted
   }
 
   if (fs::exists(getRestartPath())) input.outputInput.restarts = true;
 }
 
 void Output::writeAndClearSweepCache() {
+  if (sweepsCache[0].getId() == -1) return;
+  int lastIter;
   for (int i = 0; i < sweepsCache.size(); i++) {
+    lastIter = i;
     writeSweepsLine(sweepsCache[i]);
     if (input.outputInput.writeBondsPerType) { 
       writeBondsPerTypeLine(sweepsCache[i]); //TODO: THIS IS NOT WORKING FOR SOME REASON
     }
     if (input.controlInput.maxSweeps - 1 == sweepsCache[i].getId() ||
         sweepsCache.size() - 1 == i) {
-      if (input.outputInput.restarts) { 
-        writeRestartFiles(sweepsCache[i].getId());
-      }
-      break; // Should break whether or not restarts are written
+      break;
     }
+  }
+  if (input.outputInput.restarts) {
+    writeRestartFiles(sweepsCache[lastIter].getId());
   }
 }
 

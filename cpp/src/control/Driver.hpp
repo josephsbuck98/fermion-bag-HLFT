@@ -11,7 +11,7 @@ public:
   Driver(InputParser::ParsedInput input);
 
   void run(Configuration& curr_configuration, const Lattice& lattice,
-      Output& output);
+      Output& output, int startSweepId);
 
 private:
   InputParser::ParsedInput input;

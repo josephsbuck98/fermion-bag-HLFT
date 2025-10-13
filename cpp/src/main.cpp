@@ -36,6 +36,7 @@ int main(int argc, char* argv[]) {
 
   // Initialize Configuration, Lattice, and Output classes
   std::cout << "Generating lattice and initial configuration.\n"; 
+  int startSweepId = 0;
   Configuration configuration = Configuration(input.configurationInput);
   Lattice lattice = Lattice(input.latticeInput);
   Output output(input, filename, configuration);
@@ -61,7 +62,7 @@ int main(int argc, char* argv[]) {
   // If restart was populated, use its data accordingly
   if (restartInput.restartPopulated) {
     //TODO: Store NEXT sweep id. Note that on restart, it is possible that parameters such as write out frequency were changed, which will break current write out logic. Also, pass in starting sweep to Driver.run.
-    int startSweepId = restartInput.currSweepId + 1;
+    startSweepId = restartInput.currSweepId;
     configuration = restartInput.configuration;
     restoreRNG(restartInput.seed, restartInput.state);
 
@@ -73,30 +74,11 @@ int main(int argc, char* argv[]) {
 
 
 
-
-
-
-
-
-
-
-
-  // std::exit(EXIT_FAILURE);
-
-
-
-
-  
-
-
-
-
   // Create Driver object and call its .run() function.
   Driver driver = Driver(input);
 
-  driver.run(configuration, lattice, output);
-
-  std::cout << configuration.getNumBonds() << std::endl;
+  driver.run(configuration, lattice, output, startSweepId);
+  //TODO: USER SHOULD ALWAYS BE ABLE TO SPECIFY THE MAX SWEEPS, BUT THEY SHOULD ALSO BE ABLE TO SPECIFY THE NUMBER OF SWEEPS BEYOND THE END OF THE RESTART FILE THAT THEY WANT TO DO. MAX SWEEPS WILL ALWAYS OVERRIDE. 
 
   return 0;
 }
