@@ -43,8 +43,7 @@ const std::vector<double>& Configuration::getTauGroupStarts() const {
   return tauGroupStarts;
 }
 
-
-std::set<std::pair<double, int>> Configuration::getTaus() const {
+const std::set<std::pair<double, int>>& Configuration::getTaus() const {
   return taus;
 }
 
@@ -240,17 +239,15 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
   while (std::getline(is, line)) { //TODO: Just output bonds, and then add them back in exactly as if they were being added by the algorithm?
     size_t start = line.find("["); size_t end = line.find("]");
     if (start == std::string::npos || end == std::string::npos) {
-      // std::cout << "NOT A TITLE..." << std::endl;
-      // std::cout << line << std::endl;
       continue;
     }
     std::string title = line.substr(start + 1, end - (start + 1));
     if (title == "TOLERANCE") {
-      if (std::getline(is, line)) { //TODO: Just set tolerance directly?
+      if (std::getline(is, line)) {
         configuration.setTolerance(std::stod(line));
       }
     } else if (title == "BETA") {
-      if (std::getline(is, line)) { //TODO: Just set beta directly?
+      if (std::getline(is, line)) {
         configuration.setBeta(std::stod(line));
       }
     } else if (title == "AVG_NBONDS_PER_GROUP") {
@@ -302,7 +299,6 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
             }
 
             configuration.bonds.insert({tau, Bond(inds)});
-            // std::cout << "Tau: " << tau << std::endl;
           } else {
             return is;
           }

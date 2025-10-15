@@ -14,13 +14,13 @@ public:
 
   consts::BondActionType applyUpdate(Configuration& configuration, 
       const Lattice& lattice, double groupLowerBound, double groupUpperBound, 
-      int groupNum) const;
+      int groupNum, Configuration::RegionData& regionData) const;
 
   void handleInsert(Configuration& configuration, const Lattice& lattice,
     double groupLowerBound, double groupUpperBound, int groupNum) const;
 
   void handleRemoval(Configuration& configuration, double groupLowerBound,
-     double groupUpperBound) const;
+     double groupUpperBound, Configuration::RegionData& regionData) const;
   
 private:
   double acceptProb = 0.5;

@@ -27,16 +27,5 @@ std::ostream& operator<<(std::ostream& os, const Bond& bond) {
     os << *it << " ";
   }
 
-  // os << "(" << bond.getNumSites() << ", {";
-  // for (auto it = inds.begin(); it != inds.end(); ++it) {
-  //   os << *it;
-  //   auto next_it = it;
-  //   if (++next_it == inds.end()) {
-  //     os << "})";
-  //   } else {
-  //     os << ", ";
-  //   }
-  // }
-  
   return os;
 }

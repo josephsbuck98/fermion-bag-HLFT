@@ -49,25 +49,18 @@ int main(int argc, char* argv[]) {
   fs::path restartPath = output.getRestartPath();
   if (fs::exists(restartPath)) input.outputInput.restarts = true;
   if (input.outputInput.restarts && fs::exists(restartPath)) {
+    std::cout << "An output file was present...\n\n\n" << std::endl;
     restartInput = RestartInputParser::parseRestartInputFile(restartPath);
   }
-  //TODO: PROTECT AGAINST RUNNING THE ABOVE STUFF WHEN IT IS THE FIRST RUN
-  //TODO: Implement checks for RESTART presence. If not present, start from 
-  //TODO: scratch. If present, load into configuration, return start_sweep, and
-  //TODO: delete RESTART. Ensure startSweeps is less than maxSweeps. Throw 
-  //TODO: prior to deleting restart file if reading was unsuccessful.
 
 
 
   // If restart was populated, use its data accordingly
   if (restartInput.restartPopulated) {
-    //TODO: Store NEXT sweep id. Note that on restart, it is possible that parameters such as write out frequency were changed, which will break current write out logic. Also, pass in starting sweep to Driver.run.
+    //TODO: Note that on restart, it is possible that parameters such as write out frequency were changed, which will break current write out logic.
     startSweepId = restartInput.currSweepId;
     configuration = restartInput.configuration;
     restoreRNG(restartInput.seed, restartInput.state);
-
-    //TODO: IF RESTART WAS POPULATED AND INPUT IN OUTDIR IS NOT EXACTLY THE SAME AS INPUT YAML IN HOME, PRINT WARNING TO USE THE INPUT IN OUTDIR AND RETURN
-
   } else {
     globalRNG(input.controlInput.randomSeed);
   }

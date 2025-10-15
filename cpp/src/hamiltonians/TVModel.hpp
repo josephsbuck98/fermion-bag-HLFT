@@ -3,6 +3,7 @@
 #include "Configuration.hpp"
 #include "InputParser.hpp"
 #include "Lattice.hpp"
+#include "Sweep.hpp"
 
 
 class TVModel {
@@ -11,7 +12,7 @@ public:
 
   consts::BondActionType applyUpdate(Configuration& configuration, 
       const Lattice& lattice, int groupLowerBound, int groupUpperBound, 
-      int groupNum) const;
+      int groupNum, Configuration::RegionData regionData) const;
 
 private:
 

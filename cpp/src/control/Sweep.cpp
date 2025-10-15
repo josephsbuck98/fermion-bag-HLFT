@@ -24,7 +24,7 @@ void Sweep::run(Configuration& configuration, const Lattice& lattice) {
   // Create the new vector of tau starts, and save to configuration
   std::vector<double> newTauGroupStarts = generateTauGroupStarts( //TODO: CHANGE THIS TO A MEMBER FUNCTION
       configuration.getBeta(), numTimeGroups);
-  configuration.setTauGroupStarts(newTauGroupStarts);
+  // configuration.setTauGroupStarts(newTauGroupStarts); //TODO: UNCOMMENT TO UPDATE TAU GROUP STARTS
 
   // Calculate the number of updates per group per sweep to do
   numUpdatesPerGroup = calcNumUpdatesPerGroup(scaleNumUpdates, 
@@ -48,7 +48,6 @@ void Sweep::run(Configuration& configuration, const Lattice& lattice) {
     }
   }
 
-  //TODO: Store Update object and relevant loop data.
 }
 
 

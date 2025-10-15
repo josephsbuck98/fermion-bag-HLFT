@@ -15,7 +15,7 @@ public:
   void setTauGroupStarts(std::vector<double> newTauGroupStarts);
   const std::vector<double>& getTauGroupStarts() const;
 
-  std::set<std::pair<double, int>> getTaus() const;
+  const std::set<std::pair<double, int>>& getTaus() const;
 
   bool setTolerance(double tol);
   double getTolerance() const;
@@ -42,6 +42,24 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const Configuration& configuration);
   friend std::istream& operator>>(std::istream& is, Configuration& configuration);
+
+  // Struct to aid in determining the probabilities of accepting proposals
+  struct RegionData {
+    double lower; double upper;
+    std::set<std::pair<double, int>>::iterator it_low;
+    std::set<std::pair<double, int>>::iterator it_high;
+    size_t nBondsInRegion;
+
+    void computeIterators(const std::set<std::pair<double, int>>& taus) {
+      it_low = taus.lower_bound({lower, std::numeric_limits<int>::min()});
+      it_high = taus.upper_bound({upper, std::numeric_limits<int>::max()});
+      nBondsInRegion = std::distance(it_low, it_high);
+    }
+
+    std::size_t size() const {
+      return std::distance(it_low, it_high);
+    }
+  };
 
 private:
   double truncateToTolerance(double key) const;

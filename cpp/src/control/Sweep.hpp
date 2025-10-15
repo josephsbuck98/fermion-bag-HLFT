@@ -18,22 +18,46 @@ public:
   void executeGroupUpdates(Configuration& configuration, const Lattice& lattice,
       const HamiltonianType& hamiltonian) {
 
+    std::set<std::pair<double, int>> taus = configuration.getTaus();
     std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
+    
     // Loop over each time group
     for (int groupNum = 0; groupNum < tauGroupStarts.size(); groupNum++) {
       // Get the time bounds for the group
       double lowerBound = tauGroupStarts[groupNum];
       double upperBound = groupNum == tauGroupStarts.size() - 1 ? 
           configuration.getBeta() : tauGroupStarts[groupNum + 1];
-          
+        
+      // Get the starting number of bonds in this time group
+      Configuration::RegionData regionData{lowerBound, upperBound, {}, {}, 0};
+      regionData.computeIterators(taus);
+
+      auto it_low = taus.lower_bound({lowerBound, std::numeric_limits<int>::min()});
+      auto it_high = taus.upper_bound({upperBound, std::numeric_limits<int>::max()});
+      auto nbr = std::distance(it_low, it_high);
+      std::pair<double, int> lowTau = *it_low;
+      //TODO: After above changes, does not agree exactly with previous runs. Probably n issue with deleting the lowest iterator in the group?
+      //TODO: CONTINUE CONVERTING TO ONLY USING REGION DATA, NOT THESE INDIVIDUAL VARIABLES
+
       // Create Update classes and call their run functions 
       for (int i = 0; i < numUpdatesPerGroup; i++) {
-        Update<HamiltonianType> update(lowerBound, upperBound, groupNum);
+        Update<HamiltonianType> update(lowerBound, upperBound, groupNum, regionData);
         auto updateType = update.run(configuration, lattice, hamiltonian);
         switch (updateType) {
-          case consts::BondActionType::REJECTION: finNumRejects++; break;
-          case consts::BondActionType::INSERTION: finNumInserts++; break;
-          case consts::BondActionType::REMOVAL: finNumRemoves++; break;
+          case consts::BondActionType::REJECTION:
+            finNumRejects++;
+            break;
+          case consts::BondActionType::INSERTION:
+            finNumInserts++;
+            regionData.nBondsInRegion++;
+            break;
+          case consts::BondActionType::REMOVAL:
+            finNumRemoves++;
+            regionData.nBondsInRegion--;
+            if (taus.find(lowTau) != taus.end()) {
+              regionData.computeIterators(taus);
+            }
+            break;
         }
       }
     }
