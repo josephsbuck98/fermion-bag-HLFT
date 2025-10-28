@@ -46,18 +46,19 @@ public:
   // Struct to aid in determining the probabilities of accepting proposals
   struct RegionData {
     double lower; double upper;
-    std::set<std::pair<double, int>>::iterator it_low;
-    std::set<std::pair<double, int>>::iterator it_high;
+    std::set<std::pair<double, int>>::iterator itLow;
+    std::set<std::pair<double, int>>::iterator itHigh;
     size_t nBondsInRegion;
 
     void computeIterators(const std::set<std::pair<double, int>>& taus) {
-      it_low = taus.lower_bound({lower, std::numeric_limits<int>::min()});
-      it_high = taus.upper_bound({upper, std::numeric_limits<int>::max()});
-      nBondsInRegion = std::distance(it_low, it_high);
+      //TODO: Come up with a way to detect if itLow and itHigh are undefined.
+      itLow = taus.lower_bound({lower, std::numeric_limits<int>::min()});
+      itHigh = taus.upper_bound({upper, std::numeric_limits<int>::max()});
+      nBondsInRegion = std::distance(itLow, itHigh);
     }
 
     std::size_t size() const {
-      return std::distance(it_low, it_high);
+      return std::distance(itLow, itHigh);
     }
   };
 

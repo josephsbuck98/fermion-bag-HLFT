@@ -51,10 +51,10 @@ double getAcceptProb(consts::BondActionType actionType, int numSites,
 
 
 consts::BondActionType Random::applyUpdate(Configuration& configuration, const Lattice& lattice,
-    double groupLowerBound, double groupUpperBound, int groupNum, Configuration::RegionData& regionData) const {
+  int groupNum, Configuration::RegionData& regionData) const {
 
   int numSites = lattice.getNumSites(consts::DirsType::X);
-  double tauGroupWidth = groupUpperBound - groupLowerBound;
+  double tauGroupWidth = regionData.upper - regionData.lower;
   bool insertResult = bernoulli(insertProb); 
   if (insertResult) {
     double acceptInsertProb = getAcceptProb(
@@ -62,8 +62,7 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
             regionData.nBondsInRegion);
     bool acceptInsert = bernoulli(acceptInsertProb);
     if (acceptInsert) {
-      handleInsert(configuration, lattice, 
-          groupLowerBound, groupUpperBound, groupNum);
+      handleInsert(configuration, lattice, groupNum, regionData);
       return consts::BondActionType::INSERTION;
     }
   } else {
@@ -72,7 +71,7 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
             regionData.nBondsInRegion);
     bool acceptRemove = bernoulli(acceptRemoveProb);
     if (acceptRemove) {
-      handleRemoval(configuration, groupLowerBound, groupUpperBound, regionData);
+      handleRemoval(configuration, regionData);
       return consts::BondActionType::REMOVAL;
     }
   }
@@ -81,11 +80,12 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
 
 
 void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
-    double groupLowerBound, double groupUpperBound, int groupNum) const {
+    int groupNum, Configuration::RegionData& regionData) const {
       
   int bondSize = chooseWeightedRandInt(bondTypeProps);
   std::pair<double, int> tauToInsert =  std::pair<double, int>
-      (chooseUnifRandDoubWithBounds(groupLowerBound, groupUpperBound), groupNum);
+      (chooseUnifRandDoubWithBounds(regionData.lower, regionData.upper), 
+      groupNum);
   int latticeBondStart = chooseUnifRandIntWithBounds(0, 
       lattice.getNumSites(consts::DirsType::X) - bondSize); //TODO: For periodic boundary conditions, any site can be chosen as the start, then use modulus (%) to get correct sites. Must figure out how to do multiple dimensions.
   std::set<int> bondSites;
@@ -111,20 +111,20 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
     } catch(const std::exception& ex) {
       std::pair<double, int> tauUp = 
           std::pair<double, int>(tauCandidate.first + tol, tauCandidate.second);
-      if (tauUp.first < groupUpperBound) {
+      if (tauUp.first < regionData.upper) {
         tauCandidate = tauUp;
         continue;
       }
       std::pair<double, int> tauDown = tauCandidate;
       tauDown.first -= tol;
-      if (tauDown.first > groupLowerBound) {
+      if (tauDown.first > regionData.lower) {
         tauCandidate = tauDown;
         continue;
       }
       std::string message = "Could not insert tau=" + 
           std::to_string(tauToInsert.first) + " within " +
-          "bounds [" + std::to_string(groupLowerBound) + ", " +
-          std::to_string(groupUpperBound) + "] after " + 
+          "bounds [" + std::to_string(regionData.lower) + ", " +
+          std::to_string(regionData.upper) + "] after " + 
           std::to_string(maxAttempts) + " attempts.";
       std::cout << message << std::endl;
       
@@ -134,35 +134,13 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
 }
 
 
-void Random::handleRemoval(Configuration& configuration, 
-    double groupLowerBound, double groupUpperBound, 
+void Random::handleRemoval(Configuration& configuration,
     Configuration::RegionData& regionData) const {
-  std::vector<std::pair<double, int>> deletableTaus;
 
-  //TODO: GET NBONDSINREGION. CHOOSE RANDOM NUMBER FROM 0 TO NBONDSINREGION - 1(?). 
-  //TODO: ITERATE THAT MANY TIMES AND GET THE TAU TO DELETE. 
-  auto it = regionData.it_low;
+  auto it = regionData.itLow;
   int indToDelete = chooseUnifRandIntWithBounds(0, regionData.nBondsInRegion);
   std::advance(it, indToDelete);
   std::pair<double, int> tauToDelete = *it;
 
-  // //TODO: Don't do this at every removal
-  // auto it = taus.begin();
-  // while (it != taus.end()) {
-  //   if ((*it).first >= groupLowerBound && (*it).first < groupUpperBound) {
-  //     deletableTaus.push_back(*it);
-  //   }
-  //   ++it;
-  // }
-
-  // if (deletableTaus.empty()) return;
-  // int indToDelete = chooseUnifRandIntWithBounds(0, deletableTaus.size());
-  // std::pair<double, int> tauToDelete = deletableTaus[indToDelete];
-
-  try {
-    configuration.delBond(tauToDelete);
-  } catch(const std::exception& ex) {
-    std::cout << "Bond deletion failed: " << ex.what() << std::endl;
-  }
-
+  configuration.delBond(tauToDelete);
 }

@@ -18,30 +18,22 @@ public:
   void executeGroupUpdates(Configuration& configuration, const Lattice& lattice,
       const HamiltonianType& hamiltonian) {
 
-    std::set<std::pair<double, int>> taus = configuration.getTaus();
     std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
     
     // Loop over each time group
     for (int groupNum = 0; groupNum < tauGroupStarts.size(); groupNum++) {
-      // Get the time bounds for the group
+      // Get the time bounds for the group and update regionData
       double lowerBound = tauGroupStarts[groupNum];
       double upperBound = groupNum == tauGroupStarts.size() - 1 ? 
-          configuration.getBeta() : tauGroupStarts[groupNum + 1];
-        
-      // Get the starting number of bonds in this time group
+          configuration.getBeta() : tauGroupStarts[groupNum + 1];  
       Configuration::RegionData regionData{lowerBound, upperBound, {}, {}, 0};
+      
+      const std::set<std::pair<double, int>>& taus = configuration.getTaus();
       regionData.computeIterators(taus);
-
-      auto it_low = taus.lower_bound({lowerBound, std::numeric_limits<int>::min()});
-      auto it_high = taus.upper_bound({upperBound, std::numeric_limits<int>::max()});
-      auto nbr = std::distance(it_low, it_high);
-      std::pair<double, int> lowTau = *it_low;
-      //TODO: After above changes, does not agree exactly with previous runs. Probably n issue with deleting the lowest iterator in the group?
-      //TODO: CONTINUE CONVERTING TO ONLY USING REGION DATA, NOT THESE INDIVIDUAL VARIABLES
 
       // Create Update classes and call their run functions 
       for (int i = 0; i < numUpdatesPerGroup; i++) {
-        Update<HamiltonianType> update(lowerBound, upperBound, groupNum, regionData);
+        Update<HamiltonianType> update(groupNum, regionData);
         auto updateType = update.run(configuration, lattice, hamiltonian);
         switch (updateType) {
           case consts::BondActionType::REJECTION:
@@ -50,11 +42,16 @@ public:
           case consts::BondActionType::INSERTION:
             finNumInserts++;
             regionData.nBondsInRegion++;
+            if ((regionData.nBondsInRegion == 1) || // Executes if this is the first bond being added to the tau group
+                (regionData.itLow != taus.begin() && // Executes if an element smaller than that pointed to be itLow was inserted
+                (*std::prev(regionData.itLow)).first >= regionData.lower)) { 
+              regionData.computeIterators(taus);
+            }
             break;
           case consts::BondActionType::REMOVAL:
             finNumRemoves++;
             regionData.nBondsInRegion--;
-            if (taus.find(lowTau) != taus.end()) {
+            if (taus.find(*regionData.itLow) == taus.end()) {
               regionData.computeIterators(taus);
             }
             break;
