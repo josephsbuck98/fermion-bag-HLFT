@@ -202,6 +202,7 @@ void Output::writeBondsPerTypeHeader() {
   std::ostringstream header;
   header << std::left;
   for (const auto& [key, value] : input.hamiltonianInput.bondTypeProps) {
+    std::cout << key << " " << value << std::endl;
     header << std::setw(width) << key;
   }
   header << "\n";
@@ -246,11 +247,20 @@ void Output::writeSweepsLine(const Sweep& sweep) {
 }
 
 void Output::writeBondsPerTypeLine(const Sweep& sweep) {
-  int width = 7;
+  int width = 7; //TODO: Define this width once for each file type.
   std::ostringstream line;
   line << std::left;
+
+  int iter = 1;
   for (const auto& [key, value] : sweep.getNumBondsPerType()) {
+    for (int i = iter; i < key; i++) {
+      line << std::setw(width) << 0;
+    }
     line << std::setw(width) << value;
+    iter = key + 1;
+  }
+  for (int i = iter; i < 6; i++) {
+      line << std::setw(width) << 0;
   }
   line << "\n";
 
