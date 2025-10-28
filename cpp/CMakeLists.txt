@@ -9,4 +9,5 @@ find_package(yaml-cpp REQUIRED)
 
 add_subdirectory(src)
 
-
+# Flags so you can debug with gdb -tui ./main
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")

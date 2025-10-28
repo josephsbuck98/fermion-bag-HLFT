@@ -1,18 +1,82 @@
+#include <sstream>
 #include <yaml-cpp/yaml.h>
-#include <stdexcept>
-#include <iostream>
 
 #include "InputParser.hpp"
 
-using namespace InputParser;
 
 
-namespace {
+namespace InputParser {
+ParsedInput parseInputFile(const std::string& filename) {
+  ParsedInput pI = YAML::LoadFile(filename).as<ParsedInput>();
 
+  // Carry out any final changes
+  pI.controlInput.initNumTimeGroups = pI.configurationInput.initNumTimeGroups;
+
+  return pI;
+}
 }
 
-ParsedInput parseInputFile(const std::string& filepath) {
-  YAML::Node root = YAML::LoadFile(filepath);
 
-  return ParsedInput();
-};
+
+namespace RestartInputParser {
+ParsedRestartInput parseRestartInputFile(const fs::path& restartPath) {
+  ParsedRestartInput pRI;
+
+  std::ifstream file(restartPath);
+  std::string line;
+  while (std::getline(file, line)) {
+    size_t start = line.find("[["); size_t end = line.find("]]", start + 2);
+    if (start == std::string::npos || end == std::string::npos) {
+      std::cout << "NOT A TITLE..." << std::endl;
+      std::cout << line << std::endl;
+      continue;
+    }
+    std::string title = line.substr(start + 2, end - (start + 2));
+    if (title == "CURR_SWEEP_ID") {
+      if (std::getline(file, line)) {
+        pRI.currSweepId = std::stoi(line) + 1;
+      }
+    } else if (title == "RANDOM_SEED") {
+      if (std::getline(file, line)) {
+        pRI.seed = std::stoi(line);
+      }
+    } else if (title == "RNG_STATE") {
+      if (std::getline(file, line)) {
+        std::istringstream iss(line);
+        iss >> pRI.state;
+      }
+    } else if (title == "CONFIGURATION") { //Configuration must be last due to constraints with ifstream input reading
+      file >> pRI.configuration;
+      if (file.eof()) {
+        std::cout << "SUCCESSFULLY READ IN CONFIGURATION" << std::endl;
+      } else {
+        std::cout << "Error reading in configuration." << std::endl;
+        throw std::runtime_error("Error reading in configuration.");
+      }
+    } else {
+      //TODO: Case where the title is garbage by some mistake. Throw error.
+    }
+
+  }
+
+  file.close();
+
+
+
+
+
+  //   pRI.restartPopulated = false;
+  //   std::cout << "WARNING: RESTART file corrupted or incomplete. Disregard "
+  //       "this message if you intended to create a blank RESTART file for the "
+  //       "purpose of initiating restarts w/o specifying in the input yaml.\n"; //TODO: Place in generic output file instead?
+  //   return pRI;
+  // }
+
+
+  //TODO: If validation was not 100%, throw an error. Probably don't need the restartPopulated variable
+
+  pRI.restartPopulated = true;
+  pRI.validate();
+  return pRI;
+}
+}

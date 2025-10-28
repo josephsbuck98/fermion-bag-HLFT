@@ -7,45 +7,137 @@
 //TODO: Error/special case handling (for example, if getBond is called with a tau that doesn't exist.)
 //TODO: Implement delBonds (with an s)
 
-Configuration::Configuration(double tol) {
-  tolerance = tol;
+Configuration::Configuration(ConfigurationInput input) {
+  tolerance = input.float_tol;
+  beta = input.beta;
   bonds = {};
+  taus = {};
+  avgNbondsPerGroup = input.avgNbondsPerGroup;
+  tauGroupStarts = generateTauGroupStarts(beta, input.initNumTimeGroups);
 }
 
-void Configuration::addBond(double tau, Bond& bond) {
-  auto retPair = bonds.insert({truncateToTolerance(tau), bond});
-  if (!retPair.second) {
-    throw std::runtime_error("Insert failed: Bond with tau" 
-                  "=" + std::to_string(tau) + " already exists.");
+void Configuration::setTauGroupStarts(std::vector<double> newTauGroupStarts) {
+  tauGroupStarts = newTauGroupStarts; 
+
+  std::vector<std::pair<double, int>> updatedTaus;
+
+  for (const auto& tau : taus) {
+    double tauVal = tau.first;
+
+    int groupNum = 0;
+    while (true) {
+      if (groupNum == tauGroupStarts.size() - 1) break;
+      if ((tauVal >= tauGroupStarts[groupNum]) && 
+          (tauVal < tauGroupStarts[groupNum + 1])) break;
+      groupNum++;
+    }
+
+    updatedTaus.push_back({tauVal, groupNum});
   }
+
+  taus.clear();
+  taus.insert(updatedTaus.begin(), updatedTaus.end());
 }
 
-void Configuration::addBonds(std::vector<double> taus, std::vector<Bond> newBonds) {
-  if (taus.size() != newBonds.size()) {
-    throw std::runtime_error("Lengths of taus and newBonds must be the same, "
-                  "but were " + std::to_string(taus.size()) + " and" 
+const std::vector<double>& Configuration::getTauGroupStarts() const {
+  return tauGroupStarts;
+}
+
+const std::set<std::pair<double, int>>& Configuration::getTaus() const {
+  return taus;
+}
+
+bool Configuration::setTolerance(double tol) {
+  tolerance = tol;
+  return true;
+}
+
+double Configuration::getTolerance() const {
+  return tolerance;
+}
+
+int Configuration::getAvgNbondsPerGroup() const {
+  return avgNbondsPerGroup;
+}
+
+int Configuration::calcNumTimeGroups(int initNumTimeGroups) {
+  double exactNumGroups = taus.size() / static_cast<double>(avgNbondsPerGroup);
+  int newNumTimeGroups = static_cast<int>(std::floor(exactNumGroups + 1));
+  return newNumTimeGroups < initNumTimeGroups ? initNumTimeGroups : newNumTimeGroups;
+}
+
+std::vector<double> generateTauGroupStarts(double beta, int initNumTimeGroups) {
+  double groupWidth = beta / initNumTimeGroups;
+  std::vector<double> tauGroupStarts(initNumTimeGroups);
+  tauGroupStarts[0] = 0.0;
+  for (int i = 1; i < initNumTimeGroups; i++) {
+    tauGroupStarts[i] = i * groupWidth;
+  }
+  return tauGroupStarts;
+}
+
+void Configuration::addBond(std::pair<double, int> tau, Bond& bond) {
+  std::pair<double, int> tauTrunc = std::pair<double, int>
+      (truncateToTolerance(tau.first), tau.second);
+  auto retSetPair = taus.insert(tauTrunc);
+  auto retMapPair = bonds.insert({tauTrunc.first, bond});
+
+  std::string eMS = "Insert failed: tau=" + std::to_string(tau.first);
+  if (!retSetPair.second) {
+    if (!retMapPair.second) {
+      throw std::runtime_error(eMS + " already exists in both taus and bonds.");
+    } else {
+      throw std::runtime_error(eMS + " already exists in taus.");
+    }
+  } else if (!retMapPair.second) {
+    throw std::runtime_error(eMS + " already exists in bonds.");
+  }
+  bondsPerType[bond.getNumSites()]++;
+}
+
+void Configuration::addBonds(std::vector<std::pair<double, int>> newTaus, 
+      std::vector<Bond> newBonds) {
+  if (newTaus.size() != newBonds.size()) {
+    throw std::runtime_error("Lengths of newTaus and newBonds must be the "
+                  "same, but were " + std::to_string(newTaus.size()) + " and"
                   " " + std::to_string(newBonds.size()));
   }
   for (int i = 0; i < newBonds.size(); i++) {
     try {
-      addBond(taus[i], newBonds[i]);
+      addBond(newTaus[i], newBonds[i]);
     } catch (std::runtime_error err) {
       std::cout << err.what() << std::endl;
     }
   }
 }
 
-void Configuration::delBond(double tau) {
-  size_t ret = bonds.erase(truncateToTolerance(tau));
-  if (ret == 0) {
-    std::runtime_error err("Cannot delete element with tau"
-              "=" + std::to_string(tau) + ". Element does not exist.");
-    std::cout << err.what() << std::endl;
+void Configuration::delBond(std::pair<double, int> tau) {
+  std::pair<double, int> tauTrunc = 
+      std::pair<double, int>(truncateToTolerance(tau.first), tau.second);
+
+  int numSites = 0; // Get the number of sites associated with the bond
+  auto it = bonds.find(tauTrunc.first);
+  if (it != bonds.end()) {
+    numSites = it->second.getNumSites();
   }
+
+  size_t retSet = taus.erase(tauTrunc);
+  size_t retMap = bonds.erase(tauTrunc.first);
+  if (numSites == 0 || retSet == 0 || retMap == 0) {
+    std::runtime_error err("Cannot delete element with tau"
+              "=" + std::to_string(tau.first) + ". Element does not exist.");
+    std::cout << err.what() << std::endl;
+    throw err;
+  }
+
+  bondsPerType[numSites]--; // Decrement the number of bonds of this size
+  if (bondsPerType[numSites] == 0) bondsPerType.erase(numSites);
 }
 
 void Configuration::delBonds() {
-  bonds = {};
+  bonds = std::map<double, Bond>();
+  taus = std::set<std::pair<double, int>>();
+  bondsPerType = std::map<int, int>();
 }
 
 const Bond& Configuration::getBond(double tau) const {
@@ -62,7 +154,20 @@ const std::map<double, Bond>& Configuration::getBonds() const {
 }
 
 int Configuration::getNumBonds() const {
-  return bonds.size();
+  return taus.size();
+}
+
+std::map<int, int> Configuration::getBondsPerType() const {
+  return bondsPerType;
+}
+
+bool Configuration::setBeta(double b) {
+  beta = b;
+  return true;
+}
+
+double Configuration::getBeta() const {
+  return beta;
 }
 
 bool Configuration::operator==(const Configuration& other) const {
@@ -70,8 +175,9 @@ bool Configuration::operator==(const Configuration& other) const {
     return false;
   }
   for (const auto& pair : bonds) {
-    if (this->getBond(truncateToTolerance(pair.first)) 
-          != other.getBond(truncateToTolerance(pair.first))) {      
+    double truncTol = pair.first;
+    if (this->getBond(truncateToTolerance(truncTol)) 
+          != other.getBond(truncateToTolerance(truncTol))) {      
       return false;
     }
   }
@@ -82,15 +188,131 @@ bool Configuration::operator!=(const Configuration& other) const {
   return !(*this == other);
 }
 
-std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
-  std::map<double, Bond> bonds = configuration.getBonds();
-  os << "Configuration:{\n";
-  for (auto it = bonds.begin(); it != bonds.end(); ++it) {
-    os << "Tau: " << it->first << ", " << it ->second;
+std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {  
+  os << "[[CONFIGURATION]]" << std::endl;
+  os << "[TOLERANCE]\n" << configuration.getTolerance() << std::endl;
+  os << "[BETA]\n" << configuration.getBeta() << std::endl;
+  os << "[AVG_NBONDS_PER_GROUP]\n" << configuration.getAvgNbondsPerGroup() << std::endl;
+  
+  std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
+  os << "[TAU_GROUP_STARTS]" << std::endl;
+  for (int i = 0; i < tauGroupStarts.size(); i++) {
+    if (i % 5 == 0 && i != 0) {
+      os << std::endl;
+    }
+    os << tauGroupStarts[i] << " ";
   }
-  os << "}\n\n";
+  os << std::endl; //TODO: HANDLE WHEN THIS OUTPUTS A BLANK LINE
+
+  std::map<int, int> bondsPerType = configuration.getBondsPerType();
+  os << "[BONDS_PER_TYPE]" << std::endl;
+  if (bondsPerType.size() == 0) {
+    os << 1 << " " << 0 << std::endl;
+  }
+  for (const auto& [key, value] : bondsPerType) {
+    os << key << " " << value << std::endl;
+  }
+  
+  std::set<std::pair<double, int>> taus = configuration.getTaus();
+  os << "[TAUS]" << std::endl;
+  int numTaus = taus.size();
+  for (const auto& tau : taus) {
+    os << tau.first << " " << tau.second << std::endl;
+  }
+
+  std::map<double, Bond> bonds = configuration.getBonds();
+  os << "[BONDS]" << std::endl;
+  int numBonds = configuration.getNumBonds();
+  int i = 0;
+  for (const auto& [key, value] : bonds) {
+    os << key << std::endl << value;
+    if (i != numBonds - 1) os << std::endl; //TODO: MIGHT NOT NEED THIS IF IT'S ADDING A BLANK LINE
+    i++;
+  }
+  
   return os;
 }
+
+std::istream& operator>>(std::istream& is, Configuration& configuration) {
+  std::streampos pos = is.tellg();
+  std::string line;
+  while (std::getline(is, line)) { //TODO: Just output bonds, and then add them back in exactly as if they were being added by the algorithm?
+    size_t start = line.find("["); size_t end = line.find("]");
+    if (start == std::string::npos || end == std::string::npos) {
+      continue;
+    }
+    std::string title = line.substr(start + 1, end - (start + 1));
+    if (title == "TOLERANCE") {
+      if (std::getline(is, line)) {
+        configuration.setTolerance(std::stod(line));
+      }
+    } else if (title == "BETA") {
+      if (std::getline(is, line)) {
+        configuration.setBeta(std::stod(line));
+      }
+    } else if (title == "AVG_NBONDS_PER_GROUP") {
+      if (std::getline(is, line)) {
+        configuration.avgNbondsPerGroup = std::stoi(line);
+      }
+    } else {
+      while (true) {
+        pos = is.tellg();
+        if (!std::getline(is, line)) {
+          return is;
+        }
+        if (line.find("[") == std::string::npos) {
+          std::stringstream ss(line);
+
+          
+          if (title == "TAU_GROUP_STARTS") {
+            double num;
+            while (ss >> num) {
+              configuration.tauGroupStarts.push_back(
+                  configuration.truncateToTolerance(num));
+            }
+          } else if (title == "BONDS_PER_TYPE") {
+            int key; int val;
+            ss >> key; ss >> val;
+            configuration.bondsPerType[key] = val;
+          } else if (title == "TAUS") {
+            int timeGroupInd; double tauVal;
+            ss >> tauVal; ss >> timeGroupInd;
+            tauVal = configuration.truncateToTolerance(tauVal);
+            configuration.taus.insert(std::pair<double, int>(tauVal, timeGroupInd));
+
+          } else if (title == "BONDS") {
+            double tau;
+            ss >> tau;
+            tau = configuration.truncateToTolerance(tau);
+
+            if (!std::getline(is, line)) {
+              return is;
+            }
+
+            ss.clear();
+            ss.str(line);
+
+            std::set<int> inds;
+            int ind;
+            while (ss >> ind) {
+              inds.insert(ind);
+            }
+
+            configuration.bonds.insert({tau, Bond(inds)});
+          } else {
+            return is;
+          }
+        } else {
+          is.seekg(pos);
+          break;
+        }
+      }
+    } 
+  }
+
+  return is;
+}
+
 
 double Configuration::truncateToTolerance(double key) const {
   return std::round(key / tolerance) * tolerance;

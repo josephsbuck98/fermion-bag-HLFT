@@ -2,17 +2,28 @@
 
 #include <iostream>
 #include <map>
+#include <unordered_map>
+#include <utility>
 #include <vector>
+
+#include "Constants.hpp"
+#include "Input.hpp"
 
 class Lattice {
 public:
-  Lattice(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts);
- 
-  int getNumSites();
   
-  float operator[](const int index) const; 
+  Lattice(LatticeInput input);
+
+  int getNumSites(consts::DirsType dir) const;
+  
+  double getSite(consts::DirsType dir, int index) const; 
 
 private:
-  int numSites;
-  std::vector<float> sites; //TODO: Change to support multiple dims
+  consts::LatticeType type;
+  consts::DimsType dims;
+  std::unordered_map<consts::DirsType, std::vector<double>, 
+      std::EnumClassHash<consts::DirsType>> sites;
+
+  std::unordered_map<consts::DirsType, std::vector<double>, 
+    std::EnumClassHash<consts::DirsType>> createSimpleCubic(LatticeInput input);
 };

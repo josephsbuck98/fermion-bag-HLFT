@@ -22,12 +22,10 @@ bool Bond::operator!=(const Bond& other) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Bond& bond) {
-  os << "Bond:\n\tNumSites=" << bond.numSites;
-  os << "\n\tIndices={";
-  for (auto it = bond.indices.begin(); it != bond.indices.end(); ++it) {
-    os << *it;
-    if (std::next(it) != bond.indices.end()) os << ", ";
+  std::set<int> inds = bond.getIndices();
+  for (auto it = inds.begin(); it != inds.end(); ++it) {
+    os << *it << " ";
   }
-  os << "}\n";
+
   return os;
 }

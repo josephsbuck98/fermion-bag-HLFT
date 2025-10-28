@@ -1,0 +1,128 @@
+% ============================================================
+% Section 05 - Input Parameters
+% ============================================================
+
+\section{Input Parameters}
+\label{sec:input}
+\sloppy
+
+
+% Format
+\subsection{Input File Format}
+The input files for this code are YAML files, so parameter specifications are
+in the form of key-value pairs. 
+Variables are often nested under a few keys for increased clarity.
+There are four primary categories of variables that can be set in these input 
+files: control, lattice, configuration, and constants.
+
+
+% Input Parameter Descriptions
+\subsection{Input Parameters}
+\begin{itemize}
+  \item \texttt{control}
+    Control parameters are any variables determining the overall execution of 
+    the code. 
+    \begin{itemize}
+      \item \texttt{hamil_model}
+        The bond switching algorithm to use in the relaxation process.
+        Currently, the only option is "random", but others will be introduced
+        as development proceeds.
+        \begin{itemize}
+          \item \texttt{random}
+            This hamiltonian model randomly adds or removes a bond at a given
+            step according to some probability of addition or removel (name?). 
+            It starts with an empty starting configuration and proceeds with
+            additions and removals.
+            The location of the bond is random, the tau value is random between
+            0 and beta, and the number of sites in the bond is randomly chosen
+            according to bond_type_props.
+            This proceeds for nmoves iterations.
+            For more information, see \ref{sec:physics_implementations}.
+        \end{itemize}
+      \item \texttt{nmoves}
+        The number of times the configuration should be updated.
+    \end{itemize}
+  \item \texttt{lattice}
+    Lattice parameters include all variables needed to fully determine the 
+    lattice structure. 
+    \begin{itemize}
+      \item \texttt{type}
+        The Bravais lattice type. 
+        The only supported type is "simple-cubic" in one dimension at the 
+        moment. 
+        Support will be added for up to three dimensions and a variety of 
+        Bravais lattice types.
+      \item \texttt{a, b, c}
+        The axial lengths of the Bravais lattice in Bohr.
+        If only a is supplied, the lattice will be one dimensional.
+        If a and b are supplied it will be two, and if all three are 
+        supplied it will be three dimensional. 
+      \item \texttt{alpha, beta, gamma}
+        The angles completing the Bravais lattice definition in radians. 
+        If only a is supplied, these angles will be ignored.
+        If a and b are supplied, only alpha is required. 
+        If a, b, and c are supplied, all angles are required.
+      \item \texttt{lims}
+        The lims section is for defining information on the overall spatial 
+        extent of the lattice. 
+        \begin{itemize}
+          \item \texttt{x, y, z}
+            Variables x, y, and x are subcategories of the lims section.
+            If a is supplied, x must be set, etc. 
+            \begin{itemize}
+              \item \texttt{min}
+                The minimum value in Bohr that the lattice should extend to in
+                the given dimension.
+              \item \texttt{max\_factor}
+                Instead of setting a maximum limit for the given dimension, you
+                choose the maximum number of multiples of the unit cell as a 
+                way of specifying the upper limit.  
+                This parameter, along with "base", determines the upper limit 
+                of the lattice.
+              \item \texttt{base}
+                The multiplier which acts as the "unit" that max\_factor is 
+                multiplied by to determine the upper boundary. 
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+  \item \texttt{configuration}
+    Configuration parameters fully determine the attributes of configurations
+    throughout the progression of the code. 
+    For definitions of configurations and related concepts, see Sections
+    \ref{sec:theory} and \ref{sec:physics_implementations}.
+    \begin{itemize}
+      \item \texttt{float\_tol}
+        The float tolerance determines how precise the tau variable needs to be
+        when retrieving the bond at a given tau. 
+        Bonds are stored in a hashmap, mapping from the tau float variable to a
+        bond object. 
+        If no floating point tolerance is specified, machine precision 
+        discrepancies could contribute to the code not recognizing a given tau. 
+        The default float tolerance is 1e-5. 
+      \item \texttt{beta}
+        Beta, or inverse temperature, is the maximum value that the tau 
+        variable in the code can take.
+        The tau variable is an "imaginary" time variable.
+      \item \texttt{bond\_type\_props}
+        Bonds in the code can be made up of one or more adjacent lattice sites.
+        The purpose of this parameter is to specify which bond sizes should be
+        included in the simulation, and the relative proportions of each size.
+        Bond sizes are given as keys under the bond\_type\_props section.
+        The relative proportions are given as the values corresponding to each 
+        key.
+        The proportions can be given as floats or integers. 
+        Renormalization is done in the code.
+    \end{itemize}
+  \item \texttt{constants}
+    This parameter section is the place to define useful constants that may be
+    needed to fully specify the input. 
+    For example, Bravais angles for a simple-cubic lattice need to be set to 
+    pi/2.
+    So, pi/2 would be a useful constant to store here.
+    The code does not rely on these user constants to perform its calculations.
+    Where those are needed, they are defined in the code. 
+\end{itemize}
+
+
+% Environment Variable Descriptions
+\subsection{Environment Variables}

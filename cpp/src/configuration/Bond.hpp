@@ -17,6 +17,6 @@ public:
 
 private:
   int numSites;
-  std::set<int> indices; //TODO: Change to support multiple dims
+  std::set<int> indices; //TODO: Change to support multiple dims (use enums like in Lattice)
 
 };

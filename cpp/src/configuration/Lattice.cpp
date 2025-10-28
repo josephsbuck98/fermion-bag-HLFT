@@ -3,56 +3,60 @@
 #include <string>
 #include <unordered_set>
 
+#include "EnumHelpers.hpp"
 #include "Lattice.hpp"
 
-void validateInputs(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts);
+std::vector<double> genUniform1DLattice(double min, double base, int nsites);
 
-Lattice::Lattice(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts) {
-  validateInputs(lims, npts);
+Lattice::Lattice(LatticeInput input) {
+  type = input.type;
+  dims = input.dims;
+  if (type == consts::LatticeType::SIMPLE_CUBIC) {
+    sites = createSimpleCubic(input);
+  } else {
+    // sites = createHoneycomb(input);
+  }
+};
+
+std::unordered_map<consts::DirsType, std::vector<double>, 
+    std::EnumClassHash<consts::DirsType>> 
+    Lattice::createSimpleCubic(LatticeInput input) {
+
+  std::unordered_map<consts::DirsType, std::vector<double>, 
+      std::EnumClassHash<consts::DirsType>> new_sites;
   
-  //TODO: Assume for now that xnpts and xlims are present, without checking.
-  numSites = npts.at("xnpts"); //TODO: times ynpts times znpts
-  float xstep = (lims.at("xlims").second - lims.at("xlims").first) / (npts.at("xnpts") - 1);
-  sites.resize(npts.at("xnpts"));
-  sites[0] = lims.at("xlims").first;
-  for (int i = 1; i < npts.at("xnpts"); i++) {
-    sites[i] = sites[i - 1] + xstep;
-  }
-};
+  // X, Y, and Z
+  double min = input.x_min; double base = input.a; int nsites = input.x_nsites;
+  new_sites[consts::DirsType::X] = genUniform1DLattice(min, base, nsites);
 
-void validateInputs(std::map<std::string, std::pair<float, float>> lims, std::map<std::string, int> npts) {
-  //TODO: Check that if xlims is present, xnpts is too, and vice versa, and so on.
-  //TODO: Check that xlims and xnpts are always present 
-  std::unordered_set<std::string> validLimKeys = {"xlims", "ylims", "zlims"};
-  std::unordered_set<std::string> validNptsKeys = {"xnpts", "ynpts", "znpts"};
- 
-  // Validate lims
-  for (const auto& limsElem : lims) {
-    if (validLimKeys.count(limsElem.first) == 0) {
-      throw std::invalid_argument("Lattice limit key " + limsElem.first + " is not valid.");
-    } else if (limsElem.second.first > limsElem.second.second) {
-      throw std::invalid_argument("Lower lattice limit " + 
-                std::to_string(limsElem.second.first) +
-                " cannot be greater than upper limit " + 
-                std::to_string(limsElem.second.second) + ".");
-    }
+  // Y and Z
+  if (dims == consts::DimsType::TWO || dims == consts::DimsType::THREE) {
+    min = input.y_min; base = input.b; nsites = input.y_nsites;
+    new_sites[consts::DirsType::Y] = genUniform1DLattice(min, base, nsites);
   }
 
-  // Validate npts 
-  for (const auto& nptsElem : npts) {
-    if (validNptsKeys.count(nptsElem.first) == 0) {
-      throw std::invalid_argument("Npts key " + nptsElem.first + " is not valid.");
-    } else if (nptsElem.second < 0) {
-      throw std::invalid_argument("Npts in any direction must be at least 0, "
-        "but was " + std::to_string(nptsElem.second) + ".");
-    }
+  // Z
+  if (dims == consts::DimsType::THREE) {
+    min = input.z_min; base = input.c; nsites = input.z_nsites;
+    new_sites[consts::DirsType::Z] = genUniform1DLattice(min, base, nsites);
   }
+
+  return new_sites;
+}
+
+std::vector<double> genUniform1DLattice(double min, double base, int nsites) {
+  std::vector<double> new_lattice(nsites);
+  new_lattice[0] = min;
+  for (int i = 1; i < nsites; i++) {
+    new_lattice[i] = new_lattice[i - 1] + base;
+  }
+  return new_lattice;
+}
+
+int Lattice::getNumSites(consts::DirsType dir) const {
+  return sites.at(dir).size();
 };
 
-int Lattice::getNumSites() {
-  return numSites;
-};
-
-float Lattice::operator[](const int index) const {
-  return sites[index];
+double Lattice::getSite(consts::DirsType dir, int index) const {
+  return sites.at(dir)[index];
 };
