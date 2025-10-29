@@ -43,7 +43,7 @@ namespace InputParser {
         // Require a, x_min, x_nsites, x_bc_type. Already there, so no action required.
       }
       if (hamiltonianInput.model == consts::HamilModel::RANDOM) {
-        // Require nbonds_stop_sweeps, nbonds_stop_tol, max_sweeps, insert_prob, num_time_groups_init, scale_num_updates
+        // Require nbonds_stop_sweeps, nbonds_stop_tol, max_sweeps, insert_prob, init_num_time_groups, scale_num_updates
       }
     }//TODO: Validate y, z, honeycomb, and other hamiltonians later.
   };
