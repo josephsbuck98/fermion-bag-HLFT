@@ -88,8 +88,7 @@ namespace RestartInputParser {
     void validate() const {
       //TODO: Ensure the starting sweep number is less than the max sweeps number.
       //TODO: Ensure the number of taus is the same as the number of bonds
-      std::cout << "INSIDE VALIDATE" << std::endl;
-
+      configuration.validate();
     }
   };
 

@@ -130,7 +130,7 @@ struct LatticeInput {
   double a = 0.0, b = 0.0, c = 0.0;
   double alpha = 0.0, beta = 0.0, gamma = 0.0;
 
-  //TODO: Don't set defaults for other params, b/c might use their absence to infer dimensionality
+  //TODO: Don't set defaults for other params, b/c might use their absence to infer dimensionality?
 
   consts::BoundType x_bc_type, y_bc_type, z_bc_type;
   double x_min = 0.0, y_min = 0.0, z_min = 0.0;
@@ -261,15 +261,12 @@ struct ConfigurationInput {
   double float_tol = 1e-5;
   double beta = 0.0;
   int numTimeGroups = 5; //NOTE: Keep this here. It doesn't get read in here but it gets copied over from ControlInput
-  int avgNbondsPerGroup = 30;
 
   void validate() const { 
     if (float_tol < 1e-15) throw std::runtime_error("ConfigurationInput: "
         "'float_tol' must be greater than 1e-15 and non-negative.");
     if (beta <= 0) throw std::runtime_error("ConfigurationInput: "
         "'beta' must be greater than 0.");
-    if (avgNbondsPerGroup <= 1) throw std::runtime_error("ConfigurationInput: " 
-        "'avg_nbonds_per_group' must be greater than 1.");
   }
 
   friend std::ostream& operator<<(std::ostream& os, 
@@ -290,8 +287,6 @@ struct convert<ConfigurationInput> {
 
     if (node["float_tol"]) rhs.float_tol = getRequiredScalar<double>(node, "float_tol");
     if (node["beta"]) rhs.beta = getRequiredScalar<double>(node, "beta");
-    if (node["avg_nbonds_per_group"]) rhs.avgNbondsPerGroup = 
-        getRequiredScalar<int>(node, "avg_nbonds_per_group");
 
     return true;
   }

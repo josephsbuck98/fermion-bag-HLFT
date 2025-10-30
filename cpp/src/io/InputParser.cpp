@@ -61,18 +61,6 @@ ParsedRestartInput parseRestartInputFile(const fs::path& restartPath) {
 
   file.close();
 
-
-
-
-
-  //   pRI.restartPopulated = false;
-  //   std::cout << "WARNING: RESTART file corrupted or incomplete. Disregard "
-  //       "this message if you intended to create a blank RESTART file for the "
-  //       "purpose of initiating restarts w/o specifying in the input yaml.\n"; //TODO: Place in generic output file instead?
-  //   return pRI;
-  // }
-
-
   //TODO: If validation was not 100%, throw an error. Probably don't need the restartPopulated variable
 
   pRI.restartPopulated = true;

@@ -12,8 +12,21 @@ Configuration::Configuration(ConfigurationInput input) {
   beta = input.beta;
   bonds = {};
   taus = {};
-  avgNbondsPerGroup = input.avgNbondsPerGroup;
   tauGroupStarts = generateTauGroupStarts(beta, input.numTimeGroups);
+}
+
+void Configuration::validate() const {
+  if (taus.size() != bonds.size()) {
+    throw std::runtime_error("Configuration: The number of taus was not equal "
+        "to the number of bonds in the configuration.");
+  }
+  for (const auto& [tau, _] : taus) {
+    Bond bond = getBond(tau);
+    if (bond.getNumSites() == 0) {
+      throw std::runtime_error("Configuration: A tau value from taus was not "
+          "found in bonds.");
+    }
+  }
 }
 
 void Configuration::setTauGroupStarts(std::vector<double> newTauGroupStarts) {
@@ -54,16 +67,6 @@ bool Configuration::setTolerance(double tol) {
 
 double Configuration::getTolerance() const {
   return tolerance;
-}
-
-int Configuration::getAvgNbondsPerGroup() const {
-  return avgNbondsPerGroup;
-}
-
-int Configuration::calcNumTimeGroups(int numTimeGroups) {
-  double exactNumGroups = taus.size() / static_cast<double>(avgNbondsPerGroup);
-  int newNumTimeGroups = static_cast<int>(std::floor(exactNumGroups + 1));
-  return newNumTimeGroups < numTimeGroups ? numTimeGroups : newNumTimeGroups;
 }
 
 std::vector<double> generateTauGroupStarts(double beta, int numTimeGroups) {
@@ -192,7 +195,6 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
   os << "[[CONFIGURATION]]" << std::endl;
   os << "[TOLERANCE]\n" << configuration.getTolerance() << std::endl;
   os << "[BETA]\n" << configuration.getBeta() << std::endl;
-  os << "[AVG_NBONDS_PER_GROUP]\n" << configuration.getAvgNbondsPerGroup() << std::endl;
   
   std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
   os << "[TAU_GROUP_STARTS]" << std::endl;
@@ -249,10 +251,6 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
     } else if (title == "BETA") {
       if (std::getline(is, line)) {
         configuration.setBeta(std::stod(line));
-      }
-    } else if (title == "AVG_NBONDS_PER_GROUP") {
-      if (std::getline(is, line)) {
-        configuration.avgNbondsPerGroup = std::stoi(line);
       }
     } else {
       while (true) {

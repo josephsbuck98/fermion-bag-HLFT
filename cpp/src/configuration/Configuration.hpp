@@ -12,6 +12,8 @@ public:
   Configuration() = default;
   Configuration(ConfigurationInput input);
 
+  void validate() const;
+
   void setTauGroupStarts(std::vector<double> newTauGroupStarts);
   const std::vector<double>& getTauGroupStarts() const;
 
@@ -19,8 +21,6 @@ public:
 
   bool setTolerance(double tol);
   double getTolerance() const;
-
-  int getAvgNbondsPerGroup() const;
 
   int calcNumTimeGroups(int numTimeGroups);
 
@@ -71,7 +71,6 @@ private:
   std::map<double, Bond> bonds;
   std::set<std::pair<double, int>> taus;
 
-  int avgNbondsPerGroup;
   std::vector<double> tauGroupStarts;
   std::map<int, int> bondsPerType;
 
