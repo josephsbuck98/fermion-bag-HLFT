@@ -13,7 +13,7 @@ Configuration::Configuration(ConfigurationInput input) {
   bonds = {};
   taus = {};
   avgNbondsPerGroup = input.avgNbondsPerGroup;
-  tauGroupStarts = generateTauGroupStarts(beta, input.initNumTimeGroups);
+  tauGroupStarts = generateTauGroupStarts(beta, input.numTimeGroups);
 }
 
 void Configuration::setTauGroupStarts(std::vector<double> newTauGroupStarts) {
@@ -60,17 +60,17 @@ int Configuration::getAvgNbondsPerGroup() const {
   return avgNbondsPerGroup;
 }
 
-int Configuration::calcNumTimeGroups(int initNumTimeGroups) {
+int Configuration::calcNumTimeGroups(int numTimeGroups) {
   double exactNumGroups = taus.size() / static_cast<double>(avgNbondsPerGroup);
   int newNumTimeGroups = static_cast<int>(std::floor(exactNumGroups + 1));
-  return newNumTimeGroups < initNumTimeGroups ? initNumTimeGroups : newNumTimeGroups;
+  return newNumTimeGroups < numTimeGroups ? numTimeGroups : newNumTimeGroups;
 }
 
-std::vector<double> generateTauGroupStarts(double beta, int initNumTimeGroups) {
-  double groupWidth = beta / initNumTimeGroups;
-  std::vector<double> tauGroupStarts(initNumTimeGroups);
+std::vector<double> generateTauGroupStarts(double beta, int numTimeGroups) {
+  double groupWidth = beta / numTimeGroups;
+  std::vector<double> tauGroupStarts(numTimeGroups);
   tauGroupStarts[0] = 0.0;
-  for (int i = 1; i < initNumTimeGroups; i++) {
+  for (int i = 1; i < numTimeGroups; i++) {
     tauGroupStarts[i] = i * groupWidth;
   }
   return tauGroupStarts;

@@ -62,32 +62,19 @@ void Output::createOutFiles(std::string outDirName, std::string inFileName) {
   
   std::string stdOutPostfix = keyFromValue<std::string, consts::OutFileType>
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::STD_OUT_POSTFIX);
-  fs::path stdOutPath = outDir / (outDirName + stdOutPostfix);
-  if (!fs::exists(stdOutPath)) {
-    std::ofstream ofs(stdOutPath);
-    if (!ofs) throwError = true;
-  }
-
   std::string sweepsFileName = keyFromValue<std::string, consts::OutFileType>
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::SWEEPS);
-  fs::path sweepsDatPath = outDir / sweepsFileName;
-  if (!fs::exists(sweepsDatPath)) {
-    std::ofstream ofs(sweepsDatPath);
-    if (!ofs) throwError = true;
-  }
-
   std::string bondsPerTypeFileName = 
       keyFromValue<std::string, consts::OutFileType>
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::BONDS_PER_TYPE);
-  fs::path bondsPerTypeDatPath = outDir / bondsPerTypeFileName;
-  if (!fs::exists(bondsPerTypeDatPath)) {
-    std::ofstream ofs(bondsPerTypeDatPath);
-    if (!ofs) throwError = true;
-  }
-
   std::string inputGenericFileName = 
       keyFromValue<std::string, consts::OutFileType>
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::INPUT);
+
+  throwError = createOutFile(outDirName + stdOutPostfix, 
+      consts::OutFileType::STD_OUT_POSTFIX);
+  throwError = createOutFile(sweepsFileName, consts::OutFileType::SWEEPS);
+  throwError = createOutFile(sweepsFileName, consts::OutFileType::BONDS_PER_TYPE);
   fs::copy_file(fs::current_path() / inFileName, 
       outDir / inputGenericFileName, fs::copy_options::overwrite_existing);
   
@@ -95,12 +82,21 @@ void Output::createOutFiles(std::string outDirName, std::string inFileName) {
       "the output files could not be created");
 }
 
+bool Output::createOutFile(std::string outFileName, consts::OutFileType fileType) {
+  fs::path outFilePath = outDir / outFileName;
+  if (!fs::exists(outFilePath)) {
+    std::ofstream ofs(outFilePath);
+    if (!ofs) return true;
+  }  
+  return false;
+}
+
 
 
 // Functions to store and write sweep data
-void Output::storeSweep(Sweep sweep) {
+void Output::storeSweep(Sweep sweep, int startSweepId) {
   int outSweepsPatience = input.outputInput.outSweepsPatience;
-  int index = sweep.getId() % outSweepsPatience;
+  int index = (sweep.getId() - startSweepId) % outSweepsPatience; 
   sweepsCache[index] = std::move(sweep);
 
   if (index == outSweepsPatience - 1) {
@@ -118,7 +114,7 @@ void Output::writeAndClearSweepCache() {
     lastIter = i;
     writeSweepsLine(sweepsCache[i]);
     if (input.outputInput.writeBondsPerType) { 
-      writeBondsPerTypeLine(sweepsCache[i]); //TODO: THIS IS NOT WORKING FOR SOME REASON
+      writeBondsPerTypeLine(sweepsCache[i]); 
     }
     if (input.controlInput.maxSweeps - 1 == sweepsCache[i].getId() ||
         sweepsCache.size() - 1 == i) {
@@ -126,14 +122,14 @@ void Output::writeAndClearSweepCache() {
     }
   }
   if (input.outputInput.restarts) {
-    writeRestartFiles(sweepsCache[lastIter].getId());
+    writeRestartFile(sweepsCache[lastIter].getId());
   }
 }
 
 
 
 // Functions to write out and read restart files
-void Output::writeRestartFiles(int currSweepId) {
+void Output::writeRestartFile(int currSweepId) {
   std::cout << "Writing restart file..." << std::endl;
 
   std::ofstream restartStream(getRestartPath());

@@ -16,11 +16,12 @@ public:
 
   void createOutDir(); //TODO: Private
   void createOutFiles(std::string outDirName, std::string inFileName); //TODO: Private
+  bool createOutFile(std::string outFileName, consts::OutFileType fileType);
 
-  void storeSweep(Sweep newSweep);
+  void storeSweep(Sweep newSweep, int startSweepId);
   void writeAndClearSweepCache(); //TODO: Private
 
-  void writeRestartFiles(int currSweepId);
+  void writeRestartFile(int currSweepId);
 
   void writeHeader();
   void writeSweepsHeader();

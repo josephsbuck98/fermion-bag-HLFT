@@ -11,7 +11,7 @@ Sweep::Sweep(InputParser::ParsedInput input, int id) {
   ControlInput controlInput = input.controlInput;
 
   this->input = input;
-  this->initNumTimeGroups = controlInput.initNumTimeGroups;
+  this->numTimeGroups = controlInput.numTimeGroups;
   this->scaleNumUpdates = controlInput.scaleNumUpdates;
   this->id = id;
 }
@@ -19,7 +19,7 @@ Sweep::Sweep(InputParser::ParsedInput input, int id) {
 
 void Sweep::run(Configuration& configuration, const Lattice& lattice) {
   // // Calculate the number of time groups and create the new vector of group starts
-  // numTimeGroups = configuration.calcNumTimeGroups(initNumTimeGroups);
+  // numTimeGroups = configuration.calcNumTimeGroups(numTimeGroups);
   // std::vector<double> newTauGroupStarts = generateTauGroupStarts( //TODO: CHANGE THIS TO A MEMBER FUNCTION
   //     configuration.getBeta(), numTimeGroups);
   // configuration.setTauGroupStarts(newTauGroupStarts); //TODO: UNCOMMENT TO UPDATE TAU GROUP STARTS
@@ -27,7 +27,7 @@ void Sweep::run(Configuration& configuration, const Lattice& lattice) {
   // Calculate the number of updates per group per sweep to do
   numUpdatesPerGroup = calcNumUpdatesPerGroup(scaleNumUpdates, 
       configuration.getBeta(), lattice.getNumSites(consts::DirsType::X), //TODO: In the future, getNumSites should automatically detect the lattice structure, and use its points to compute total sites
-      this->initNumTimeGroups);
+      this->numTimeGroups);
 
   // Create the correct hamiltonian object
   consts::HamilModel hamilModel = input.hamiltonianInput.model;

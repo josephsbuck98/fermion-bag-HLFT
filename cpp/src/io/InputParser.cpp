@@ -10,7 +10,7 @@ ParsedInput parseInputFile(const std::string& filename) {
   ParsedInput pI = YAML::LoadFile(filename).as<ParsedInput>();
 
   // Carry out any final changes
-  pI.configurationInput.initNumTimeGroups = pI.controlInput.initNumTimeGroups;
+  pI.configurationInput.numTimeGroups = pI.controlInput.numTimeGroups;
 
   return pI;
 }

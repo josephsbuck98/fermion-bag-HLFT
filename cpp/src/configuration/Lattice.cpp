@@ -11,6 +11,7 @@ std::vector<double> genUniform1DLattice(double min, double base, int nsites);
 Lattice::Lattice(LatticeInput input) {
   type = input.type;
   dims = input.dims;
+  boundTypes[consts::DirsType::X] = input.x_bc_type;
   if (type == consts::LatticeType::SIMPLE_CUBIC) {
     sites = createSimpleCubic(input);
   } else {
@@ -60,3 +61,7 @@ int Lattice::getNumSites(consts::DirsType dir) const {
 double Lattice::getSite(consts::DirsType dir, int index) const {
   return sites.at(dir)[index];
 };
+
+consts::BoundType Lattice::getBoundType(consts::DirsType dir) const {
+  return boundTypes.at(dir);
+}

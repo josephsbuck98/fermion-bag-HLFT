@@ -16,7 +16,7 @@ Driver::Driver(InputParser::ParsedInput input) {
   equilSweepsTol = controlInput.equilSweepsTol; 
   scaleNumUpdates = controlInput.scaleNumUpdates;
   maxSweeps = controlInput.maxSweeps;
-  initNumTimeGroups = controlInput.initNumTimeGroups;
+  numTimeGroups = controlInput.numTimeGroups;
 }
 
 void Driver::run(Configuration& configuration, const Lattice& lattice, 
@@ -54,7 +54,7 @@ void Driver::run(Configuration& configuration, const Lattice& lattice,
     newSweep.run(configuration, lattice);
 
     // Handle data output logic
-    output.storeSweep(newSweep);
+    output.storeSweep(newSweep, startSweepId);
 
     //TODO: Log equilibration data and any other data.
     sweep_iter++;

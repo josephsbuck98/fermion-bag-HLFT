@@ -22,7 +22,7 @@ struct ControlInput {
   double equilSweepsTol = 0.1;
   double scaleNumUpdates = 1;
   int maxSweeps = 100; 
-  int initNumTimeGroups = 5;
+  int numTimeGroups = 5;
   uint64_t randomSeed = 0;
 
   void validate() const {
@@ -34,8 +34,8 @@ struct ControlInput {
         "'scale_num_updates' must be greater than 0.");
     if (maxSweeps < 0) throw std::runtime_error("ControlInput: 'max_sweeps'"
         "must be greater than 0.");
-    if (initNumTimeGroups <= 0) throw std::runtime_error("ConfigurationInput: "
-        "'init_num_time_groups' must be greater than 0.");
+    if (numTimeGroups <= 0) throw std::runtime_error("ConfigurationInput: "
+        "'num_time_groups' must be greater than 0.");
   }
 
   friend std::ostream& operator<<(std::ostream& os, 
@@ -63,8 +63,8 @@ struct convert<ControlInput> {
         getRequiredScalar<double>(node, "scale_num_updates");
     if (node["max_sweeps"]) rhs.maxSweeps = 
         getRequiredScalar<int>(node, "max_sweeps");
-    if (node["init_num_time_groups"]) rhs.initNumTimeGroups = 
-        getRequiredScalar<int>(node, "init_num_time_groups");
+    if (node["num_time_groups"]) rhs.numTimeGroups = 
+        getRequiredScalar<int>(node, "num_time_groups");
     if (node["random_seed"]) rhs.randomSeed = 
         getRequiredScalar<uint64_t>(node, "random_seed");
     
@@ -260,7 +260,7 @@ struct convert<HamiltonianInput> {
 struct ConfigurationInput {
   double float_tol = 1e-5;
   double beta = 0.0;
-  int initNumTimeGroups = 5; //NOTE: Keep this here. It doesn't get read in here but it gets copied over from ControlInput
+  int numTimeGroups = 5; //NOTE: Keep this here. It doesn't get read in here but it gets copied over from ControlInput
   int avgNbondsPerGroup = 30;
 
   void validate() const { 

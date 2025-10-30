@@ -22,7 +22,7 @@ public:
 
   int getAvgNbondsPerGroup() const;
 
-  int calcNumTimeGroups(int initNumTimeGroups);
+  int calcNumTimeGroups(int numTimeGroups);
 
   void addBond(std::pair<double, int> tau, Bond& newBond);
   void addBonds(std::vector<std::pair<double, int>> newTaus, std::vector<Bond> newBonds);
@@ -78,4 +78,4 @@ private:
 };
 
 
-std::vector<double> generateTauGroupStarts(double beta, int initNumTimeGroups);
+std::vector<double> generateTauGroupStarts(double beta, int numTimeGroups);

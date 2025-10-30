@@ -18,9 +18,16 @@ public:
   
   double getSite(consts::DirsType dir, int index) const; 
 
+  consts::BoundType getBoundType(consts::DirsType dir) const;
+
 private:
   consts::LatticeType type;
+
   consts::DimsType dims;
+  
+  std::unordered_map<consts::DirsType, consts::BoundType, 
+      std::EnumClassHash<consts::DirsType>> boundTypes;
+
   std::unordered_map<consts::DirsType, std::vector<double>, 
       std::EnumClassHash<consts::DirsType>> sites;
 

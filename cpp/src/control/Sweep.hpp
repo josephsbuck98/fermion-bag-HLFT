@@ -78,7 +78,6 @@ private:
   InputParser::ParsedInput input;
 
   // Read in members
-  int initNumTimeGroups;
   int numTimeGroups;
   double scaleNumUpdates;
 

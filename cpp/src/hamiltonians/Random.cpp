@@ -40,11 +40,11 @@ void Random::normalizeBondTypeProps() {
 
 double getAcceptProb(consts::BondActionType actionType, int numSites, 
     double tauGroupWidth, int numBondsInRegion) {
-  double prob;
+  double prob; //TODO: GENERALIZE TO ANY BOND LENGTH, AND PERIODIC OR OPEN BC'S
   if (actionType == consts::BondActionType::INSERTION) {
-    prob = 2 * numSites * tauGroupWidth / numBondsInRegion;
+    prob = 2 * numSites * tauGroupWidth / numBondsInRegion; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
   } else if (actionType == consts::BondActionType::REMOVAL) {
-    prob = numBondsInRegion / (2 * numSites * tauGroupWidth); //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES
+    prob = numBondsInRegion / (2 * numSites * tauGroupWidth); //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
   } 
   return prob > 1.0 ? 1.0 : prob;
 }
@@ -86,11 +86,16 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
   std::pair<double, int> tauToInsert =  std::pair<double, int>
       (chooseUnifRandDoubWithBounds(regionData.lower, regionData.upper), 
       groupNum);
-  int latticeBondStart = chooseUnifRandIntWithBounds(0, 
-      lattice.getNumSites(consts::DirsType::X) - bondSize); //TODO: For periodic boundary conditions, any site can be chosen as the start, then use modulus (%) to get correct sites. Must figure out how to do multiple dimensions.
+  int latticeBondStart;
+  int numSites = lattice.getNumSites(consts::DirsType::X);
+  if (lattice.getBoundType(consts::DirsType::X) == consts::BoundType::OPEN) { // Open boundary
+    latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
+  } else { // Periodic boundary
+    latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
+  }//TODO: MULTIPLE DIMENSIONS
   std::set<int> bondSites;
   for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
-    bondSites.insert(i);
+    bondSites.insert(i % numSites);
   }
   Bond newBond(bondSites);
 
