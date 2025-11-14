@@ -17,30 +17,16 @@ Sweep::Sweep(InputParser::ParsedInput input, int id) {
 }
 
 
-void Sweep::run(Configuration& configuration, const Lattice& lattice,
-    const LatticeBase* latticeNEW) {
+void Sweep::run(Configuration& configuration, const LatticeBase* lattice) {
   // // Calculate the number of time groups and create the new vector of group starts
   // numTimeGroups = configuration.calcNumTimeGroups(numTimeGroups);
   // std::vector<double> newTauGroupStarts = generateTauGroupStarts( //TODO: CHANGE THIS TO A MEMBER FUNCTION
   //     configuration.getBeta(), numTimeGroups);
   // configuration.setTauGroupStarts(newTauGroupStarts); //TODO: UNCOMMENT TO UPDATE TAU GROUP STARTS
 
-
-
-
-
-  std::cout << std::endl << "Inside Sweep.run(). " << std::endl;
-  std::cout << latticeNEW->getNumSites(consts::DirsType::X) << std::endl;
-  latticeNEW->printInfo();
-  std::cout << std::endl;
-
-
-
-
-
   // Calculate the number of updates per group per sweep to do
   numUpdatesPerGroup = calcNumUpdatesPerGroup(scaleNumUpdates, 
-      configuration.getBeta(), latticeNEW->getNumSites(consts::DirsType::X), //TODO: In the future, getNumSites should automatically detect the lattice structure, and use its points to compute total sites
+      configuration.getBeta(), lattice->getNumSites(consts::DirsType::X), //TODO: In the future, getNumSites should automatically detect the lattice structure, and use its points to compute total sites
       this->numTimeGroups);
 
   // Create the correct hamiltonian object
@@ -49,13 +35,13 @@ void Sweep::run(Configuration& configuration, const Lattice& lattice,
     case consts::HamilModel::RANDOM:
     {
       Random hamiltonian = Random(input);
-      executeGroupUpdates(configuration, lattice, hamiltonian, latticeNEW);
+      executeGroupUpdates(configuration, hamiltonian, lattice);
       break;
     }
     case consts::HamilModel::TVModel:
     {
       TVModel hamiltonian = TVModel(input);
-      executeGroupUpdates(configuration, lattice, hamiltonian, latticeNEW);
+      executeGroupUpdates(configuration, hamiltonian, lattice);
       break;
     }
   }

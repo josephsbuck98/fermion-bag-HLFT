@@ -5,19 +5,6 @@
 #include "Driver.hpp"
 
 
-
-
-
-// #include "LatticeBase.hpp" //TODO: I think we only want to include LatticeBase here.
-// #include "SimpleCubic.hpp"
-// #include "Honeycomb.hpp"
-
-
-
-
-
-
-
 double calcError(int origVal, int newVal);
 
 //TODO: INPUT CURRENT SWEEP ITERATION IN CASE THIS IS A RESTART
@@ -32,23 +19,8 @@ Driver::Driver(InputParser::ParsedInput input) {
   numTimeGroups = controlInput.numTimeGroups;
 }
 
-void Driver::run(Configuration& configuration, const Lattice& lattice, 
-    Output& output, int startSweepId, const LatticeBase* latticeNEW) {
-  
-    
-
-
-
-  std::cout << std::endl << "Inside Driver.run(). " << std::endl;
-  std::cout << latticeNEW->getNumSites(consts::DirsType::X) << std::endl;
-  latticeNEW->printInfo();
-  std::cout << std::endl;
-
-
-
-
-
-
+void Driver::run(Configuration& configuration,
+    Output& output, int startSweepId, const LatticeBase* lattice) {
   auto calcError = [this](int currNbonds) {
     return std::abs((currStableNbonds - currNbonds) 
         / static_cast<double>(currStableNbonds));
@@ -79,7 +51,7 @@ void Driver::run(Configuration& configuration, const Lattice& lattice,
 
     // Run current sweep
     Sweep newSweep = Sweep(input, sweep_iter);
-    newSweep.run(configuration, lattice, latticeNEW);
+    newSweep.run(configuration, lattice);
 
     // Handle data output logic
     output.storeSweep(newSweep, startSweepId);

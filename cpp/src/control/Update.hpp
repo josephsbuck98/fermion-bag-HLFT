@@ -13,9 +13,9 @@ public:
     groupNum = num;
   }
 
-  consts::BondActionType run(Configuration& configuration, const Lattice& lattice, 
-      const HamiltonianType& hamiltonian, const LatticeBase* latticeNEW) {
-    return hamiltonian.applyUpdate(configuration, lattice, groupNum, this->regionData, latticeNEW);
+  consts::BondActionType run(Configuration& configuration, 
+      const HamiltonianType& hamiltonian, const LatticeBase* lattice) {
+    return hamiltonian.applyUpdate(configuration, groupNum, this->regionData, lattice);
   }
 
 private:

@@ -4,17 +4,7 @@
 
 #include "Configuration.hpp"
 #include "InputParser.hpp"
-#include "Lattice.hpp"
-
-
-
-
-
 #include "LatticeBase.hpp"
-
-
-
-
 
 
 class Random {
@@ -23,12 +13,11 @@ public:
   void normalizeBondTypeProps();
 
   consts::BondActionType applyUpdate(Configuration& configuration, 
-      const Lattice& lattice, int groupNum, 
-      Configuration::RegionData& regionData, const LatticeBase* latticeNEW) const;
-
-  void handleInsert(Configuration& configuration, const Lattice& lattice, 
       int groupNum, Configuration::RegionData& regionData, 
-      const LatticeBase* latticeNEW) const;
+      const LatticeBase* lattice) const;
+
+  void handleInsert(Configuration& configuration, int groupNum, 
+      Configuration::RegionData& regionData, const LatticeBase* lattice) const;
 
   void handleRemoval(Configuration& configuration, 
       Configuration::RegionData& regionData) const;

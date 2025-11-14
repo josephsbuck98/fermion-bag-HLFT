@@ -5,7 +5,6 @@
 
 #include "Configuration.hpp"
 #include "InputParser.hpp"
-#include "Lattice.hpp"
 #include "Update.hpp"
 
 
@@ -13,25 +12,11 @@ class Sweep {
 public:
   Sweep(InputParser::ParsedInput input, int id);
 
-  void run(Configuration& configuration, const Lattice& lattice,
-      const LatticeBase* latticeNEW);
+  void run(Configuration& configuration, const LatticeBase* lattice);
 
   template<typename HamiltonianType>
-  void executeGroupUpdates(Configuration& configuration, const Lattice& lattice,
-      const HamiltonianType& hamiltonian, const LatticeBase* latticeNEW) {
-
-
-
-
-    std::cout << std::endl << "Inside Sweep.executeGroupUpdates(). " << std::endl;
-    std::cout << latticeNEW->getNumSites(consts::DirsType::X) << std::endl;
-    latticeNEW->printInfo();
-    std::cout << std::endl;
-    
-
-
-
-
+  void executeGroupUpdates(Configuration& configuration,
+      const HamiltonianType& hamiltonian, const LatticeBase* lattice) {
 
     std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
     
@@ -49,7 +34,7 @@ public:
       // Create Update classes and call their run functions 
       for (int i = 0; i < numUpdatesPerGroup; i++) {
         Update<HamiltonianType> update(groupNum, regionData);
-        auto updateType = update.run(configuration, lattice, hamiltonian, latticeNEW);
+        auto updateType = update.run(configuration, hamiltonian, lattice);
         switch (updateType) {
           case consts::BondActionType::REJECTION:
             finNumRejects++;

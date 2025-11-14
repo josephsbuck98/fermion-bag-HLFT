@@ -7,7 +7,7 @@ TVModel::TVModel(InputParser::ParsedInput input) {
 
 
 consts::BondActionType TVModel::applyUpdate(Configuration& configuration, 
-    const Lattice& lattice, int groupNum, 
-    Configuration::RegionData regionData, const LatticeBase* latticeNEW) const {
+    int groupNum, Configuration::RegionData regionData, 
+    const LatticeBase* lattice) const {
   return consts::BondActionType::INSERTION;
 }

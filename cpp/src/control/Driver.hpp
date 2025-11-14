@@ -10,8 +10,8 @@ class Driver {
 public:
   Driver(InputParser::ParsedInput input);
 
-  void run(Configuration& curr_configuration, const Lattice& lattice,
-      Output& output, int startSweepId, const LatticeBase* latticeNEW);
+  void run(Configuration& curr_configuration,
+      Output& output, int startSweepId, const LatticeBase* lattice);
 
 private:
   InputParser::ParsedInput input;
