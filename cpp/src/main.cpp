@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
   std::cout << "Generating lattice and initial configuration.\n"; 
   int startSweepId = 0;
   Configuration configuration = Configuration(input.configurationInput);
-  Lattice lattice = Lattice(input.latticeInput);
+  Lattice lattice = Lattice(input.latticeInput); //TODO: REMOVE THIS EVENTUALLY
   Output output(input, filename, configuration);
   std::cout << "Finished initializing configuration, lattice, and output.\n\n";
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
   // Create Driver object and call its .run() function.
   Driver driver = Driver(input);
 
-  driver.run(configuration, lattice, output, startSweepId);
+  driver.run(configuration, lattice, output, startSweepId, latticeNEW.get());
   //TODO: USER SHOULD ALWAYS BE ABLE TO SPECIFY THE MAX SWEEPS, BUT THEY SHOULD ALSO BE ABLE TO SPECIFY THE NUMBER OF SWEEPS BEYOND THE END OF THE RESTART FILE THAT THEY WANT TO DO. MAX SWEEPS WILL ALWAYS OVERRIDE. 
 
   return 0;

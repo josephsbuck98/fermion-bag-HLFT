@@ -6,5 +6,5 @@ target_include_directories(control_lib PUBLIC
   ${CMAKE_SOURCE_DIR}/src/hamiltonians
 )
 target_link_libraries(control_lib 
-  PUBLIC configuration_lib hamiltonians_lib io_lib utils_lib
+  PUBLIC configuration_lib hamiltonians_lib io_lib lattices_lib utils_lib
 )

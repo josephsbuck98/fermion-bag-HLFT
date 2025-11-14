@@ -7,7 +7,7 @@ void SimpleCubic::printInfo() const {
       << std::endl;
 }
 
-SimpleCubic::SimpleCubic(LatticeInput input) {
+SimpleCubic::SimpleCubic(LatticeInput input) { //TODO: Rewrite this constructor.
   type = input.type;
   dims = input.dims;
   boundTypes[consts::DirsType::X] = input.x_bc_type;

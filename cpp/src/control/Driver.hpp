@@ -6,12 +6,22 @@
 #include "Sweep.hpp"
 
 
+
+
+// #include "LatticeBase.hpp" //TODO: I think we only want to include LatticeBase here.
+
+
+
+
+
+
+
 class Driver {
 public:
   Driver(InputParser::ParsedInput input);
 
   void run(Configuration& curr_configuration, const Lattice& lattice,
-      Output& output, int startSweepId);
+      Output& output, int startSweepId, const LatticeBase* latticeNEW);
 
 private:
   InputParser::ParsedInput input;

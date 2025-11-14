@@ -7,6 +7,16 @@
 #include "Lattice.hpp"
 
 
+
+
+
+#include "LatticeBase.hpp"
+
+
+
+
+
+
 class Random {
 public:
   Random(InputParser::ParsedInput input);
@@ -14,10 +24,11 @@ public:
 
   consts::BondActionType applyUpdate(Configuration& configuration, 
       const Lattice& lattice, int groupNum, 
-      Configuration::RegionData& regionData) const;
+      Configuration::RegionData& regionData, const LatticeBase* latticeNEW) const;
 
   void handleInsert(Configuration& configuration, const Lattice& lattice, 
-      int groupNum, Configuration::RegionData& regionData) const;
+      int groupNum, Configuration::RegionData& regionData, 
+      const LatticeBase* latticeNEW) const;
 
   void handleRemoval(Configuration& configuration, 
       Configuration::RegionData& regionData) const;

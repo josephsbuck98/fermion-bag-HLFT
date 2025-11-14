@@ -51,7 +51,20 @@ double getAcceptProb(consts::BondActionType actionType, int numSites,
 
 
 consts::BondActionType Random::applyUpdate(Configuration& configuration, const Lattice& lattice,
-  int groupNum, Configuration::RegionData& regionData) const {
+    int groupNum, Configuration::RegionData& regionData, const LatticeBase* latticeNEW) const {
+
+
+
+
+
+  std::cout << std::endl << "Inside Random.applyUpdate(). " << std::endl;
+  std::cout << latticeNEW->getNumSites(consts::DirsType::X) << std::endl;
+  latticeNEW->printInfo();
+  std::cout << std::endl;
+
+
+
+
 
   int numSites = lattice.getNumSites(consts::DirsType::X);
   double tauGroupWidth = regionData.upper - regionData.lower;
@@ -62,7 +75,7 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
             regionData.nBondsInRegion);
     bool acceptInsert = bernoulli(acceptInsertProb);
     if (acceptInsert) {
-      handleInsert(configuration, lattice, groupNum, regionData);
+      handleInsert(configuration, lattice, groupNum, regionData, latticeNEW);
       return consts::BondActionType::INSERTION;
     }
   } else {
@@ -80,7 +93,8 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
 
 
 void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
-    int groupNum, Configuration::RegionData& regionData) const {
+    int groupNum, Configuration::RegionData& regionData, 
+    const LatticeBase* latticeNEW) const {
       
   int bondSize = chooseWeightedRandInt(bondTypeProps);
   std::pair<double, int> tauToInsert =  std::pair<double, int>
@@ -92,7 +106,7 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
     latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
   } else { // Periodic boundary
     latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
-  }//TODO: MULTIPLE DIMENSIONS
+  }//TODO: HANDLE MULTIPLE DIMENSIONS AND DIFFERENT LATTICE TYPES
   std::set<int> bondSites;
   for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
     bondSites.insert(i % numSites);

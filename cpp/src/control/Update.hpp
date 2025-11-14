@@ -14,8 +14,8 @@ public:
   }
 
   consts::BondActionType run(Configuration& configuration, const Lattice& lattice, 
-      const HamiltonianType& hamiltonian) {
-    return hamiltonian.applyUpdate(configuration, lattice, groupNum, this->regionData);
+      const HamiltonianType& hamiltonian, const LatticeBase* latticeNEW) {
+    return hamiltonian.applyUpdate(configuration, lattice, groupNum, this->regionData, latticeNEW);
   }
 
 private:

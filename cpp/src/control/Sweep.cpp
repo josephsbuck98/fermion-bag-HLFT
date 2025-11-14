@@ -17,12 +17,26 @@ Sweep::Sweep(InputParser::ParsedInput input, int id) {
 }
 
 
-void Sweep::run(Configuration& configuration, const Lattice& lattice) {
+void Sweep::run(Configuration& configuration, const Lattice& lattice,
+    const LatticeBase* latticeNEW) {
   // // Calculate the number of time groups and create the new vector of group starts
   // numTimeGroups = configuration.calcNumTimeGroups(numTimeGroups);
   // std::vector<double> newTauGroupStarts = generateTauGroupStarts( //TODO: CHANGE THIS TO A MEMBER FUNCTION
   //     configuration.getBeta(), numTimeGroups);
   // configuration.setTauGroupStarts(newTauGroupStarts); //TODO: UNCOMMENT TO UPDATE TAU GROUP STARTS
+
+
+
+
+
+  std::cout << std::endl << "Inside Sweep.run(). " << std::endl;
+  std::cout << latticeNEW->getNumSites(consts::DirsType::X) << std::endl;
+  latticeNEW->printInfo();
+  std::cout << std::endl;
+
+
+
+
 
   // Calculate the number of updates per group per sweep to do
   numUpdatesPerGroup = calcNumUpdatesPerGroup(scaleNumUpdates, 
@@ -35,13 +49,13 @@ void Sweep::run(Configuration& configuration, const Lattice& lattice) {
     case consts::HamilModel::RANDOM:
     {
       Random hamiltonian = Random(input);
-      executeGroupUpdates(configuration, lattice, hamiltonian);
+      executeGroupUpdates(configuration, lattice, hamiltonian, latticeNEW);
       break;
     }
     case consts::HamilModel::TVModel:
     {
       TVModel hamiltonian = TVModel(input);
-      executeGroupUpdates(configuration, lattice, hamiltonian);
+      executeGroupUpdates(configuration, lattice, hamiltonian, latticeNEW);
       break;
     }
   }

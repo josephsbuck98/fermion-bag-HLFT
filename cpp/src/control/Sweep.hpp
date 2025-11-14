@@ -8,15 +8,40 @@
 #include "Lattice.hpp"
 #include "Update.hpp"
 
+
+
+
+
+#include "LatticeBase.hpp" //TODO: I think we only want to include LatticeBase here.
+
+
+
+
+
+
 class Sweep { 
 public:
   Sweep(InputParser::ParsedInput input, int id);
 
-  void run(Configuration& configuration, const Lattice& lattice);
+  void run(Configuration& configuration, const Lattice& lattice,
+      const LatticeBase* latticeNEW);
 
   template<typename HamiltonianType>
   void executeGroupUpdates(Configuration& configuration, const Lattice& lattice,
-      const HamiltonianType& hamiltonian) {
+      const HamiltonianType& hamiltonian, const LatticeBase* latticeNEW) {
+
+
+
+
+    std::cout << std::endl << "Inside Sweep.executeGroupUpdates(). " << std::endl;
+    std::cout << latticeNEW->getNumSites(consts::DirsType::X) << std::endl;
+    latticeNEW->printInfo();
+    std::cout << std::endl;
+    
+
+
+
+
 
     std::vector<double> tauGroupStarts = configuration.getTauGroupStarts();
     
@@ -34,7 +59,7 @@ public:
       // Create Update classes and call their run functions 
       for (int i = 0; i < numUpdatesPerGroup; i++) {
         Update<HamiltonianType> update(groupNum, regionData);
-        auto updateType = update.run(configuration, lattice, hamiltonian);
+        auto updateType = update.run(configuration, lattice, hamiltonian, latticeNEW);
         switch (updateType) {
           case consts::BondActionType::REJECTION:
             finNumRejects++;
