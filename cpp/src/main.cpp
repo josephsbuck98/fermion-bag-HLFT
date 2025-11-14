@@ -3,10 +3,12 @@
 
 #include "Configuration.hpp"
 #include "Driver.hpp"
+#include "Honeycomb.hpp"
 #include "InputParser.hpp"
 #include "Lattice.hpp"
 #include "Output.hpp"
 #include "RandomHelpers.hpp"
+#include "SimpleCubic.hpp"
 
 //TODO: SHOULD I BE PASSING ALL INPUT OBJECTS AS CONST & SO COPIES AREN'T BEING MADE EVERYWHERE?
 
@@ -34,13 +36,25 @@ int main(int argc, char* argv[]) {
 
 
 
-  // Initialize Configuration, Lattice, and Output classes
+  // Initialize Configuration and Output classes
   std::cout << "Generating lattice and initial configuration.\n"; 
   int startSweepId = 0;
   Configuration configuration = Configuration(input.configurationInput);
   Lattice lattice = Lattice(input.latticeInput);
   Output output(input, filename, configuration);
   std::cout << "Finished initializing configuration, lattice, and output.\n\n";
+
+
+
+  // Initialize Lattice
+  std::unique_ptr<LatticeBase> latticeNEW;
+  if (input.latticeInput.type == consts::LatticeType::SIMPLE_CUBIC) {
+    latticeNEW = std::make_unique<SimpleCubic>(input.latticeInput);
+  } else if (input.latticeInput.type == consts::LatticeType::HONEYCOMB) {
+    latticeNEW = std::make_unique<Honeycomb>(5); //TODO: INPUT PARAMETERS FOR NUMBER OF HONEYCOMB CELLS, SIZE OF CELLS, ETC.
+  }
+  std::cout << latticeNEW->getNumSites(consts::DirsType::X) << std::endl;
+  latticeNEW->printInfo();
 
 
 

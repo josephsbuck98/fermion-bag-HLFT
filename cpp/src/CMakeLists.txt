@@ -8,7 +8,7 @@ add_subdirectory(configuration)
 add_subdirectory(control)
 add_subdirectory(hamiltonians)
 add_subdirectory(io)
-add_subdirectory(models)
+add_subdirectory(lattices)
 # add_subdirectory(tests)
 add_subdirectory(utils)
 
@@ -19,7 +19,7 @@ target_link_libraries(main
     control_lib
     hamiltonians_lib
     io_lib
-    models_lib
+    lattices_lib
     utils_lib
     yaml-cpp
 )
@@ -31,6 +31,6 @@ target_include_directories(main
     ${CMAKE_CURRENT_SOURCE_DIR}/control
     ${CMAKE_CURRENT_SOURCE_DIR}/hamiltonians
     ${CMAKE_CURRENT_SOURCE_DIR}/io
-    ${CMAKE_CURRENT_SOURCE_DIR}/models
+    ${CMAKE_CURRENT_SOURCE_DIR}/lattices
     ${CMAKE_CURRENT_SOURCE_DIR}/utils
 )
