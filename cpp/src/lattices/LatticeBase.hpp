@@ -11,6 +11,8 @@ public:
 
   virtual int getNumSites(consts::DirsType dir) const = 0;
 
+  virtual consts::BoundType getBoundType(consts::DirsType dir) const = 0;
+
 protected:
   consts::LatticeType type;
 

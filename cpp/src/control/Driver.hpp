@@ -6,16 +6,6 @@
 #include "Sweep.hpp"
 
 
-
-
-// #include "LatticeBase.hpp" //TODO: I think we only want to include LatticeBase here.
-
-
-
-
-
-
-
 class Driver {
 public:
   Driver(InputParser::ParsedInput input);

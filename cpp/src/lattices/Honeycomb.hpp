@@ -15,8 +15,13 @@ public:
 
   int getNumSites(consts::DirsType dir) const override;
 
+  consts::BoundType getBoundType(consts::DirsType dir) const override;
+
   void printInfo() const override;
 
 private:
-    int nCells;
+  int nCells;
+
+  std::unordered_map<consts::DirsType, consts::BoundType, 
+    std::EnumClassHash<consts::DirsType>> boundTypes;
 };

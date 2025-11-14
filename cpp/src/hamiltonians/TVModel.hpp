@@ -3,7 +3,6 @@
 #include "Configuration.hpp"
 #include "InputParser.hpp"
 #include "Lattice.hpp"
-#include "Sweep.hpp"
 
 
 

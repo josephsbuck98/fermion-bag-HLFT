@@ -16,7 +16,7 @@ public:
 
   double getSite(consts::DirsType dir, int index) const;
 
-  consts::BoundType getBoundType(consts::DirsType dir) const;
+  consts::BoundType getBoundType(consts::DirsType dir) const override;
 
   void printInfo() const override;
 

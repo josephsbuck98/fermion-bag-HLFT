@@ -9,16 +9,6 @@
 #include "Update.hpp"
 
 
-
-
-
-#include "LatticeBase.hpp" //TODO: I think we only want to include LatticeBase here.
-
-
-
-
-
-
 class Sweep { 
 public:
   Sweep(InputParser::ParsedInput input, int id);

@@ -14,3 +14,7 @@ void Honeycomb::printInfo() const {
 int Honeycomb::getNumSites(consts::DirsType dir) const {
   return 0;
 }
+
+consts::BoundType Honeycomb::getBoundType(consts::DirsType dir) const {
+  return boundTypes.at(dir);
+}

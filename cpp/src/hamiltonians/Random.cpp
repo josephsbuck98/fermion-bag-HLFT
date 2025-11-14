@@ -66,7 +66,7 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration, const L
 
 
 
-  int numSites = lattice.getNumSites(consts::DirsType::X);
+  int numSites = latticeNEW->getNumSites(consts::DirsType::X);
   double tauGroupWidth = regionData.upper - regionData.lower;
   bool insertResult = bernoulli(insertProb); 
   if (insertResult) {
@@ -101,8 +101,8 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
       (chooseUnifRandDoubWithBounds(regionData.lower, regionData.upper), 
       groupNum);
   int latticeBondStart;
-  int numSites = lattice.getNumSites(consts::DirsType::X);
-  if (lattice.getBoundType(consts::DirsType::X) == consts::BoundType::OPEN) { // Open boundary
+  int numSites = latticeNEW->getNumSites(consts::DirsType::X);
+  if (latticeNEW->getBoundType(consts::DirsType::X) == consts::BoundType::OPEN) {
     latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
   } else { // Periodic boundary
     latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
@@ -114,9 +114,9 @@ void Random::handleInsert(Configuration& configuration, const Lattice& lattice,
   Bond newBond(bondSites);
 
   // Ensure bondSize is less than or equal to Nsites
-  if (bondSize > lattice.getNumSites(consts::DirsType::X)) {
+  if (bondSize > latticeNEW->getNumSites(consts::DirsType::X)) {
     throw std::runtime_error("bondSize=" + std::to_string(bondSize) + "is " +
-        "larger than Nsites=" + std::to_string(lattice.getNumSites(consts::DirsType::X)));
+        "larger than Nsites=" + std::to_string(latticeNEW->getNumSites(consts::DirsType::X)));
   }
 
   // Insert into the bond with retries for duplicate taus

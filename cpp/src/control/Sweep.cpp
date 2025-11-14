@@ -40,7 +40,7 @@ void Sweep::run(Configuration& configuration, const Lattice& lattice,
 
   // Calculate the number of updates per group per sweep to do
   numUpdatesPerGroup = calcNumUpdatesPerGroup(scaleNumUpdates, 
-      configuration.getBeta(), lattice.getNumSites(consts::DirsType::X), //TODO: In the future, getNumSites should automatically detect the lattice structure, and use its points to compute total sites
+      configuration.getBeta(), latticeNEW->getNumSites(consts::DirsType::X), //TODO: In the future, getNumSites should automatically detect the lattice structure, and use its points to compute total sites
       this->numTimeGroups);
 
   // Create the correct hamiltonian object
