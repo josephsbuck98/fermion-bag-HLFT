@@ -44,6 +44,8 @@ namespace InputParser {
       }
       if (hamiltonianInput.model == consts::HamilModel::RANDOM) {
         // Require nbonds_stop_sweeps, nbonds_stop_tol, max_sweeps, insert_prob, num_time_groups, scale_num_updates
+      } else if (hamiltonianInput.model == consts::HamilModel::TVModel) {
+
       }
     }//TODO: Validate y, z, honeycomb, and other hamiltonians later.
   };

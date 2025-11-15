@@ -1,17 +1,7 @@
-#include "TVModel.hpp"
+#include "HamiltonianBase.hpp"
 #include "RandomHelpers.hpp"
 
-
-TVModel::TVModel(InputParser::ParsedInput input) {
-  acceptProb = input.hamiltonianInput.acceptProb;
-  insertProb = input.hamiltonianInput.insertProb;
-  bondTypeProps = input.hamiltonianInput.bondTypeProps;
-
-  normalizeBondTypeProps();
-}
-
-
-void TVModel::normalizeBondTypeProps() { 
+void HamiltonianBase::normalizeBondTypeProps() {
   //TODO: Currently, only supports integer bond sizes from 1 to 6. ISNT BONDTYPEPROPS A MAP???
   double total = 0.0;
   for (int i = 1; i <= 6; i++) { //TODO: Use an enum for 6?
@@ -33,45 +23,7 @@ void TVModel::normalizeBondTypeProps() {
 }
 
 
-double TVModel::getBondSelectionProb(int numSites, 
-    consts::BoundType boundType) const {
-  // TODO: This returns the probability of a uniformly random lattice site 
-  // selection being the correct selection to move you from configuration i to 
-  // j. For now, this assumes each allowed bond length in bondLengthProps is 
-  // equally likely even though this is not physically realistic. It also 
-  // assumes each spatial site starting point is equally realistic. It also 
-  // goes without saying that this function works for only one dimensional 
-  // simple cubic lattices.
-  int numUniqueBondSites = 0;
-  for (const auto& [bondLength, bondProb] : bondTypeProps) {
-    if (bondProb < 0.001) continue;
-    if (boundType == consts::BoundType::PERIODIC) {
-      numUniqueBondSites += numSites;
-    } else if (boundType == consts::BoundType::OPEN) {
-      numUniqueBondSites += numSites - bondLength + 1;
-    }
-  }
-  return 1.0 / numUniqueBondSites;
-}
-
-
-double TVModel::getAcceptProb(consts::BondActionType actionType, int numSites, 
-    consts::BoundType boundType, double tauGroupWidth, 
-    int numBondsInRegion) const {
-  double prob; 
-  if (actionType == consts::BondActionType::INSERTION) {
-    // prob = 2 * numSites * tauGroupWidth / numBondsInRegion; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
-    prob = tauGroupWidth / (getBondSelectionProb(numSites, boundType) * numBondsInRegion);
-  } else if (actionType == consts::BondActionType::REMOVAL) {
-    // prob = numBondsInRegion / (2 * numSites * tauGroupWidth); //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
-    prob = getBondSelectionProb(numSites, boundType) * numBondsInRegion / tauGroupWidth; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
-  } 
-  return prob > 1.0 ? 1.0 : prob;
-}
-
-
-
-consts::BondActionType TVModel::applyUpdate(Configuration& configuration,
+consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration,
     int groupNum, Configuration::RegionData& regionData, const LatticeBase* lattice) const {
   int numSites = lattice->getNumSites(consts::DirsType::X);
   consts::BoundType boundType = lattice->getBoundType(consts::DirsType::X);
@@ -99,8 +51,7 @@ consts::BondActionType TVModel::applyUpdate(Configuration& configuration,
   return consts::BondActionType::REJECTION;
 }
 
-
-void TVModel::handleInsert(Configuration& configuration, int groupNum, 
+void HamiltonianBase::handleInsert(Configuration& configuration, int groupNum, 
     Configuration::RegionData& regionData, const LatticeBase* lattice) const {
       
   int bondSize = chooseWeightedRandInt(bondTypeProps); //TODO: EVENTUALLY THE BONDTYPEPROPS WILL NOT BE AN INPUT PARAMETER
@@ -127,7 +78,7 @@ void TVModel::handleInsert(Configuration& configuration, int groupNum,
   }
 
   // Insert into the bond with retries for duplicate taus
-  std::pair<double, int> tauCandidate = tauToInsert; //TODO: PUT THIS INTO THE CONFIGURATION CLASS. TEST IT WELL.
+  std::pair<double, int> tauCandidate = tauToInsert; //TODO: !!!!!!!!!!!!!!!!!!!!PUT THIS INTO THE CONFIGURATION CLASS. TEST IT WELL.
   double tol = configuration.getTolerance();
   int maxAttempts = 100;
   for (int attempts = 0; attempts < maxAttempts; ++attempts) {
@@ -160,7 +111,7 @@ void TVModel::handleInsert(Configuration& configuration, int groupNum,
 }
 
 
-void TVModel::handleRemoval(Configuration& configuration,
+void HamiltonianBase::handleRemoval(Configuration& configuration,
     Configuration::RegionData& regionData) const {
 
   auto it = regionData.itLow;
@@ -169,4 +120,40 @@ void TVModel::handleRemoval(Configuration& configuration,
   std::pair<double, int> tauToDelete = *it;
 
   configuration.delBond(tauToDelete);
+}
+
+
+double HamiltonianBase::getAcceptProb(consts::BondActionType actionType, 
+    int numSites, consts::BoundType boundType, double tauGroupWidth, 
+    int numBondsInRegion) const {
+  double prob; 
+  if (actionType == consts::BondActionType::INSERTION) {
+    prob = tauGroupWidth / (getBondSelectionProb(numSites, boundType) * numBondsInRegion);
+  } else if (actionType == consts::BondActionType::REMOVAL) {
+    prob = getBondSelectionProb(numSites, boundType) * numBondsInRegion / tauGroupWidth; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
+  } 
+  prob *= getWeightFactor();
+  return prob > 1.0 ? 1.0 : prob;
+}
+
+
+double HamiltonianBase::getBondSelectionProb(int numSites, 
+    consts::BoundType boundType) const {
+  // TODO: This returns the probability of a uniformly random lattice site 
+  // selection being the correct selection to move you from configuration i to 
+  // j. For now, this assumes each allowed bond length in bondLengthProps is 
+  // equally likely even though this is not physically realistic. It also 
+  // assumes each spatial site starting point is equally realistic. It also 
+  // goes without saying that this function works for only one dimensional 
+  // simple cubic lattices.
+  int numUniqueBondSites = 0;
+  for (const auto& [bondLength, bondProb] : bondTypeProps) {
+    if (bondProb < 0.001) continue;
+    if (boundType == consts::BoundType::PERIODIC) {
+      numUniqueBondSites += numSites;
+    } else if (boundType == consts::BoundType::OPEN) {
+      numUniqueBondSites += numSites - bondLength + 1;
+    }
+  }
+  return 1.0 / numUniqueBondSites;
 }

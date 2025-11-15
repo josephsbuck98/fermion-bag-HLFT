@@ -131,7 +131,7 @@ void Random::handleInsert(Configuration& configuration, int groupNum,
   }
 
   // Insert into the bond with retries for duplicate taus
-  std::pair<double, int> tauCandidate = tauToInsert; //TODO: PUT THIS INTO THE CONFIGURATION CLASS. TEST IT WELL.
+  std::pair<double, int> tauCandidate = tauToInsert; //TODO: !!!!!!!!!!!!!!!!!!!!PUT THIS INTO THE CONFIGURATION CLASS. TEST IT WELL.
   double tol = configuration.getTolerance();
   int maxAttempts = 100;
   for (int attempts = 0; attempts < maxAttempts; ++attempts) {
