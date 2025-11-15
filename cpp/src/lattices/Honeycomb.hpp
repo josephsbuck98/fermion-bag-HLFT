@@ -1,17 +1,13 @@
 #pragma once
 
-
 #include "LatticeBase.hpp"
-
-#include "Constants.hpp"
-#include "Input.hpp"
 
 #include <iostream>
 
 
 class Honeycomb : public LatticeBase {
 public:
-  explicit Honeycomb(int nCells);
+  explicit Honeycomb(const LatticeInput& input);
 
   int getNumSites(consts::DirsType dir) const override;
 
@@ -21,7 +17,5 @@ public:
 
 private:
   int nCells;
-
-  std::unordered_map<consts::DirsType, consts::BoundType, 
-    std::EnumClassHash<consts::DirsType>> boundTypes;
+  
 };

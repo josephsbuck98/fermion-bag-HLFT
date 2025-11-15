@@ -17,7 +17,7 @@ Random::Random(InputParser::ParsedInput input) {
 
 
 void Random::normalizeBondTypeProps() { 
-  //NOTE: Currently, only supports integer bond sizes from 1 to 6. ISNT BONDTYPEPROPS A MAP???
+  //TODO: Currently, only supports integer bond sizes from 1 to 6. ISNT BONDTYPEPROPS A MAP???
   double total = 0.0;
   for (int i = 1; i <= 6; i++) { //TODO: Use an enum for 6?
     double& val = bondTypeProps[i];
@@ -38,13 +38,38 @@ void Random::normalizeBondTypeProps() {
 }
 
 
-double getAcceptProb(consts::BondActionType actionType, int numSites, 
-    double tauGroupWidth, int numBondsInRegion) {
-  double prob; //TODO: GENERALIZE TO ANY BOND LENGTH, AND PERIODIC OR OPEN BC'S
+double Random::getBondSelectionProb(int numSites, 
+    consts::BoundType boundType) const {
+  // TODO: This returns the probability of a uniformly random lattice site 
+  // selection being the correct selection to move you from configuration i to 
+  // j. For now, this assumes each allowed bond length in bondLengthProps is 
+  // equally likely even though this is not physically realistic. It also 
+  // assumes each spatial site starting point is equally realistic. It also 
+  // goes without saying that this function works for only one dimensional 
+  // simple cubic lattices.
+  int numUniqueBondSites = 0;
+  for (const auto& [bondLength, bondProb] : bondTypeProps) {
+    if (bondProb < 0.001) continue;
+    if (boundType == consts::BoundType::PERIODIC) {
+      numUniqueBondSites += numSites;
+    } else if (boundType == consts::BoundType::OPEN) {
+      numUniqueBondSites += numSites - bondLength + 1;
+    }
+  }
+  return 1.0 / numUniqueBondSites;
+}
+
+
+double Random::getAcceptProb(consts::BondActionType actionType, int numSites, 
+    consts::BoundType boundType, double tauGroupWidth, 
+    int numBondsInRegion) const {
+  double prob; 
   if (actionType == consts::BondActionType::INSERTION) {
-    prob = 2 * numSites * tauGroupWidth / numBondsInRegion; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
+    // prob = 2 * numSites * tauGroupWidth / numBondsInRegion; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
+    prob = tauGroupWidth / (getBondSelectionProb(numSites, boundType) * numBondsInRegion);
   } else if (actionType == consts::BondActionType::REMOVAL) {
-    prob = numBondsInRegion / (2 * numSites * tauGroupWidth); //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
+    // prob = numBondsInRegion / (2 * numSites * tauGroupWidth); //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
+    prob = getBondSelectionProb(numSites, boundType) * numBondsInRegion / tauGroupWidth; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
   } 
   return prob > 1.0 ? 1.0 : prob;
 }
@@ -53,12 +78,13 @@ double getAcceptProb(consts::BondActionType actionType, int numSites,
 consts::BondActionType Random::applyUpdate(Configuration& configuration,
     int groupNum, Configuration::RegionData& regionData, const LatticeBase* lattice) const {
   int numSites = lattice->getNumSites(consts::DirsType::X);
+  consts::BoundType boundType = lattice->getBoundType(consts::DirsType::X);
   double tauGroupWidth = regionData.upper - regionData.lower;
   bool insertResult = bernoulli(insertProb); 
   if (insertResult) {
     double acceptInsertProb = getAcceptProb(
-        consts::BondActionType::INSERTION, numSites, tauGroupWidth, 
-            regionData.nBondsInRegion);
+        consts::BondActionType::INSERTION, numSites, boundType, tauGroupWidth, 
+        regionData.nBondsInRegion);
     bool acceptInsert = bernoulli(acceptInsertProb);
     if (acceptInsert) {
       handleInsert(configuration, groupNum, regionData, lattice);
@@ -66,8 +92,8 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration,
     }
   } else {
     double acceptRemoveProb = getAcceptProb(
-        consts::BondActionType::REMOVAL, numSites, tauGroupWidth, 
-            regionData.nBondsInRegion);
+        consts::BondActionType::REMOVAL, numSites, boundType, tauGroupWidth, 
+        regionData.nBondsInRegion);
     bool acceptRemove = bernoulli(acceptRemoveProb);
     if (acceptRemove) {
       handleRemoval(configuration, regionData);
@@ -81,7 +107,7 @@ consts::BondActionType Random::applyUpdate(Configuration& configuration,
 void Random::handleInsert(Configuration& configuration, int groupNum, 
     Configuration::RegionData& regionData, const LatticeBase* lattice) const {
       
-  int bondSize = chooseWeightedRandInt(bondTypeProps);
+  int bondSize = chooseWeightedRandInt(bondTypeProps); //TODO: EVENTUALLY THE BONDTYPEPROPS WILL NOT BE AN INPUT PARAMETER
   std::pair<double, int> tauToInsert =  std::pair<double, int>
       (chooseUnifRandDoubWithBounds(regionData.lower, regionData.upper), 
       groupNum);

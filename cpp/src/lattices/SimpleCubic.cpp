@@ -7,15 +7,9 @@ void SimpleCubic::printInfo() const {
       << std::endl;
 }
 
-SimpleCubic::SimpleCubic(LatticeInput input) { //TODO: Rewrite this constructor.
-  type = input.type;
+SimpleCubic::SimpleCubic(const LatticeInput& input) : LatticeBase(input) { //TODO: Rewrite this constructor.
   dims = input.dims;
-  boundTypes[consts::DirsType::X] = input.x_bc_type;
-  if (type == consts::LatticeType::SIMPLE_CUBIC) {
-    sites = createSimpleCubic(input);
-  } else {
-    // sites = createHoneycomb(input);
-  }
+  sites = createSimpleCubic(input);
 };
 
 std::unordered_map<consts::DirsType, std::vector<double>, 

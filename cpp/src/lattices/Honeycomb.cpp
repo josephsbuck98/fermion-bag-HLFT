@@ -3,8 +3,8 @@
 #include <iostream>
 
 
-Honeycomb::Honeycomb(int nCells_)
-    : nCells(nCells_) {}
+Honeycomb::Honeycomb(const LatticeInput& input)
+    : nCells(99999), LatticeBase(input) {} //TODO: Implement Honeycomb constructor
 
 void Honeycomb::printInfo() const {
     std::cout << "Honeycomb Lattice with " 

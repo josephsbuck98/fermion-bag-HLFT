@@ -1,16 +1,13 @@
 #pragma once
 
-
 #include "LatticeBase.hpp"
-
-#include "Input.hpp"
 
 #include <iostream>
 
 
 class SimpleCubic : public LatticeBase {
 public:
-  SimpleCubic(LatticeInput input);
+  SimpleCubic(const LatticeInput& input);
 
   int getNumSites(consts::DirsType dir) const override;
 
@@ -21,12 +18,7 @@ public:
   void printInfo() const override;
 
 private:
-  int nx, ny, nz;
-
   consts::DimsType dims;
-  
-  std::unordered_map<consts::DirsType, consts::BoundType, 
-      std::EnumClassHash<consts::DirsType>> boundTypes;
 
   std::unordered_map<consts::DirsType, std::vector<double>, 
       std::EnumClassHash<consts::DirsType>> sites;

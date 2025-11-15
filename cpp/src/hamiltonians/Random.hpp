@@ -21,6 +21,12 @@ public:
 
   void handleRemoval(Configuration& configuration, 
       Configuration::RegionData& regionData) const;
+
+  double getAcceptProb(consts::BondActionType actionType, int numSites, 
+    consts::BoundType boundType, double tauGroupWidth, 
+    int numBondsInRegion) const;
+
+  double getBondSelectionProb(int numSites, consts::BoundType boundType) const;
   
 private:
   double acceptProb = 0.5;
