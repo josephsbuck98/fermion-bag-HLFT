@@ -7,7 +7,7 @@
 
 class HamiltonianBase {
 public:
-  HamiltonianBase();
+  HamiltonianBase(InputParser::ParsedInput input);
   virtual ~HamiltonianBase() = default;
 
   consts::BondActionType applyUpdate(Configuration& configuration, 

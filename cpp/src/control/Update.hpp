@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Constants.hpp"
-#include "Random.hpp"
-#include "TVModel.hpp"
+#include "Random.hpp" // Even though Random & TVModel aren't directly used 
+#include "TVModel.hpp" // here, files including Update.hpp need them. Perhaps 
+                      // import them in Sweep.hpp?
+#include "RandomNEW.hpp"
+#include "TVModelNEW.hpp"
 
 
 template<typename HamiltonianType>

@@ -1,6 +1,15 @@
 #include "HamiltonianBase.hpp"
 #include "RandomHelpers.hpp"
 
+
+HamiltonianBase::HamiltonianBase(InputParser::ParsedInput input) {
+  acceptProb = input.hamiltonianInput.acceptProb;
+  insertProb = input.hamiltonianInput.insertProb;
+  bondTypeProps = input.hamiltonianInput.bondTypeProps;
+
+  normalizeBondTypeProps();
+}
+
 void HamiltonianBase::normalizeBondTypeProps() {
   //TODO: Currently, only supports integer bond sizes from 1 to 6. ISNT BONDTYPEPROPS A MAP???
   double total = 0.0;
