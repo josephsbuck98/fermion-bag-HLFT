@@ -34,14 +34,12 @@ void Sweep::run(Configuration& configuration, const LatticeBase* lattice) {
   switch (hamilModel) {
     case consts::HamilModel::RANDOM:
     {
-      // Random hamiltonian = Random(input);
       RandomNEW hamiltonian = RandomNEW(input);
       executeGroupUpdates(configuration, hamiltonian, lattice);
       break;
     }
     case consts::HamilModel::TVModel:
     {
-      // TVModel hamiltonian = TVModel(input);
       TVModelNEW hamiltonian = TVModelNEW(input);
       executeGroupUpdates(configuration, hamiltonian, lattice);
       break;

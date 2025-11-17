@@ -3,6 +3,7 @@
 
 
 HamiltonianBase::HamiltonianBase(InputParser::ParsedInput input) {
+  type = input.hamiltonianInput.model;
   acceptProb = input.hamiltonianInput.acceptProb;
   insertProb = input.hamiltonianInput.insertProb;
   bondTypeProps = input.hamiltonianInput.bondTypeProps;
@@ -38,22 +39,36 @@ consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration
   consts::BoundType boundType = lattice->getBoundType(consts::DirsType::X);
   double tauGroupWidth = regionData.upper - regionData.lower;
   bool insertResult = bernoulli(insertProb); 
+
+  std::pair<double, int> tauToInsRem = {-1.0, -1}; // Null objects
+  Bond newBond({-1});
+
   if (insertResult) {
-    double acceptInsertProb = getAcceptProb(
-        consts::BondActionType::INSERTION, numSites, boundType, tauGroupWidth, 
-        regionData.nBondsInRegion);
+    // Tau and bond to insert are only needed this early if they will be used 
+    // to compute the accept probability (such as in TVModel)
+    if (type == consts::HamilModel::TVModel) {
+      tauToInsRem = chooseTauToInsert(regionData, groupNum);
+      newBond = createBondToInsert(lattice);
+    }
+    double acceptInsertProb = getAcceptProb( 
+        configuration, consts::BondActionType::INSERTION, numSites, boundType, 
+        tauGroupWidth, regionData.nBondsInRegion, tauToInsRem, newBond);
     bool acceptInsert = bernoulli(acceptInsertProb);
     if (acceptInsert) {
-      handleInsert(configuration, groupNum, regionData, lattice);
+      handleInsert(configuration, groupNum, regionData, lattice, tauToInsRem,
+        newBond);
       return consts::BondActionType::INSERTION;
     }
   } else {
+    if (type == consts::HamilModel::TVModel) {
+      tauToInsRem = chooseTauToRemove(regionData);
+    }
     double acceptRemoveProb = getAcceptProb(
-        consts::BondActionType::REMOVAL, numSites, boundType, tauGroupWidth, 
-        regionData.nBondsInRegion);
+        configuration, consts::BondActionType::REMOVAL, numSites, boundType, 
+        tauGroupWidth, regionData.nBondsInRegion, tauToInsRem, newBond);
     bool acceptRemove = bernoulli(acceptRemoveProb);
     if (acceptRemove) {
-      handleRemoval(configuration, regionData);
+      handleRemoval(configuration, regionData, tauToInsRem);
       return consts::BondActionType::REMOVAL;
     }
   }
@@ -61,29 +76,14 @@ consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration
 }
 
 void HamiltonianBase::handleInsert(Configuration& configuration, int groupNum, 
-    Configuration::RegionData& regionData, const LatticeBase* lattice) const {
-      
-  int bondSize = chooseWeightedRandInt(bondTypeProps); //TODO: EVENTUALLY THE BONDTYPEPROPS WILL NOT BE AN INPUT PARAMETER
-  std::pair<double, int> tauToInsert =  std::pair<double, int>
-      (chooseUnifRandDoubWithBounds(regionData.lower, regionData.upper), 
-      groupNum);
-  int latticeBondStart;
-  int numSites = lattice->getNumSites(consts::DirsType::X);
-  if (lattice->getBoundType(consts::DirsType::X) == consts::BoundType::OPEN) {
-    latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
-  } else { // Periodic boundary
-    latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
-  }//TODO: HANDLE MULTIPLE DIMENSIONS AND DIFFERENT LATTICE TYPES
-  std::set<int> bondSites;
-  for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
-    bondSites.insert(i % numSites);
-  }
-  Bond newBond(bondSites);
-
-  // Ensure bondSize is less than or equal to Nsites
-  if (bondSize > lattice->getNumSites(consts::DirsType::X)) {
-    throw std::runtime_error("bondSize=" + std::to_string(bondSize) + "is " +
-        "larger than Nsites=" + std::to_string(lattice->getNumSites(consts::DirsType::X)));
+    Configuration::RegionData& regionData, const LatticeBase* lattice, 
+    std::pair<double, int> tauToInsert, Bond newBond) const { 
+  // If tauToInsert is a default value, we are using the Random Hamiltonian,
+  // and the tau + bond to insert need to be chosen. Otherwise, we are using 
+  // the TVModel Hamiltonian, and the tau + bond have already been chosen.
+  if (tauToInsert.first < 0) {
+    tauToInsert = chooseTauToInsert(regionData, groupNum);
+    newBond = createBondToInsert(lattice);
   }
 
   // Insert into the bond with retries for duplicate taus
@@ -121,27 +121,33 @@ void HamiltonianBase::handleInsert(Configuration& configuration, int groupNum,
 
 
 void HamiltonianBase::handleRemoval(Configuration& configuration,
-    Configuration::RegionData& regionData) const {
+    Configuration::RegionData& regionData, 
+    std::pair<double, int> tauToRemove) const {
+  // If the tauToRemove is less than 0, we are using the Random Hamiltonian, 
+  // and the tauToRemove still needs to be chosen. Otherwise, we are using the
+  // TVModel Hamiltonian, and have already computed the tauToRemove. 
+  if (tauToRemove.first < 0) {
+    tauToRemove = chooseTauToRemove(regionData);
+  }
+  // If tauToRemove is still negative, there are no bonds in region to delete.
+  if (tauToRemove.first >= 0) {
+    configuration.delBond(tauToRemove);
+  }
 
-  auto it = regionData.itLow;
-  int indToDelete = chooseUnifRandIntWithBounds(0, regionData.nBondsInRegion);
-  std::advance(it, indToDelete);
-  std::pair<double, int> tauToDelete = *it;
-
-  configuration.delBond(tauToDelete);
 }
 
 
-double HamiltonianBase::getAcceptProb(consts::BondActionType actionType, 
-    int numSites, consts::BoundType boundType, double tauGroupWidth, 
-    int numBondsInRegion) const {
+double HamiltonianBase::getAcceptProb(const Configuration& configuration,
+    consts::BondActionType actionType, int numSites, 
+    consts::BoundType boundType, double tauGroupWidth, int numBondsInRegion, 
+    std::pair<double, int> tauToInsRem, const Bond& newBond) const {
   double prob; 
   if (actionType == consts::BondActionType::INSERTION) {
     prob = tauGroupWidth / (getBondSelectionProb(numSites, boundType) * numBondsInRegion);
   } else if (actionType == consts::BondActionType::REMOVAL) {
     prob = getBondSelectionProb(numSites, boundType) * numBondsInRegion / tauGroupWidth; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
   } 
-  prob *= getWeightFactor();
+  prob *= getWeightFactor(configuration, actionType, tauToInsRem, newBond);
   return prob > 1.0 ? 1.0 : prob;
 }
 
@@ -165,4 +171,51 @@ double HamiltonianBase::getBondSelectionProb(int numSites,
     }
   }
   return 1.0 / numUniqueBondSites;
+}
+
+
+Bond HamiltonianBase::createBondToInsert(const LatticeBase* lattice) const {
+  int bondSize = chooseWeightedRandInt(bondTypeProps); //TODO: EVENTUALLY THE BONDTYPEPROPS WILL NOT BE AN INPUT PARAMETER
+  int latticeBondStart;
+  int numSites = lattice->getNumSites(consts::DirsType::X);
+  if (lattice->getBoundType(consts::DirsType::X) == consts::BoundType::OPEN) {
+    latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
+  } else { // Periodic boundary
+    latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
+  }//TODO: HANDLE MULTIPLE DIMENSIONS AND DIFFERENT LATTICE TYPES
+  std::set<int> bondSites;
+  for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
+    bondSites.insert(i % numSites);
+  }
+  Bond newBond(bondSites);
+
+  // Ensure bondSize is less than or equal to Nsites
+  if (bondSize > lattice->getNumSites(consts::DirsType::X)) {
+    throw std::runtime_error("bondSize=" + std::to_string(bondSize) + "is " +
+        "larger than Nsites=" + std::to_string(lattice->getNumSites(consts::DirsType::X)));
+  }
+
+  return newBond;
+}
+
+
+std::pair<double, int> HamiltonianBase::chooseTauToInsert(
+    Configuration::RegionData& regionData, int groupNum) const {
+  return std::pair<double, int>
+      (chooseUnifRandDoubWithBounds(regionData.lower, regionData.upper), 
+      groupNum);
+}
+
+
+std::pair<double, int> HamiltonianBase::chooseTauToRemove(
+    Configuration::RegionData& regionData) const {
+  // If there are no bonds in the region, return a default tau
+  if (regionData.nBondsInRegion == 0) {
+    return std::pair<double, int>({-1.0, -1});
+  }
+
+  auto it = regionData.itLow;
+  int indToDelete = chooseUnifRandIntWithBounds(0, regionData.nBondsInRegion);
+  std::advance(it, indToDelete);
+  return *it;
 }
