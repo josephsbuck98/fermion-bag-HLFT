@@ -17,6 +17,7 @@ target_link_libraries(main
   PRIVATE
     configuration_lib
     control_lib
+    Eigen3::Eigen
     hamiltonians_lib
     io_lib
     lattices_lib

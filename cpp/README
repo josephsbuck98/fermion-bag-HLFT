@@ -1,0 +1,7 @@
+Must install Eigen:
+  linux: sudo apt install libeigen3-dev
+  macOS: brew install eigen
+  Windows: Install from https://eigen.tuxfamily.org/index.php?title=Main_Page
+
+Need to make sure cmake knows where to find the installation. Can be done by
+setting environment variable EIGEN3_INCLUDE_DIR to /usr/include/eigen3 I think.

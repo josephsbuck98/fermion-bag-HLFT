@@ -7,5 +7,5 @@ target_include_directories(hamiltonians_lib PUBLIC
   ${CMAKE_SOURCE_DIR}/src/utils
 )
 target_link_libraries(hamiltonians_lib
-  PUBLIC io_lib lattices_lib utils_lib
+  PUBLIC Eigen3::Eigen io_lib lattices_lib utils_lib
 )

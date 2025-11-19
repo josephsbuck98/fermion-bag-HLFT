@@ -173,6 +173,73 @@ double Configuration::getBeta() const {
   return beta;
 }
 
+Eigen::MatrixXd Configuration::getHSum(int nDims, double omega, 
+    double cosh2alpha, double sinh2alpha, double tau, const Bond& bond) const {
+  Eigen::MatrixXd mat(nDims, nDims);
+  for (int i = 0; i < nDims; i++) {
+    for (int j = 0; j < nDims; j++) {
+      mat(i, j) = 0.0;
+    }
+  }
+
+  bool computingWkm1 = false;
+  bool computingWk = tau < 0;
+  if (!computingWk && bond.getIndices().count(-1)) {
+    computingWkm1 = true;
+  }
+
+  std::cout << "BEGIN Getting hsum: " << std::endl;
+  if (computingWkm1) {
+    std::cout << "Computing Wkm1" << std::endl;
+  } else if (computingWk) {
+    std::cout << "Computing Wk" << std::endl;
+  } else {
+    std::cout << "Computing Wkp1" << std::endl;
+  }
+  std::cout << std::endl;
+
+  bool completedExtraStep = computingWk; // If computing Wk, extra step is completed by definition
+
+  //TODO: Ensure that this loops through taus in increasing order. It actually won't matter, because we are only adding matrices.
+  for (auto& currTau : taus) { //TODO: For now, this is designed for bonds of length 2.
+    if (!completedExtraStep) {
+      if (computingWkm1) { // Run when computing Wkm1
+        if (truncateToTolerance(currTau.first) == truncateToTolerance(tau)) {
+          completedExtraStep = true;
+          continue;
+        }
+      } else { // Run when computing Wkp1
+        if (currTau.first > tau) {
+          addToHSum(mat, bond, cosh2alpha, sinh2alpha);
+          completedExtraStep = true;
+        }
+      }
+    }
+    addToHSum(mat, getBond(truncateToTolerance(currTau.first)), cosh2alpha, 
+        sinh2alpha);
+  }
+  if (!completedExtraStep && !computingWkm1) { // If the tau to insert is greater than greatest tau, we will get here
+    addToHSum(mat, bond, cosh2alpha, sinh2alpha);
+  }
+  return mat;
+}
+
+void Configuration::addToHSum(Eigen::MatrixXd& hSumMat, const Bond& bond,
+    double cosh2alpha, double sinh2alpha) const {
+  std::set<int> bondInds = bond.getIndices();
+  int lenBond = bondInds.size();
+  if (lenBond != 2) {
+    throw std::runtime_error("Configuration::getHSum(): Bonds with lengths "
+        "other than 2 are not currently supported.");
+  }
+  std::vector<int> bondIndsVec(bondInds.begin(), bondInds.end());
+  for (int i = 0; i < bondIndsVec.size(); i++) {
+    hSumMat(bondIndsVec[i], bondIndsVec[i]) += cosh2alpha;
+    hSumMat(bondIndsVec[lenBond - i - 1], bondIndsVec[i]) += sinh2alpha;
+  }
+  //TODO: VERIFY THAT THIS FUNCTION ACTUALLY CHANGES HSUMMAT
+}
+
 bool Configuration::operator==(const Configuration& other) const {
   if (this->getNumBonds() != other.getNumBonds()) {
     return false;

@@ -201,12 +201,14 @@ struct HamiltonianInput {
   double acceptProb = 0.5;
   double insertProb = 0.5;
   std::map<int, double> bondTypeProps; 
+  double t = 0.0;
+  double V = 0.0;
 
   void validate() const {
     if (acceptProb < 0 || acceptProb > 1) throw std::runtime_error(""
-        "ControlInput: 'accept_prob' must be between 0 and 1.");
+        "HamiltonianInput: 'accept_prob' must be between 0 and 1.");
     if (insertProb < 0 || insertProb > 1) throw std::runtime_error(""
-        "ControlInput: 'insert_prob' must be between 0 and 1.");
+        "HamiltonianInput: 'insert_prob' must be between 0 and 1.");
     // Don't need to validate model or bondTypeProps here because they are validated on read in.
   }
 
@@ -249,6 +251,15 @@ struct convert<HamiltonianInput> {
         }
       }
     }
+    if (node["t"]) {
+      rhs.t = getRequiredScalar<double>(node, "t");
+      if (std::abs(rhs.t) < 0.00000001) {
+        rhs.t = 1;
+        std::cout << "HamiltonianInput: User supplied t value was too close ";
+        std::cout << "to 0. Defaulting to t=1." << std::endl;
+      }
+    }
+    if (node["V"]) rhs.V = getRequiredScalar<double>(node, "V");
 
     return true;
   }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Eigen/Dense>
 #include <map>
 #include <set>
 #include <vector>
@@ -61,6 +62,11 @@ public:
       return std::distance(itLow, itHigh);
     }
   };
+
+  Eigen::MatrixXd getHSum(int nDims, double omega, double cosh2alpha, 
+      double sinh2alpha, double tau, const Bond& bond) const;
+  void addToHSum(Eigen::MatrixXd& hSumMat, const Bond& bond, double cosh2alpha,
+      double sinh2alpha) const;
 
 private:
   double truncateToTolerance(double key) const;
