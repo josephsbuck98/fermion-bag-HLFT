@@ -63,9 +63,12 @@ public:
     }
   };
 
-  Eigen::MatrixXd getHSum(int nDims, double omega, double cosh2alpha, 
+  Eigen::MatrixXd getHProd(int nDims, double omega, double cosh2alpha, 
       double sinh2alpha, double tau, const Bond& bond) const;
-  void addToHSum(Eigen::MatrixXd& hSumMat, const Bond& bond, double cosh2alpha,
+  void multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond, 
+      double cosh2alpha, double sinh2alpha) const;
+  Eigen::MatrixXd genMatForBond(int nDims, 
+      const std::vector<int>& bondIndsVec, double cosh2alpha, 
       double sinh2alpha) const;
 
 private:

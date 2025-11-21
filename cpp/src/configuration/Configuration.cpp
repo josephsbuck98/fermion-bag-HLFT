@@ -173,7 +173,7 @@ double Configuration::getBeta() const {
   return beta;
 }
 
-Eigen::MatrixXd Configuration::getHSum(int nDims, double omega, 
+Eigen::MatrixXd Configuration::getHProd(int nDims, double omega, 
     double cosh2alpha, double sinh2alpha, double tau, const Bond& bond) const {
   Eigen::MatrixXd mat(nDims, nDims);
   for (int i = 0; i < nDims; i++) {
@@ -188,7 +188,7 @@ Eigen::MatrixXd Configuration::getHSum(int nDims, double omega,
     computingWkm1 = true;
   }
 
-  std::cout << "BEGIN Getting hsum: " << std::endl;
+  std::cout << "BEGIN Getting hprod: " << std::endl;
   if (computingWkm1) {
     std::cout << "Computing Wkm1" << std::endl;
   } else if (computingWk) {
@@ -210,21 +210,21 @@ Eigen::MatrixXd Configuration::getHSum(int nDims, double omega,
         }
       } else { // Run when computing Wkp1
         if (currTau.first > tau) {
-          addToHSum(mat, bond, cosh2alpha, sinh2alpha);
+          multToHProd(mat, bond, cosh2alpha, sinh2alpha);
           completedExtraStep = true;
         }
       }
     }
-    addToHSum(mat, getBond(truncateToTolerance(currTau.first)), cosh2alpha, 
+    multToHProd(mat, getBond(truncateToTolerance(currTau.first)), cosh2alpha, 
         sinh2alpha);
   }
   if (!completedExtraStep && !computingWkm1) { // If the tau to insert is greater than greatest tau, we will get here
-    addToHSum(mat, bond, cosh2alpha, sinh2alpha);
+    multToHProd(mat, bond, cosh2alpha, sinh2alpha);
   }
   return mat;
 }
 
-void Configuration::addToHSum(Eigen::MatrixXd& hSumMat, const Bond& bond,
+void Configuration::multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond,
     double cosh2alpha, double sinh2alpha) const {
   std::set<int> bondInds = bond.getIndices();
   int lenBond = bondInds.size();
@@ -233,11 +233,21 @@ void Configuration::addToHSum(Eigen::MatrixXd& hSumMat, const Bond& bond,
         "other than 2 are not currently supported.");
   }
   std::vector<int> bondIndsVec(bondInds.begin(), bondInds.end());
-  for (int i = 0; i < bondIndsVec.size(); i++) {
-    hSumMat(bondIndsVec[i], bondIndsVec[i]) += cosh2alpha;
-    hSumMat(bondIndsVec[lenBond - i - 1], bondIndsVec[i]) += sinh2alpha;
-  }
+  Eigen::MatrixXd matForBond = Configuration::genMatForBond(hProdMat.rows(), 
+      bondIndsVec, cosh2alpha, sinh2alpha); //TODO: Optimize by only considering that you are multiplying by an identity with a 2 by 2 block changed.
+  hProdMat = hProdMat * matForBond;
   //TODO: VERIFY THAT THIS FUNCTION ACTUALLY CHANGES HSUMMAT
+}
+
+Eigen::MatrixXd Configuration::genMatForBond(int nDims, 
+    const std::vector<int>& bondIndsVec, double cosh2alpha, 
+    double sinh2alpha) const {
+  Eigen::MatrixXd mat = Eigen::MatrixXd::Identity(nDims, nDims);
+  mat(bondIndsVec[0], bondIndsVec[0]) = cosh2alpha;
+  mat(bondIndsVec[1], bondIndsVec[1]) = cosh2alpha;
+  mat(bondIndsVec[0], bondIndsVec[1]) = sinh2alpha;
+  mat(bondIndsVec[1], bondIndsVec[0]) = sinh2alpha;
+  return mat;
 }
 
 bool Configuration::operator==(const Configuration& other) const {

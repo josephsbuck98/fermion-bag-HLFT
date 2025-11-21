@@ -26,9 +26,9 @@ double TVModelNEW::getWeightFactor(const Configuration& configuration,
 
 double TVModelNEW::computeW(const Configuration& configuration, double tau, 
     const Bond& bond) const {
-  Eigen::MatrixXd hSumMat = configuration.getHSum(nDims, omega, cosh2alpha, 
+  Eigen::MatrixXd hProdMat = configuration.getHProd(nDims, omega, cosh2alpha, 
       sinh2alpha, tau, bond);
-  Eigen::MatrixXd detArg = hSumMat.exp();
+  Eigen::MatrixXd detArg = hProdMat.exp();
   detArg.diagonal().array() += 1.0;
   return detArg.determinant();
 }
