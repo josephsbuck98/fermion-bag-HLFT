@@ -130,8 +130,6 @@ void Output::writeAndClearSweepCache() {
 
 // Functions to write out and read restart files
 void Output::writeRestartFile(int currSweepId) {
-  std::cout << "Writing restart file..." << std::endl;
-
   std::ofstream restartStream(getRestartPath());
   if (!restartStream) {
     // Log failure to standard output (not output file)

@@ -6,11 +6,6 @@
 double TVModelNEW::getWeightFactor(const Configuration& configuration, 
     consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
     const Bond& newBond) const {
-
-
-  std::cout << std::endl << "Getting weight factor" << std::endl;
-
-
   double Wk = computeWk(configuration);
   if (actionType == consts::BondActionType::INSERTION) {
     double Wkp1 = computeWkp1(configuration, tauToInsRem, newBond);
@@ -19,7 +14,6 @@ double TVModelNEW::getWeightFactor(const Configuration& configuration,
     double Wkm1 = computeWkm1(configuration, tauToInsRem);
     return Wk / Wkm1;
   } 
-  std::cout << "Action type was neither INSERTION nor REMOVAL." << std::endl;
   return 1.0;
 }
 
@@ -39,7 +33,6 @@ double TVModelNEW::computeWk(const Configuration& configuration) const {
   double defaultTau = -1.0; Bond defaultBond = Bond({-1});
   double Wk = computeW(configuration, defaultTau, defaultBond);
   Wk *= std::pow(omega, nBonds);
-  std::cout << "Weight Wk = " << Wk << std::endl;
   return 1.0;
 }
 
@@ -49,7 +42,6 @@ double TVModelNEW::computeWkp1(const Configuration& configuration,
   int nBonds = configuration.getNumBonds();
   double Wkp1 = computeW(configuration, tauToInsert.first, bondToInsert);
   Wkp1 *= std::pow(omega, nBonds + 1);
-  std::cout << "Weight Wkp1 = " << Wkp1 << std::endl;
   return 1.0;
 }
 
@@ -60,7 +52,6 @@ double TVModelNEW::computeWkm1(const Configuration& configuration,
   Bond defaultBond = Bond({-1});
   double Wkm1 = computeW(configuration, tauToRemove.first, defaultBond);
   Wkm1 *= std::pow(omega, nBonds - 1);
-  std::cout << "Weight Wkm1 = " << Wkm1 << std::endl;
   return 1.0;
 }
 

@@ -188,19 +188,8 @@ Eigen::MatrixXd Configuration::getHProd(int nDims, double omega,
     computingWkm1 = true;
   }
 
-  std::cout << "BEGIN Getting hprod: " << std::endl;
-  if (computingWkm1) {
-    std::cout << "Computing Wkm1" << std::endl;
-  } else if (computingWk) {
-    std::cout << "Computing Wk" << std::endl;
-  } else {
-    std::cout << "Computing Wkp1" << std::endl;
-  }
-  std::cout << std::endl;
-
   bool completedExtraStep = computingWk; // If computing Wk, extra step is completed by definition
 
-  //TODO: Ensure that this loops through taus in increasing order. It actually won't matter, because we are only adding matrices.
   for (auto& currTau : taus) { //TODO: For now, this is designed for bonds of length 2.
     if (!completedExtraStep) {
       if (computingWkm1) { // Run when computing Wkm1
@@ -235,7 +224,7 @@ void Configuration::multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond,
   std::vector<int> bondIndsVec(bondInds.begin(), bondInds.end());
   Eigen::MatrixXd matForBond = Configuration::genMatForBond(hProdMat.rows(), 
       bondIndsVec, cosh2alpha, sinh2alpha); //TODO: Optimize by only considering that you are multiplying by an identity with a 2 by 2 block changed.
-  hProdMat = hProdMat * matForBond;
+  hProdMat = matForBond * hProdMat;
   //TODO: VERIFY THAT THIS FUNCTION ACTUALLY CHANGES HSUMMAT
 }
 
