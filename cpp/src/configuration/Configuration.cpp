@@ -175,17 +175,18 @@ double Configuration::getBeta() const {
 
 Eigen::MatrixXd Configuration::getHProd(int nDims, double omega, 
     double cosh2alpha, double sinh2alpha, double tau, const Bond& bond) const {
-  Eigen::MatrixXd mat(nDims, nDims);
-  for (int i = 0; i < nDims; i++) {
-    for (int j = 0; j < nDims; j++) {
-      mat(i, j) = 0.0;
-    }
-  }
+  //TODO: YOU CAN STORE W IN CLEVER WAYS SO THAT YOU DON'T HAVE TO RECLCULATE THE CURRENT W IF THE CONFIGURATION WAS UNCHANGED FROM THE LAST ATTEMPT. BASICALLY, YOU COULD STORE WCURR AND JHUST MAKE SURE TO SET IT EITHER TO WINS OR WREM (OR LEAVE UNCHANGED) BASED ON WHAT WAS ACCEPTED 
+  
+  Eigen::MatrixXd mat = Eigen::MatrixXd::Identity(nDims, nDims);
 
   bool computingWkm1 = false;
   bool computingWk = tau < 0;
   if (!computingWk && bond.getIndices().count(-1)) {
     computingWkm1 = true;
+  }
+
+  if (this->getNumBonds() == 0 && (computingWk || computingWkm1)) {
+    return Eigen::MatrixXd::Zero(nDims, nDims);
   }
 
   bool completedExtraStep = computingWk; // If computing Wk, extra step is completed by definition

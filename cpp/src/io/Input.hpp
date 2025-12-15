@@ -135,6 +135,7 @@ struct LatticeInput {
   consts::BoundType x_bc_type, y_bc_type, z_bc_type;
   double x_min = 0.0, y_min = 0.0, z_min = 0.0;
   double x_nsites = 100, y_nsites = 100, z_nsites = 100;
+  //TODO: NSITES SHOULD BE INTEGERS
 
   void validate() const {
     if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive");

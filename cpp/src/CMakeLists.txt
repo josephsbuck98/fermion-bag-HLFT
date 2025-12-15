@@ -35,3 +35,31 @@ target_include_directories(main
     ${CMAKE_CURRENT_SOURCE_DIR}/lattices
     ${CMAKE_CURRENT_SOURCE_DIR}/utils
 )
+
+
+# Define a test executable
+add_executable(test test.cpp)
+
+# Link with module libraries
+target_link_libraries(test
+  PRIVATE
+    configuration_lib
+    control_lib
+    Eigen3::Eigen
+    hamiltonians_lib
+    io_lib
+    lattices_lib
+    utils_lib
+    yaml-cpp
+)
+
+# Expose include directories for modules (optional)
+target_include_directories(test
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/configuration
+    ${CMAKE_CURRENT_SOURCE_DIR}/control
+    ${CMAKE_CURRENT_SOURCE_DIR}/hamiltonians
+    ${CMAKE_CURRENT_SOURCE_DIR}/io
+    ${CMAKE_CURRENT_SOURCE_DIR}/lattices
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils
+)
