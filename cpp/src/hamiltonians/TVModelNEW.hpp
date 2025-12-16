@@ -16,13 +16,7 @@ public:
     computeCosh2alpha();
     computeSinh2alpha();
 
-
-
-
     std::cout << std::setprecision(10);
-
-
-
     std::cout << std::endl << "t: " << t << ", V: " << V << std::endl;
     std::cout << std::endl << "omega: " << omega << ", cosh2alpha: " << cosh2alpha << ", sinh2alpha: " << sinh2alpha << std::endl;
   };
