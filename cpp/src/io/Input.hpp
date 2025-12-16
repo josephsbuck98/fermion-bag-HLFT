@@ -134,8 +134,7 @@ struct LatticeInput {
 
   consts::BoundType x_bc_type, y_bc_type, z_bc_type;
   double x_min = 0.0, y_min = 0.0, z_min = 0.0;
-  double x_nsites = 100, y_nsites = 100, z_nsites = 100;
-  //TODO: NSITES SHOULD BE INTEGERS
+  int x_nsites = 100, y_nsites = 100, z_nsites = 100;
 
   void validate() const {
     if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive");
@@ -186,7 +185,7 @@ struct convert<LatticeInput> {
         assignFromMap<std::string>(x, "bc_type", consts::BOUND_TYPE_MAP, rhs.x_bc_type, "LatticeInput");
 
         if (x["min"]) rhs.x_min = getRequiredScalar<double>(x, "min");
-        if (x["nsites"]) rhs.x_nsites = getRequiredScalar<double>(x, "nsites");
+        if (x["nsites"]) rhs.x_nsites = getRequiredScalar<int>(x, "nsites");
       }
     }
 
