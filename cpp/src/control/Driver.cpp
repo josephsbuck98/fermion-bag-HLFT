@@ -7,7 +7,6 @@
 
 double calcError(int origVal, int newVal);
 
-//TODO: INPUT CURRENT SWEEP ITERATION IN CASE THIS IS A RESTART
 Driver::Driver(InputParser::ParsedInput input) {
   ControlInput controlInput = input.controlInput;
 
@@ -16,7 +15,6 @@ Driver::Driver(InputParser::ParsedInput input) {
   equilSweepsTol = controlInput.equilSweepsTol; 
   scaleNumUpdates = controlInput.scaleNumUpdates;
   maxSweeps = controlInput.maxSweeps;
-  numTimeGroups = controlInput.numTimeGroups;
 }
 
 void Driver::run(Configuration& configuration,

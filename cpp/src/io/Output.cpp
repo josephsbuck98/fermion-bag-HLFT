@@ -60,18 +60,12 @@ void Output::createOutDir() {
 void Output::createOutFiles(std::string outDirName, std::string inFileName) {
   bool throwError = false; //TODO: Replace keyFromValue with funcs at very bottom
   
-  std::string stdOutPostfix = keyFromValue<std::string, consts::OutFileType>
-      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::STD_OUT_POSTFIX);
-  std::string sweepsFileName = keyFromValue<std::string, consts::OutFileType>
-      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::SWEEPS);
-  std::string bondsPerTypeFileName = 
-      keyFromValue<std::string, consts::OutFileType>
-      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::BONDS_PER_TYPE);
-  std::string inputGenericFileName = 
-      keyFromValue<std::string, consts::OutFileType>
-      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::INPUT);
+  std::string stdOutFilename = getStdOutFilename();
+  std::string sweepsFileName = getSweepsFilename();
+  std::string sweepsFilename = getBondsPerTypeFilename();
+  std::string inputGenericFileName = getGenericFilename();
 
-  throwError = createOutFile(outDirName + stdOutPostfix, 
+  throwError = createOutFile(stdOutFilename, 
       consts::OutFileType::STD_OUT_POSTFIX);
   throwError = createOutFile(sweepsFileName, consts::OutFileType::SWEEPS);
   throwError = createOutFile(sweepsFileName, consts::OutFileType::BONDS_PER_TYPE);
@@ -309,6 +303,11 @@ std::string Output::getStdOutFilename() {
 std::string Output::getSweepsFilename() {
   return keyFromValue<std::string, consts::OutFileType>
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::SWEEPS);
+}
+
+std::string Output::getGenericFilename() {
+  return keyFromValue<std::string, consts::OutFileType>
+      (consts::OUTFILE_TYPE_MAP, consts::OutFileType::INPUT);
 }
 
 std::string Output::getBondsPerTypeFilename() {

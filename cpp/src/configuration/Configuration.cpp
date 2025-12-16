@@ -226,7 +226,6 @@ void Configuration::multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond,
   Eigen::MatrixXd matForBond = Configuration::genMatForBond(hProdMat.rows(), 
       bondIndsVec, cosh2alpha, sinh2alpha); //TODO: Optimize by only considering that you are multiplying by an identity with a 2 by 2 block changed.
   hProdMat = matForBond * hProdMat;
-  //TODO: VERIFY THAT THIS FUNCTION ACTUALLY CHANGES HSUMMAT
 }
 
 Eigen::MatrixXd Configuration::genMatForBond(int nDims, 
@@ -305,7 +304,7 @@ std::ostream& operator<<(std::ostream& os, const Configuration& configuration) {
 std::istream& operator>>(std::istream& is, Configuration& configuration) {
   std::streampos pos = is.tellg();
   std::string line;
-  while (std::getline(is, line)) { //TODO: Just output bonds, and then add them back in exactly as if they were being added by the algorithm?
+  while (std::getline(is, line)) { 
     size_t start = line.find("["); size_t end = line.find("]");
     if (start == std::string::npos || end == std::string::npos) {
       continue;

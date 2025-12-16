@@ -44,6 +44,7 @@ public:
   std::string createParameterString(const InputParser::ParsedInput& input);
   std::string getStdOutFilename();
   std::string getSweepsFilename();
+  std::string getGenericFilename();
   std::string getBondsPerTypeFilename();
   
   Configuration& configuration;

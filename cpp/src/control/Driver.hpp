@@ -21,7 +21,6 @@ private:
   double equilSweepsTol;
   double scaleNumUpdates;
   int maxSweeps;
-  int numTimeGroups; //TODO: Might not need this here?
 
   // Data members for computing equilibration time
   int currNumSweepsWithinTol = 0;
