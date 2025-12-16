@@ -20,18 +20,18 @@ std::unordered_map<consts::DirsType, std::vector<double>,
       std::EnumClassHash<consts::DirsType>> new_sites;
   
   // X, Y, and Z
-  double min = input.x_min; double base = input.a; int nsites = input.x_nsites;
+  double min = input.xMin; double base = input.a; int nsites = input.xNSites;
   new_sites[consts::DirsType::X] = genUniform1DLattice(min, base, nsites);
 
   // Y and Z
   if (dims == consts::DimsType::TWO || dims == consts::DimsType::THREE) {
-    min = input.y_min; base = input.b; nsites = input.y_nsites;
+    min = input.yMin; base = input.b; nsites = input.yNSites;
     new_sites[consts::DirsType::Y] = genUniform1DLattice(min, base, nsites);
   }
 
   // Z
   if (dims == consts::DimsType::THREE) {
-    min = input.z_min; base = input.c; nsites = input.z_nsites;
+    min = input.zMin; base = input.c; nsites = input.zNSites;
     new_sites[consts::DirsType::Z] = genUniform1DLattice(min, base, nsites);
   }
 

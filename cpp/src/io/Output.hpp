@@ -35,13 +35,14 @@ public:
   void writeSweepsLine(const Sweep& sweep);
   void writeBondsPerTypeLine(const Sweep& sweep);
 
-  std::string getRestartPath(); //TODO: Make this return std::filesystem::path
+  fs::path getRestartPath(); 
 
-  private:
-  std::string createSeparator(int len, char character); //TODO: Reorganize these so they are grouped by common structure actions
+private:
+  std::string createSeparator(int len, char character); 
   std::string createCenteredTitle(int lineLen, 
       const std::string& title, char spacer);
   std::string createParameterString(const InputParser::ParsedInput& input);
+
   std::string getStdOutFilename();
   std::string getSweepsFilename();
   std::string getGenericFilename();

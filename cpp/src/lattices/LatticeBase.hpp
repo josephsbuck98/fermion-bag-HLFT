@@ -7,7 +7,7 @@
 class LatticeBase {
 public:
   LatticeBase(const LatticeInput& input) : type(input.type) {
-    boundTypes[consts::DirsType::X] = input.x_bc_type;
+    boundTypes[consts::DirsType::X] = input.xBCType;
   };
 
   virtual ~LatticeBase() = default;

@@ -8,7 +8,7 @@
 //TODO: Implement delBonds (with an s)
 
 Configuration::Configuration(ConfigurationInput input) {
-  tolerance = input.float_tol;
+  tolerance = input.floatTol;
   beta = input.beta;
   bonds = {};
   taus = {};

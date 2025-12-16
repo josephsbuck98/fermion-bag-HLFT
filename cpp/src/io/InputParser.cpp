@@ -54,7 +54,8 @@ ParsedRestartInput parseRestartInputFile(const fs::path& restartPath) {
         throw std::runtime_error("Error reading in configuration.");
       }
     } else {
-      //TODO: Case where the title is garbage by some mistake. Throw error.
+      std::cout << "Configuration header " << title << " not recognized.\n";
+      throw std::runtime_error("Configuration header not recognized.");
     }
 
   }

@@ -113,8 +113,6 @@ double TVModelNEW::computeWk(const Configuration& configuration) const {
   int nBonds = configuration.getNumBonds();
   double defaultTau = -1.0; Bond defaultBond = Bond({-1});
   double Wk = computeW(configuration, defaultTau, defaultBond);
-  //TODO: DO NOT MULTIPLY BY OMEGA HERE! JUST SIMPLIFY AND DO IT IN GETWEIGHTFACTOR
-  // Wk *= std::pow(omega, nBonds);
   return Wk;
 }
 
@@ -123,7 +121,6 @@ double TVModelNEW::computeWkp1(const Configuration& configuration,
     std::pair<double, int> tauToInsert, const Bond& bondToInsert) const {
   int nBonds = configuration.getNumBonds();
   double Wkp1 = computeW(configuration, tauToInsert.first, bondToInsert);
-  // Wkp1 *= std::pow(omega, nBonds + 1);
   return Wkp1;
 }
 
@@ -133,7 +130,6 @@ double TVModelNEW::computeWkm1(const Configuration& configuration,
   int nBonds = configuration.getNumBonds();
   Bond defaultBond = Bond({-1});
   double Wkm1 = computeW(configuration, tauToRemove.first, defaultBond);
-  // Wkm1 *= std::pow(omega, nBonds - 1);
   return Wkm1;
 }
 
@@ -146,18 +142,15 @@ void TVModelNEW::computeOmega() {
     std::cout << "  being imposed." << std::endl;
     return;
   }
-  // omega = 4 * t * t * t * t / (4 * t * t * V - V * V * V);
   omega = t * t / V / (1 - (V / (2 * t)) * (V / (2 * t)));
 }
 
 
 void TVModelNEW::computeSinh2alpha() {
-  // sinh2alpha = 4.0 * t * V / (4.0 * t * t - V * V);
   sinh2alpha = V / t / (1 - (V / (2 * t)) * (V / (2 * t)));
 }
 
 
 void TVModelNEW::computeCosh2alpha() {
-  // cosh2alpha = (4.0 * t * t + V * V) / (4.0 * t * t - V * V);
   cosh2alpha = (1 + (V / (2 * t)) * (V / (2 * t))) / (1 - (V / (2 * t)) * (V / (2 * t)));
 }

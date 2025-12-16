@@ -58,7 +58,7 @@ void Output::createOutDir() {
 }
 
 void Output::createOutFiles(std::string outDirName, std::string inFileName) {
-  bool throwError = false; //TODO: Replace keyFromValue with funcs at very bottom
+  bool throwError = false; 
   
   std::string stdOutFilename = getStdOutFilename();
   std::string sweepsFileName = getSweepsFilename();
@@ -315,7 +315,7 @@ std::string Output::getBondsPerTypeFilename() {
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::BONDS_PER_TYPE);
 }
 
-std::string Output::getRestartPath() {
+fs::path Output::getRestartPath() {
   return outDir / keyFromValue<std::string, consts::OutFileType>
       (consts::OUTFILE_TYPE_MAP, consts::OutFileType::RESTART);
 }
