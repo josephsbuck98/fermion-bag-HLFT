@@ -17,8 +17,8 @@ double TVModelNEW::getWeightFactor(const Configuration& configuration,
 
 
 
-  double Wk = computeWk(configuration);
-
+  double defaultTau = -1.0; Bond defaultBond = Bond({-1});
+  double Wk = computeW(configuration, defaultTau, defaultBond);
 
 
 
@@ -37,7 +37,7 @@ double TVModelNEW::getWeightFactor(const Configuration& configuration,
 
 
     
-    double Wkp1 = computeWkp1(configuration, tauToInsRem, newBond);
+    double Wkp1 = computeW(configuration, tauToInsRem.first, newBond);
 
 
 
@@ -55,8 +55,7 @@ double TVModelNEW::getWeightFactor(const Configuration& configuration,
 
 
 
-    double Wkm1 = computeWkm1(configuration, tauToInsRem);
-
+    double Wkm1 = computeW(configuration, tauToInsRem.first, defaultBond);
 
 
 
@@ -84,10 +83,6 @@ double TVModelNEW::computeW(const Configuration& configuration, double tau,
 
   std::cout << "Argument of Determinant: " << std::endl;
   std::cout << std::setprecision(10);
-
-
-
-
   for (int i = 0; i < detArg.rows(); ++i) {
     for (int j = 0; j < detArg.rows(); ++j) {
       std::cout << std::setw(15) << detArg(i, j) << " ";
@@ -95,7 +90,13 @@ double TVModelNEW::computeW(const Configuration& configuration, double tau,
     std::cout << "\n";
   }
 
+
+  
+
   double det = detArg.determinant();
+
+
+
 
   if (det < -1) {
     std::cout << "DETERMINANT " << det << " IS NEGATIVE!!!!!" << std::endl;
@@ -105,32 +106,10 @@ double TVModelNEW::computeW(const Configuration& configuration, double tau,
     exit(1);
   }
 
+
+
+
   return det;
-}
-
-
-double TVModelNEW::computeWk(const Configuration& configuration) const {
-  int nBonds = configuration.getNumBonds();
-  double defaultTau = -1.0; Bond defaultBond = Bond({-1});
-  double Wk = computeW(configuration, defaultTau, defaultBond);
-  return Wk;
-}
-
-
-double TVModelNEW::computeWkp1(const Configuration& configuration, 
-    std::pair<double, int> tauToInsert, const Bond& bondToInsert) const {
-  int nBonds = configuration.getNumBonds();
-  double Wkp1 = computeW(configuration, tauToInsert.first, bondToInsert);
-  return Wkp1;
-}
-
-
-double TVModelNEW::computeWkm1(const Configuration& configuration,
-    std::pair<double, int> tauToRemove) const {
-  int nBonds = configuration.getNumBonds();
-  Bond defaultBond = Bond({-1});
-  double Wkm1 = computeW(configuration, tauToRemove.first, defaultBond);
-  return Wkm1;
 }
 
 

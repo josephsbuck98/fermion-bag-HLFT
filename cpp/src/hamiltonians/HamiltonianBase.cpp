@@ -148,6 +148,16 @@ double HamiltonianBase::getAcceptProb(const Configuration& configuration,
     prob = getBondSelectionProb(numSites, boundType) * numBondsInRegion / tauGroupWidth; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
   } 
   prob *= getWeightFactor(configuration, actionType, tauToInsRem, newBond);
+
+
+
+  std::cout << "Tau to Ins/Rem: " << tauToInsRem.first << std::endl;
+  std::cout << "New Bond: " << newBond << std::endl;
+  std::cout << "Num Bonds In Region: " << numBondsInRegion << std::endl;
+  std::cout << "Accept Probability: " << prob << std::endl << std::endl << std::endl;
+
+
+
   return prob > 1.0 ? 1.0 : prob;
 }
 
