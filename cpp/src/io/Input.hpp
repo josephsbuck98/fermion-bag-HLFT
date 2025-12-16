@@ -132,11 +132,16 @@ struct LatticeInput {
   double a = 0.0, b = 0.0, c = 0.0;
   double alpha = 0.0, beta = 0.0, gamma = 0.0;
 
-  //TODO: Don't set defaults for other params, b/c might use their absence to infer dimensionality?
-
   consts::BoundType xBCType, yBCType, zBCType;
   double xMin = 0.0, yMin = 0.0, zMin = 0.0;
-  int xNSites = 100, yNSites = 100, zNSites = 100;
+  int xNSites = 0, yNSites = 0, zNSites = 0;
+
+  void validateSC1D(double latConst, int nSites) const {
+    if (latConst <= 0) throw std::runtime_error("LatticeInput: Lattice "
+        "constant must be positive");
+    if (nSites < 1) throw std::runtime_error("LatticeInput: Number of sites "
+      "must be greater than 0 in active dimensions.");
+  }
 
   void validate() const {
     if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive");
@@ -145,6 +150,29 @@ struct LatticeInput {
     if ((alpha > 0 && alpha > consts::pi) || (beta > 0 && beta > consts::pi)
       || (gamma > 0 && gamma > consts::pi)) throw std::runtime_error(
       "Lattice Input: angles must be between 0 and pi.");
+    
+    //TODO: Enforce a constraint on total number of sites in order to keep matrix size low?
+    if (type == consts::LatticeType::SIMPLE_CUBIC) {
+      validateSC1D(a, xNSites); // ONE, TWO, THREE
+      if (dims != consts::DimsType::ONE) {
+        validateSC1D(b, yNSites); // TWO, THREE
+        bool invalidAngle = (alpha <= 0 || alpha >= consts::pi);
+        if (dims != consts::DimsType::TWO) {
+          validateSC1D(c, zNSites); // THREE
+          invalidAngle = (invalidAngle || (beta <= 0 || beta >= consts::pi ||
+              gamma <= 0 || gamma >= consts::pi));
+        }
+        if (invalidAngle) {
+          throw std::runtime_error("LatticeInput: Lattice angles must be "
+              "greater than 0 radians and less than pi radians.");
+        }
+      }
+    } else if (type == consts::LatticeType::HONEYCOMB) {
+      if (dims != consts::DimsType::TWO) {
+        throw std::runtime_error("LatticeInput: The Honeycomb lattice must "
+            "be run in two dimensions.");
+      }
+    }
   }
 
   friend std::ostream& operator<<(std::ostream& os, 
@@ -153,14 +181,32 @@ struct LatticeInput {
     os << "    Lattice type - " << 
         keyFromValue<std::string, consts::LatticeType>
         (consts::LATTICE_TYPE_MAP, latIn.type) << "\n";
-    os << "    Number of dimensions - " << 
-        keyFromValue<int, consts::DimsType>
-        (consts::DIMS_TYPE_MAP, latIn.dims) << "\n";
-    os << "    Boundary conditions - " << //TODO: Output for each dim
-        keyFromValue<std::string, consts::BoundType>
-        (consts::BOUND_TYPE_MAP, latIn.xBCType) << "\n";
-    os << "    Total number of sites - " << latIn.xNSites << "\n"; //TODO: Compute based on dims
-    os << "    Site spacing - " << latIn.a << "\n"; //TODO: Do for each dim
+    if (latIn.type == consts::LatticeType::SIMPLE_CUBIC) {
+      os << "    Number of dimensions - " << 
+          keyFromValue<int, consts::DimsType>
+          (consts::DIMS_TYPE_MAP, latIn.dims) << "\n";
+      os << "        Boundary conditions - Number of sites - Site spacing\n"; 
+      os << "    x    " << keyFromValue<std::string, consts::BoundType>
+          (consts::BOUND_TYPE_MAP, latIn.xBCType) << "    -    " << 
+          latIn.xNSites << "    -    " << latIn.a << std::endl;
+      if (latIn.dims != consts::DimsType::ONE) {
+        os << "    y    " << keyFromValue<std::string, consts::BoundType>
+            (consts::BOUND_TYPE_MAP, latIn.yBCType) << "    -    " <<
+            latIn.yNSites << "    -    " << latIn.b << std::endl;
+        if (latIn.dims != consts::DimsType::TWO) {
+          os << "    z    " << keyFromValue<std::string, consts::BoundType>
+            (consts::BOUND_TYPE_MAP, latIn.zBCType) << "    -    " <<
+            latIn.zNSites << "    -    " << latIn.c << std::endl;
+        }
+      }
+      int totNSites = latIn.xNSites;
+      if (latIn.dims == consts::DimsType::TWO) totNSites *= latIn.yNSites;
+      if (latIn.dims == consts::DimsType::THREE) totNSites *= latIn.zNSites;
+      os << "    Total number of sites - " << totNSites << "\n";
+    } else {
+
+    }
+   
     return os;
   }
 };
@@ -182,12 +228,23 @@ struct convert<LatticeInput> {
     if (node["gamma"]) rhs.gamma = getRequiredScalar<double>(node, "gamma");
 
     if (node["lims"]) {
-      if (node["lims"]["x"]) {
+      if (node["lims"]["x"]) { //TODO: Consolidate these next 3 if statements into 1 if possible
         auto x = node["lims"]["x"];
         assignFromMap<std::string>(x, "bc_type", consts::BOUND_TYPE_MAP, rhs.xBCType, "LatticeInput");
-
         if (x["min"]) rhs.xMin = getRequiredScalar<double>(x, "min");
         if (x["nsites"]) rhs.xNSites = getRequiredScalar<int>(x, "nsites");
+      }
+      if (node["lims"]["y"]) {
+        auto y = node["lims"]["y"];
+        assignFromMap<std::string>(y, "bc_type", consts::BOUND_TYPE_MAP, rhs.yBCType, "LatticeInput");
+        if (y["min"]) rhs.yMin = getRequiredScalar<double>(y, "min");
+        if (y["nsites"]) rhs.yNSites = getRequiredScalar<int>(y, "nsites");
+      }
+      if (node["lims"]["z"]) {
+        auto z = node["lims"]["z"];
+        assignFromMap<std::string>(z, "bc_type", consts::BOUND_TYPE_MAP, rhs.zBCType, "LatticeInput");
+        if (z["min"]) rhs.zMin = getRequiredScalar<double>(z, "min");
+        if (z["nsites"]) rhs.zNSites = getRequiredScalar<int>(z, "nsites");
       }
     }
 

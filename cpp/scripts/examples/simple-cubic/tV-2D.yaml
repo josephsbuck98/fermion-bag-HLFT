@@ -10,11 +10,11 @@ output:
   out_sweeps_patience: 20
   out_dir: out #TODO: INCLUDE A FORCE OUTDIR CLEAR PARAM TO OVERWRITE. IF NOT TRUE, RUN ABORTS
   write_bonds_per_type: true
-  restarts: false
+  restarts: true
 
 lattice:
   type: simple-cubic
-  dims: 1
+  dims: 2
   a: 3.77945                  # in Bohr radii. 2.00 A.
   b: 3.77945
   c: 3.77945
@@ -27,6 +27,10 @@ lattice:
       bc_type: open           # Options are periodic and open
       min: 0.00       
       nsites: 100 
+    y: 
+      bc_type: open
+      min: 0.00
+      nsites: 100
   
 hamiltonian:
   # model: random
@@ -52,8 +56,4 @@ hamiltonian:
 
 configuration:
   float_tol: 1e-5
-  beta: 70
-
-consts:
-  pi: 3.141592653589793
-  pid2: 1.57079632679
+  beta: 5

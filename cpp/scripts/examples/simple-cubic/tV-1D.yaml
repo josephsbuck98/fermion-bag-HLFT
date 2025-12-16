@@ -1,0 +1,55 @@
+control:
+  equil_sweeps_patience: 3
+  equil_sweeps_tol: 0.1
+  scale_num_updates: 1
+  max_sweeps: 100  
+  num_time_groups: 5   
+  random_seed: 0
+
+output:
+  out_sweeps_patience: 20
+  out_dir: out #TODO: INCLUDE A FORCE OUTDIR CLEAR PARAM TO OVERWRITE. IF NOT TRUE, RUN ABORTS
+  write_bonds_per_type: true
+  restarts: true
+
+lattice:
+  type: simple-cubic
+  dims: 1
+  a: 3.77945                  # in Bohr radii. 2.00 A.
+  b: 3.77945
+  c: 3.77945
+  alpha: 1.57079632679        # Input in radians
+  beta: 1.57079632679
+  gamma: 1.57079632679
+
+  lims:
+    x:               
+      bc_type: open           # Options are periodic and open
+      min: 0.00       
+      nsites: 100 
+  
+hamiltonian:
+  # model: random
+  # accept_prob: 0.5   #TODO: REMOVE ACCEPT_PROB
+  # insert_prob: 0.5
+  # bond_type_props:
+    # 1: 0
+    # 2: 1
+    # 3: 0
+    # 4: 0
+    # 5: 0
+  model: tV
+  accept_prob: 0.5     #TODO: REMOVE ACCEPT_PROB
+  insert_prob: 0.5
+  bond_type_props:
+    1: 0
+    2: 1
+    3: 0
+    4: 0
+    5: 0
+  t: 1 # Recommended: set t=1 as an energy unit. If not supplied, default t=1
+  V: 1 # If neither are supplied, assumed t=1 and V=0
+
+configuration:
+  float_tol: 1e-5
+  beta: 5
