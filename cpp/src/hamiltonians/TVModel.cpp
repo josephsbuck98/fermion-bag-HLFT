@@ -1,9 +1,9 @@
-#include "TVModelNEW.hpp"
+#include "TVModel.hpp"
 
 #include <unsupported/Eigen/MatrixFunctions>
 
 
-double TVModelNEW::getWeightFactor(const Configuration& configuration, 
+double TVModel::getWeightFactor(const Configuration& configuration, 
     consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
     const Bond& newBond) const {
   double defaultTau = -1.0; Bond defaultBond = Bond({-1});
@@ -35,7 +35,7 @@ double TVModelNEW::getWeightFactor(const Configuration& configuration,
 }
 
 
-double TVModelNEW::computeW(const Configuration& configuration, double tau, 
+double TVModel::computeW(const Configuration& configuration, double tau, 
     const Bond& bond) const {
   Eigen::MatrixXd detArg = configuration.getHProd(nDims, omega, cosh2alpha, 
       sinh2alpha, tau, bond);
@@ -63,7 +63,7 @@ double TVModelNEW::computeW(const Configuration& configuration, double tau,
 }
 
 
-void TVModelNEW::computeOmega() {
+void TVModel::computeOmega() {
   if (V == 0) {
     omega = 1.0e8;
     std::cout << "TVModel: WARNING. The V parameter is 0, meaning the omega\n";
@@ -75,11 +75,11 @@ void TVModelNEW::computeOmega() {
 }
 
 
-void TVModelNEW::computeSinh2alpha() {
+void TVModel::computeSinh2alpha() {
   sinh2alpha = V / t / (1 - (V / (2 * t)) * (V / (2 * t)));
 }
 
 
-void TVModelNEW::computeCosh2alpha() {
+void TVModel::computeCosh2alpha() {
   cosh2alpha = (1 + (V / (2 * t)) * (V / (2 * t))) / (1 - (V / (2 * t)) * (V / (2 * t)));
 }

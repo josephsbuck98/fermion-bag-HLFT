@@ -2,7 +2,7 @@
 
 #include "Constants.hpp"
 #include "RandomNEW.hpp" // Even though Random & TVModel aren't directly used 
-#include "TVModelNEW.hpp" // here, files including Update.hpp need them. Perhaps 
+#include "TVModel.hpp" // here, files including Update.hpp need them. Perhaps 
                       // import them in Sweep.hpp?
 
 template<typename HamiltonianType>

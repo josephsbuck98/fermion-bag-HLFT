@@ -3,9 +3,9 @@
 #include "HamiltonianBase.hpp"
 
 
-class TVModelNEW : public HamiltonianBase { 
+class TVModel : public HamiltonianBase { 
 public:
-  TVModelNEW(InputParser::ParsedInput input) : HamiltonianBase(input),
+  TVModel(InputParser::ParsedInput input) : HamiltonianBase(input),
       nDims(input.latticeInput.xNSites), t(input.hamiltonianInput.t), 
       V(input.hamiltonianInput.V) {
     if (t == 0 && V == 0) {

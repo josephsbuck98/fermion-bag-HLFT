@@ -40,7 +40,7 @@ void Sweep::run(Configuration& configuration, const LatticeBase* lattice) {
     }
     case consts::HamilModel::TVModel:
     {
-      TVModelNEW hamiltonian = TVModelNEW(input);
+      TVModel hamiltonian = TVModel(input);
       executeGroupUpdates(configuration, hamiltonian, lattice);
       break;
     }
