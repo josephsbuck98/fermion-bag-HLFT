@@ -26,14 +26,14 @@ public:
   double getSite(consts::DirsType dir, int index) const;
   consts::BoundType getBoundType(consts::DirsType dir) const override;
 
-  Site getSiteNEW(int xi, int yi, int zi) const;
+  const Site& getSiteNEW(int xi, int yi, int zi) const;
+  const std::vector<Site>& getSitesNEW() const;
   std::vector<Site> getNearestNeighborsNEW(const Site& site);
+  int getTotNumSitesNEW() const;
 
   void printInfo() const override;
 
-//TODO: get number of sites correctly 
-
-
+  
 private:
   consts::DimsType dims;
 

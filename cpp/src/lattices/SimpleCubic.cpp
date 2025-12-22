@@ -78,7 +78,8 @@ double SimpleCubic::getSite(consts::DirsType dir, int index) const {
   return sites.at(dir)[index];
 };
 
-Site SimpleCubic::getSiteNEW(int xi, int yi, int zi) const {
+const Site& SimpleCubic::getSiteNEW(int xi, int yi, int zi) const {
+  static const Site invalidSite{-1, -1, -1};
   int index = xi + xNSites * (yi + yNSites * zi);
   if (index < sitesNEW.size()) {
     return sitesNEW[index];
@@ -87,8 +88,12 @@ Site SimpleCubic::getSiteNEW(int xi, int yi, int zi) const {
         + std::to_string(yi) + ", " + std::to_string(zi) 
         + " do not exist in the lattice. ";
     // throw std::runtime_error(eMS);
-    return Site(-1, -1, -1);
+    return invalidSite;
   }
+}
+
+const std::vector<Site>& SimpleCubic::getSitesNEW() const {
+  return sitesNEW;
 }
 
 std::vector<Site> SimpleCubic::getNearestNeighborsNEW(const Site& site) {
@@ -123,6 +128,10 @@ std::vector<Site> SimpleCubic::getNearestNeighborsNEW(const Site& site) {
   }
   
   return nearestNeighbors;
+}
+
+int SimpleCubic::getTotNumSitesNEW() const {
+  return xNSites * yNSites * zNSites;
 }
 
 consts::BoundType SimpleCubic::getBoundType(consts::DirsType dir) const {
