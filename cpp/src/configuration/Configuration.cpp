@@ -148,7 +148,7 @@ const Bond& Configuration::getBond(double tau) const {
   if (it != bonds.end()) {
     return it->second;
   } 
-  static const Bond nullBond({});
+  static const Bond nullBond(std::set<int> {});
   return nullBond;
 }
 
