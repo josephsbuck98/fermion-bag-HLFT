@@ -134,23 +134,16 @@ struct LatticeInput {
 
   consts::BoundType xBCType, yBCType, zBCType;
   double xMin = 0.0, yMin = 0.0, zMin = 0.0;
-  int xNSites = 0, yNSites = 0, zNSites = 0;
+  int xNSites = 1, yNSites = 1, zNSites = 1;
 
   void validateSC1D(double latConst, int nSites) const {
     if (latConst <= 0) throw std::runtime_error("LatticeInput: Lattice "
         "constant must be positive");
-    if (nSites < 1) throw std::runtime_error("LatticeInput: Number of sites "
-      "must be greater than 0 in active dimensions.");
+    if (nSites < 2) throw std::runtime_error("LatticeInput: Number of sites "
+      "must be greater than 1 in active dimensions.");
   }
 
-  void validate() const {
-    if (a <= 0) throw std::runtime_error("LatticeInput: 'a' must be positive");
-    if (xNSites < 1) throw std::runtime_error("LatticeInput: 'x_max_fac' "
-      "must be greater than 1.");
-    if ((alpha > 0 && alpha > consts::pi) || (beta > 0 && beta > consts::pi)
-      || (gamma > 0 && gamma > consts::pi)) throw std::runtime_error(
-      "Lattice Input: angles must be between 0 and pi.");
-    
+  void validate() const {    
     //TODO: Enforce a constraint on total number of sites in order to keep matrix size low?
     if (type == consts::LatticeType::SIMPLE_CUBIC) {
       validateSC1D(a, xNSites); // ONE, TWO, THREE

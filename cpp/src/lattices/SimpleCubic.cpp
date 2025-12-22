@@ -2,14 +2,21 @@
 #include <iostream>
 
 
+using SC = SimpleCubic;
+using Site = SC::Site;
+
+
 void SimpleCubic::printInfo() const {
   std::cout << "Simple Cubic Lattice (" << getNumSites(consts::DirsType::X) 
       << std::endl;
 }
 
-SimpleCubic::SimpleCubic(const LatticeInput& input) : LatticeBase(input) { //TODO: Rewrite this constructor.
+SimpleCubic::SimpleCubic(const LatticeInput& input) : LatticeBase(input) { 
+  //TODO: Initialize mins, lat params
+  xNSites = input.xNSites; yNSites = input.yNSites; zNSites = input.zNSites;
   dims = input.dims;
   sites = createSimpleCubic(input);
+  sitesNEW = createSimpleCubicNEW(input);
 };
 
 std::unordered_map<consts::DirsType, std::vector<double>, 
@@ -35,6 +42,24 @@ std::unordered_map<consts::DirsType, std::vector<double>,
     new_sites[consts::DirsType::Z] = genUniform1DLattice(min, base, nsites);
   }
 
+  return new_sites;
+}
+
+std::vector<Site> SC::createSimpleCubicNEW(const LatticeInput& input) {
+  std::vector<Site> new_sites; 
+  for (int zi = 0; zi < zNSites; zi++) {
+    for (int yi = 0; yi < yNSites; yi++) {
+      for (int xi = 0; xi < xNSites; xi++) {
+        new_sites.push_back(Site(xi, yi, zi));
+      }
+    }
+  }
+
+  if (new_sites.size() != xNSites * yNSites * zNSites) {
+    throw std::runtime_error("SimpleCubic: The number of sites was not equal "
+      "to the product of sites in each dimension.");
+  }
+  
   return new_sites;
 }
 
