@@ -132,7 +132,9 @@ struct LatticeInput {
   double a = 0.0, b = 0.0, c = 0.0;
   double alpha = 0.0, beta = 0.0, gamma = 0.0;
 
-  consts::BoundType xBCType, yBCType, zBCType;
+  consts::BoundType xBCType = consts::BoundType::OPEN;
+  consts::BoundType yBCType = consts::BoundType::OPEN;
+  consts::BoundType zBCType = consts::BoundType::OPEN;
   double xMin = 0.0, yMin = 0.0, zMin = 0.0;
   int xNSites = 1, yNSites = 1, zNSites = 1;
 
@@ -154,10 +156,31 @@ struct LatticeInput {
           validateSC1D(c, zNSites); // THREE
           invalidAngle = (invalidAngle || (beta <= 0 || beta >= consts::pi ||
               gamma <= 0 || gamma >= consts::pi));
+        } else {
+          // If 2D SimpleCubic, z must have open boundary conditions
+          if (zBCType != consts::BoundType::OPEN) {
+            throw std::runtime_error("LatticeInput: z BC must be open for a 2D"
+              " SimpleCubic lattice.");
+          }
+          if (zNSites != 1) {
+            throw std::runtime_error("LatticeInput: zNSites must equal 1 for "
+              "a 2D SimpleCubic lattice.");
+          }
         }
         if (invalidAngle) {
           throw std::runtime_error("LatticeInput: Lattice angles must be "
               "greater than 0 radians and less than pi radians.");
+        }
+      } else {
+        // If 1D SimpleCubic, y & z must have open boundary conditions 
+        if ((yBCType != consts::BoundType::OPEN) 
+            || (zBCType != consts::BoundType::OPEN)) {
+          throw std::runtime_error("LatticeInput: y and z BC's must be open "
+              "for a 1D SimpleCubic lattice.");
+        }
+        if ((yNSites != 1) || (zNSites != 1)) {
+          throw std::runtime_error("LatticeInput: yNSites and zNSites must be "
+            "1 for a 1D SimpleCubic lattice.");
         }
       }
     } else if (type == consts::LatticeType::HONEYCOMB) {

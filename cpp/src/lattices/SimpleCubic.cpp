@@ -54,12 +54,10 @@ std::vector<Site> SC::createSimpleCubicNEW(const LatticeInput& input) {
       }
     }
   }
-
   if (new_sites.size() != xNSites * yNSites * zNSites) {
     throw std::runtime_error("SimpleCubic: The number of sites was not equal "
       "to the product of sites in each dimension.");
   }
-  
   return new_sites;
 }
 
@@ -88,8 +86,43 @@ Site SimpleCubic::getSiteNEW(int xi, int yi, int zi) const {
     std::string eMS = "SimpleCubic: Indices " + std::to_string(xi) + ", " 
         + std::to_string(yi) + ", " + std::to_string(zi) 
         + " do not exist in the lattice. ";
-    throw std::runtime_error(eMS);
+    // throw std::runtime_error(eMS);
+    return Site(-1, -1, -1);
   }
+}
+
+std::vector<Site> SimpleCubic::getNearestNeighborsNEW(const Site& site) {
+  std::vector<Site> nearestNeighbors;
+
+  struct Helper {
+    int index; int nSites; consts::BoundType bc;
+    Helper(int index, int nSites, consts::BoundType bc) : index(index), 
+        nSites(nSites), bc(bc) {}
+  };
+  std::vector<Helper> helpers;
+  helpers.push_back(Helper(site.xi, xNSites, input.xBCType));
+  helpers.push_back(Helper(site.yi, yNSites, input.yBCType));
+  helpers.push_back(Helper(site.zi, zNSites, input.zBCType));
+
+  std::vector<int> indices = {site.xi, site.yi, site.zi};
+
+  int nDims = keyFromValue<int, consts::DimsType>(consts::DIMS_TYPE_MAP, dims);
+  for (int i = 0; i < nDims; i++) {
+    std::vector<int> neighborIndices = indices;
+    neighborIndices[i] += 1;
+    if (neighborIndices[i] == helpers[i].nSites) {
+      if (helpers[i].bc == consts::BoundType::PERIODIC) {
+        neighborIndices[i] = 0;
+      } else {
+        continue;
+      }
+    }
+    Site neighborSite = getSiteNEW(neighborIndices[0], neighborIndices[1], 
+        neighborIndices[2]);
+    nearestNeighbors.push_back(neighborSite);
+  }
+  
+  return nearestNeighbors;
 }
 
 consts::BoundType SimpleCubic::getBoundType(consts::DirsType dir) const {
