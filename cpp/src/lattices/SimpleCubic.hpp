@@ -12,6 +12,7 @@ public:
     // lattice. 
     int xi, yi, zi;
     Site(int xii, int yii, int zii): xi(xii), yi(yii), zi(zii) {}
+    //TODO: OVERLOAD THE << OPERATOR
   };
 
   SimpleCubic(const LatticeInput& input);
@@ -20,9 +21,17 @@ public:
 
   double getSite(consts::DirsType dir, int index) const;
 
+  Site getSiteNEW(int xi, int yi, int zi) const;
+
   consts::BoundType getBoundType(consts::DirsType dir) const override;
 
   void printInfo() const override;
+
+
+
+//TODO: Get vector of nearest neighbors (only considering integer coords), and
+//TODO: get number of sites correctly 
+
 
 private:
   consts::DimsType dims;

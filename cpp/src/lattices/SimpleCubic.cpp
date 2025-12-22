@@ -80,6 +80,18 @@ double SimpleCubic::getSite(consts::DirsType dir, int index) const {
   return sites.at(dir)[index];
 };
 
+Site SimpleCubic::getSiteNEW(int xi, int yi, int zi) const {
+  int index = xi + xNSites * (yi + yNSites * zi);
+  if (index < sitesNEW.size()) {
+    return sitesNEW[index];
+  } else {
+    std::string eMS = "SimpleCubic: Indices " + std::to_string(xi) + ", " 
+        + std::to_string(yi) + ", " + std::to_string(zi) 
+        + " do not exist in the lattice. ";
+    throw std::runtime_error(eMS);
+  }
+}
+
 consts::BoundType SimpleCubic::getBoundType(consts::DirsType dir) const {
   return boundTypes.at(dir);
 }
