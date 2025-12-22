@@ -3,9 +3,9 @@
 #include "HamiltonianBase.hpp"
 
 
-class RandomNEW : public HamiltonianBase {
+class Random : public HamiltonianBase {
 public:
-  RandomNEW(InputParser::ParsedInput input) : HamiltonianBase(input) {};
+  Random(InputParser::ParsedInput input) : HamiltonianBase(input) {};
   
 protected:
   double getWeightFactor(const Configuration& configuration, 

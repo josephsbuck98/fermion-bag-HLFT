@@ -34,7 +34,7 @@ void Sweep::run(Configuration& configuration, const LatticeBase* lattice) {
   switch (hamilModel) {
     case consts::HamilModel::RANDOM:
     {
-      RandomNEW hamiltonian = RandomNEW(input);
+      Random hamiltonian = Random(input);
       executeGroupUpdates(configuration, hamiltonian, lattice);
       break;
     }
