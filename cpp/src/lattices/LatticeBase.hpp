@@ -4,6 +4,19 @@
 #include "Input.hpp"
 
 
+struct SiteBase {
+  // xi, yi, and zi are integer coordinates of the atoms in the SimpleCubic 
+  // lattice. In the Honeycomb lattice, xi and yi are the coordinates of a 
+  // cell, and zi is the 0 or 1 for the first or second site of the basis.
+  int xi, yi, zi;
+  SiteBase(int xii, int yii, int zii): xi(xii), yi(yii), zi(zii) {}
+  friend std::ostream& operator<<(std::ostream& os, const SiteBase& site) {
+    os << std::to_string(site.xi) << ", " << std::to_string(site.yi) 
+        << ", " << std::to_string(site.zi);
+    return os;
+  }
+};
+
 class LatticeBase {
 public:
   LatticeBase(const LatticeInput& input) : input(input), type(input.type) {
@@ -13,10 +26,9 @@ public:
   };
 
   virtual ~LatticeBase() = default;
-
   virtual void printInfo() const = 0;
-
   virtual int getNumSites(consts::DirsType dir) const = 0;
+  virtual const SiteBase& getSite(int x, int y, int z) const = 0;
 
   virtual consts::BoundType getBoundType(consts::DirsType dir) const = 0;
 

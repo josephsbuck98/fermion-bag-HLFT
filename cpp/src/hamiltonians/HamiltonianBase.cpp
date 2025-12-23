@@ -41,7 +41,7 @@ consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration
   bool insertResult = bernoulli(insertProb); 
 
   std::pair<double, int> tauToInsRem = {-1.0, -1}; // Null objects
-  Bond newBond({-1});
+  Bond newBond({});
 
   if (insertResult) {
     // Tau and bond to insert are only needed this early if they will be used 
@@ -192,7 +192,7 @@ Bond HamiltonianBase::createBondToInsert(const LatticeBase* lattice) const {
     latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
   } else { // Periodic boundary
     latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
-  }//TODO: HANDLE MULTIPLE DIMENSIONS AND DIFFERENT LATTICE TYPES
+  }
   std::set<int> bondSites;
   for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
     bondSites.insert(i % numSites);

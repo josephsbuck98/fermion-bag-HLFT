@@ -7,7 +7,7 @@ using Site = SC::Site;
 
 
 void SimpleCubic::printInfo() const {
-  std::cout << "Simple Cubic Lattice (" << getNumSites(consts::DirsType::X) 
+  std::cout << "Simple Cubic Lattice (" <<  getTotNumSites()
       << std::endl;
 }
 
@@ -15,37 +15,38 @@ SimpleCubic::SimpleCubic(const LatticeInput& input) : LatticeBase(input) {
   //TODO: Initialize mins, lat params
   xNSites = input.xNSites; yNSites = input.yNSites; zNSites = input.zNSites;
   dims = input.dims;
+  // sites = createSimpleCubic(input); //DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   sites = createSimpleCubic(input);
-  sitesNEW = createSimpleCubicNEW(input);
 };
 
-std::unordered_map<consts::DirsType, std::vector<double>, 
-    std::EnumClassHash<consts::DirsType>> 
-    SimpleCubic::createSimpleCubic(LatticeInput input) {
+//DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// std::unordered_map<consts::DirsType, std::ector<double>, 
+//     std::EnumClassHash<consts::DirsType>> 
+//     SimpleCubic::createSimpleCubic(LatticeInput input) {
 
-  std::unordered_map<consts::DirsType, std::vector<double>, 
-      std::EnumClassHash<consts::DirsType>> new_sites;
+//   std::unordered_map<consts::DirsType, std::vector<double>, 
+//       std::EnumClassHash<consts::DirsType>> new_sites;
   
-  // X, Y, and Z
-  double min = input.xMin; double base = input.a; int nsites = input.xNSites;
-  new_sites[consts::DirsType::X] = genUniform1DLattice(min, base, nsites);
+//   // X, Y, and Z
+//   double min = input.xMin; double base = input.a; int nsites = input.xNSites;
+//   new_sites[consts::DirsType::X] = genUniform1DLattice(min, base, nsites);
 
-  // Y and Z
-  if (dims == consts::DimsType::TWO || dims == consts::DimsType::THREE) {
-    min = input.yMin; base = input.b; nsites = input.yNSites;
-    new_sites[consts::DirsType::Y] = genUniform1DLattice(min, base, nsites);
-  }
+//   // Y and Z
+//   if (dims == consts::DimsType::TWO || dims == consts::DimsType::THREE) {
+//     min = input.yMin; base = input.b; nsites = input.yNSites;
+//     new_sites[consts::DirsType::Y] = genUniform1DLattice(min, base, nsites);
+//   }
 
-  // Z
-  if (dims == consts::DimsType::THREE) {
-    min = input.zMin; base = input.c; nsites = input.zNSites;
-    new_sites[consts::DirsType::Z] = genUniform1DLattice(min, base, nsites);
-  }
+//   // Z
+//   if (dims == consts::DimsType::THREE) {
+//     min = input.zMin; base = input.c; nsites = input.zNSites;
+//     new_sites[consts::DirsType::Z] = genUniform1DLattice(min, base, nsites);
+//   }
 
-  return new_sites;
-}
+//   return new_sites;
+// }
 
-std::vector<Site> SC::createSimpleCubicNEW(const LatticeInput& input) {
+std::vector<Site> SimpleCubic::createSimpleCubic(const LatticeInput& input) {
   std::vector<Site> new_sites; 
   for (int zi = 0; zi < zNSites; zi++) {
     for (int yi = 0; yi < yNSites; yi++) {
@@ -61,28 +62,37 @@ std::vector<Site> SC::createSimpleCubicNEW(const LatticeInput& input) {
   return new_sites;
 }
 
-std::vector<double> SimpleCubic::genUniform1DLattice(double min, double base, int nsites) {
-  std::vector<double> new_lattice(nsites);
-  new_lattice[0] = min;
-  for (int i = 1; i < nsites; i++) {
-    new_lattice[i] = new_lattice[i - 1] + base;
-  }
-  return new_lattice;
-}
+
+//DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// std::vector<double> SimpleCubic::genUniform1DLattice(double min, double base, int nsites) {
+//   std::vector<double> new_lattice(nsites);
+//   new_lattice[0] = min;
+//   for (int i = 1; i < nsites; i++) {
+//     new_lattice[i] = new_lattice[i - 1] + base;
+//   }
+//   return new_lattice;
+// }
 
 int SimpleCubic::getNumSites(consts::DirsType dir) const {
-  return sites.at(dir).size();
+  if (dir == consts::DirsType::X) return input.xNSites;
+  else if (dir == consts::DirsType::Y) return input.yNSites;
+  else {return input.zNSites;};
 };
 
-double SimpleCubic::getSite(consts::DirsType dir, int index) const {
-  return sites.at(dir)[index];
-};
 
-const Site& SimpleCubic::getSiteNEW(int xi, int yi, int zi) const {
+
+//DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// double SimpleCubic::getSite(consts::DirsType dir, int index) const {
+//   return sites.at(dir)[index];
+// };
+
+
+
+const Site& SimpleCubic::getSite(int xi, int yi, int zi) const {
   static const Site invalidSite{-1, -1, -1};
   int index = xi + xNSites * (yi + yNSites * zi);
-  if (index < sitesNEW.size()) {
-    return sitesNEW[index];
+  if (index < sites.size()) {
+    return sites[index];
   } else {
     std::string eMS = "SimpleCubic: Indices " + std::to_string(xi) + ", " 
         + std::to_string(yi) + ", " + std::to_string(zi) 
@@ -92,11 +102,11 @@ const Site& SimpleCubic::getSiteNEW(int xi, int yi, int zi) const {
   }
 }
 
-const std::vector<Site>& SimpleCubic::getSitesNEW() const {
-  return sitesNEW;
+const std::vector<Site>& SimpleCubic::getSites() const {
+  return sites;
 }
 
-std::vector<Site> SimpleCubic::getNearestNeighborsNEW(const Site& site) {
+std::vector<Site> SimpleCubic::getNearestNeighbors(const Site& site) {
   std::vector<Site> nearestNeighbors;
 
   struct Helper {
@@ -122,7 +132,7 @@ std::vector<Site> SimpleCubic::getNearestNeighborsNEW(const Site& site) {
         continue;
       }
     }
-    Site neighborSite = getSiteNEW(neighborIndices[0], neighborIndices[1], 
+    Site neighborSite = getSite(neighborIndices[0], neighborIndices[1], 
         neighborIndices[2]);
     nearestNeighbors.push_back(neighborSite);
   }
@@ -130,7 +140,7 @@ std::vector<Site> SimpleCubic::getNearestNeighborsNEW(const Site& site) {
   return nearestNeighbors;
 }
 
-int SimpleCubic::getTotNumSitesNEW() const {
+int SimpleCubic::getTotNumSites() const {
   return xNSites * yNSites * zNSites;
 }
 

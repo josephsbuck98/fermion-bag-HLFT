@@ -5,6 +5,7 @@
 #include "Driver.hpp"
 #include "Honeycomb.hpp"
 #include "InputParser.hpp"
+#include "LatticeHolder.hpp"
 #include "Output.hpp"
 #include "RandomHelpers.hpp"
 #include "SimpleCubic.hpp"
@@ -51,6 +52,7 @@ int main(int argc, char* argv[]) {
   } else if (input.latticeInput.type == consts::LatticeType::HONEYCOMB) {
     lattice = std::make_unique<Honeycomb>(input.latticeInput); //TODO: INPUT PARAMETERS FOR NUMBER OF HONEYCOMB CELLS, SIZE OF CELLS, ETC.
   }
+  latticePtr = lattice.get();
 
 
 

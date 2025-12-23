@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Configuration.hpp"
+#include "LatticeHolder.hpp"
 
 //TODO: Error/special case handling (for example, if getBond is called with a tau that doesn't exist.)
 //TODO: Implement delBonds (with an s)
@@ -148,7 +149,7 @@ const Bond& Configuration::getBond(double tau) const {
   if (it != bonds.end()) {
     return it->second;
   } 
-  static const Bond nullBond(std::set<int> {});
+  static const Bond nullBond({});
   return nullBond;
 }
 
@@ -216,7 +217,8 @@ Eigen::MatrixXd Configuration::getHProd(int nDims, double omega,
 
 void Configuration::multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond,
     double cosh2alpha, double sinh2alpha) const {
-  std::set<int> bondInds = bond.getIndices();
+  //TODO: MAKE COMPATIBLE WITH SITES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  std::set<int> bondInds = bond.getIndices(); 
   int lenBond = bondInds.size();
   if (lenBond != 2) {
     throw std::runtime_error("Configuration::getHSum(): Bonds with lengths "
@@ -356,11 +358,19 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
             ss.clear();
             ss.str(line);
 
-            std::set<int> inds;
-            int ind;
-            while (ss >> ind) {
-              inds.insert(ind);
+            int cs[6];
+            for (int i = 0; i < 6; i++) {
+              if (!(ss >> cs[i])) {
+                throw std::runtime_error("Configuration>>: Invalid bond "
+                  "coordinate format.");
+              }
             }
+
+            const LatticeBase& lattice = getLattice();
+            const SiteBase* siteA = &lattice.getSite(cs[0], cs[1], cs[2]);
+            const SiteBase* siteB = &lattice.getSite(cs[3], cs[4], cs[5]);
+
+            std::set<const SiteBase*, Bond::SiteSumLess> sites = {siteA, siteB};
 
             configuration.bonds.insert({tau, Bond(inds)});
           } else {
