@@ -34,7 +34,8 @@ public:
 
   const Site& getSite(int xi, int yi, int zi) const;
   const std::vector<Site>& getSites() const;
-  std::vector<Site> getNearestNeighbors(const Site& site);
+  const SiteBase& chooseRandSite(int bondLength = 2) const override;
+  std::vector<const Site*> getNearestNeighbors(const Site& site);
   int getTotNumSites() const;
 
   void printInfo() const override;
@@ -50,7 +51,9 @@ private:
   double xMin, yMin, zMin;
   double a, b, c;
   double alpha, beta, gamma;
+
   std::vector<Site> createSimpleCubic(const LatticeInput& input);
+  int chooseStartInd(consts::DirsType direc, int bondLength) const;
 
 
 

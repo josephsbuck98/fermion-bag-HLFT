@@ -1,4 +1,6 @@
+#include "RandomHelpers.hpp"
 #include "SimpleCubic.hpp"
+
 #include <iostream>
 
 
@@ -106,8 +108,30 @@ const std::vector<Site>& SimpleCubic::getSites() const {
   return sites;
 }
 
-std::vector<Site> SimpleCubic::getNearestNeighbors(const Site& site) {
-  std::vector<Site> nearestNeighbors;
+int SimpleCubic::chooseStartInd(consts::DirsType direc, int bondLength) const {
+  int startInd = 0;
+  int nSites = 1;
+  //TODO: FUNCTION TO GET NSITES FROM DIR
+  if (direc == consts::DirsType::X) {nSites = xNSites;}
+  else if (direc == consts::DirsType::Y) {nSites = yNSites;}
+  else {nSites = zNSites;}
+  consts::BoundType bcType = getBoundType(direc);
+  if (bcType == consts::BoundType::OPEN) {
+    return chooseUnifRandIntWithBounds(0, nSites - bondLength + 1);
+  } else {
+    return chooseUnifRandIntWithBounds(0, nSites);
+  }
+}
+
+const SiteBase& SimpleCubic::chooseRandSite(int bondLength) const {
+  int xStartInd = chooseStartInd(consts::DirsType::X, bondLength); 
+  int yStartInd = chooseStartInd(consts::DirsType::Y, bondLength); 
+  int zStartInd = chooseStartInd(consts::DirsType::Z, bondLength);
+  return getSite(xStartInd, yStartInd, zStartInd); 
+}
+
+std::vector<const Site*> SimpleCubic::getNearestNeighbors(const Site& site) {
+  std::vector<const Site*> nearestNeighbors;
 
   struct Helper {
     int index; int nSites; consts::BoundType bc;
@@ -132,9 +156,9 @@ std::vector<Site> SimpleCubic::getNearestNeighbors(const Site& site) {
         continue;
       }
     }
-    Site neighborSite = getSite(neighborIndices[0], neighborIndices[1], 
+    const Site& neighborSite = getSite(neighborIndices[0], neighborIndices[1], 
         neighborIndices[2]);
-    nearestNeighbors.push_back(neighborSite);
+    nearestNeighbors.push_back(&neighborSite);
   }
   
   return nearestNeighbors;

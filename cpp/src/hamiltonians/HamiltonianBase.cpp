@@ -177,7 +177,7 @@ double HamiltonianBase::getBondSelectionProb(int numSites,
     if (boundType == consts::BoundType::PERIODIC) {
       numUniqueBondSites += numSites;
     } else if (boundType == consts::BoundType::OPEN) {
-      numUniqueBondSites += numSites - bondLength + 1;
+      numUniqueBondSites += numSites - bondLength + 1; //TODO: UPDATE WITH MULTIPLE DIMS
     }
   }
   return 1.0 / numUniqueBondSites;
@@ -186,18 +186,37 @@ double HamiltonianBase::getBondSelectionProb(int numSites,
 
 Bond HamiltonianBase::createBondToInsert(const LatticeBase* lattice) const {
   int bondSize = chooseWeightedRandInt(bondTypeProps); //TODO: EVENTUALLY THE BONDTYPEPROPS WILL NOT BE AN INPUT PARAMETER
-  int latticeBondStart;
-  int numSites = lattice->getNumSites(consts::DirsType::X);
-  if (lattice->getBoundType(consts::DirsType::X) == consts::BoundType::OPEN) {
-    latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
-  } else { // Periodic boundary
-    latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
-  }
-  std::set<int> bondSites;
-  for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
-    bondSites.insert(i % numSites);
-  }
+  
+  
+  
+  const SiteBase* siteA = &(lattice->chooseRandSite());
+  std::vector<SiteBase*> nearestNeighbors = lattice->getNearestNeighbors(siteA);
+  int neighborInd = chooseUnifRandIntWithBounds(0, nearestNeighbors.size());
+  const SiteBase* siteB = nearestNeighbors[neighborInd];
+  
+  std::set<SiteBase&> bondSites;
+  bondSites.insert(siteA);
+  bondSites.insert(siteB);
   Bond newBond(bondSites);
+
+
+
+  // int latticeBondStart;
+  // int numSites = lattice->getNumSites(consts::DirsType::X);
+  // if (lattice->getBoundType(consts::DirsType::X) == consts::BoundType::OPEN) {
+  //   latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
+  // } else { // Periodic boundary
+  //   latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
+  // }
+  // std::set<int> bondSites;
+  // for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
+  //   bondSites.insert(i % numSites);
+  // }
+  // Bond newBond(bondSites);
+
+
+
+  
 
   // Ensure bondSize is less than or equal to Nsites
   if (bondSize > lattice->getNumSites(consts::DirsType::X)) {

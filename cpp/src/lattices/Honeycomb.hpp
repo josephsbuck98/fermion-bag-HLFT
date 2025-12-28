@@ -29,6 +29,9 @@ public:
 
   consts::BoundType getBoundType(consts::DirsType dir) const override;
 
+  const SiteBase& chooseRandSite(int bondLength = 2) const override;
+  std::vector<const Site*> getNearestNeighbors(const Site& site);
+
   void printInfo() const override;
 
 private:

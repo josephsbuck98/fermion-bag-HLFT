@@ -2,6 +2,7 @@
 
 #include <random>
 #include <algorithm>
+#include <stdexcept>
 #include <map>
 #include <vector>
 
@@ -35,11 +36,19 @@ inline int bernoulli(double p) {
 }
 
 inline double chooseUnifRandDoubWithBounds(double low, double high) {
+  if (low > high) {
+    throw std::runtime_error("RandomHelper: Upper bound of random range is "
+      "less than the lower bound.");
+  }
   std::uniform_real_distribution<double> dist(low, high);
   return dist(globalRNG()); 
 }
 
 inline int chooseUnifRandIntWithBounds(int low, int high) {
+  if (low > high) {
+    throw std::runtime_error("RandomHelper: Upper bound of random range is "
+      "less than the lower bound.");
+  }
   std::uniform_int_distribution<int> dist(low, high - 1);
   return dist(globalRNG()); 
 }
