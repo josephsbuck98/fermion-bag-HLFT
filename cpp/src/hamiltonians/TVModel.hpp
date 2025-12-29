@@ -6,8 +6,7 @@
 class TVModel : public HamiltonianBase { 
 public:
   TVModel(InputParser::ParsedInput input) : HamiltonianBase(input),
-      nDims(input.latticeInput.xNSites), t(input.hamiltonianInput.t), 
-      V(input.hamiltonianInput.V) {
+      t(input.hamiltonianInput.t), V(input.hamiltonianInput.V) {
     if (t == 0 && V == 0) {
       throw std::runtime_error("TVModel: Both t and V are 0. Undefined "
         "behavior. Aborting.");
@@ -27,7 +26,6 @@ protected:
       const Bond& newBond) const override;
 
 private:
-  int nDims = 0;
   double t = 0.0, V = 0.0;
   double omega, cosh2alpha, sinh2alpha;
 

@@ -7,15 +7,18 @@
 // }
 
 
-
-Bond::Bond(const std::set<const Site*>& sites_) {
-  sites = sites_;
+Bond::Bond(const std::set<const SiteBase*>& sites_) 
+    : sites(sites_.begin(), sites_.end()) {
   numSites = sites.size();
 }
 
 int Bond::getNumSites() const {
   return numSites;
 };
+
+const std::set<const SiteBase*, Bond::SiteSumLess>& Bond::getSites() const {
+  return sites;
+}
 
 //DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // const std::set<int>& Bond::getIndices() const {
@@ -46,7 +49,7 @@ bool Bond::operator!=(const Bond& other) const {
 
 std::ostream& operator<<(std::ostream& os, const Bond& bond) {
   for (const auto* s : bond.sites) {
-    os << s->xi << " " << s->yi << " " << s->zi " ";
+    os << s->xi << " " << s->yi << " " << s->zi << " ";
   }
   return os;
 }

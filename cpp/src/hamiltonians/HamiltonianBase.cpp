@@ -1,4 +1,5 @@
 #include "HamiltonianBase.hpp"
+#include "LatticeHolder.hpp"
 #include "RandomHelpers.hpp"
 
 
@@ -12,6 +13,7 @@ HamiltonianBase::HamiltonianBase(InputParser::ParsedInput input) {
 }
 
 void HamiltonianBase::normalizeBondTypeProps() {
+  //TODO: Probably only want bonds of length 1 and 2. Rethink what you want here
   //TODO: Currently, only supports integer bond sizes from 1 to 6. ISNT BONDTYPEPROPS A MAP???
   double total = 0.0;
   for (int i = 1; i <= 6; i++) { //TODO: Use an enum for 6?
@@ -145,7 +147,7 @@ double HamiltonianBase::getAcceptProb(const Configuration& configuration,
   if (actionType == consts::BondActionType::INSERTION) {
     prob = tauGroupWidth / (getBondSelectionProb(numSites, boundType) * numBondsInRegion);
   } else if (actionType == consts::BondActionType::REMOVAL) {
-    prob = getBondSelectionProb(numSites, boundType) * numBondsInRegion / tauGroupWidth; //TODO: THIS IS HARDCODED FOR A 1D UNIFORM LATTICE WITH PERIODIC BOUNDARIES AND BOND SIZE OF 2
+    prob = getBondSelectionProb(numSites, boundType) * numBondsInRegion / tauGroupWidth;
   } 
   prob *= getWeightFactor(configuration, actionType, tauToInsRem, newBond);
 
@@ -180,7 +182,9 @@ double HamiltonianBase::getBondSelectionProb(int numSites,
       numUniqueBondSites += numSites - bondLength + 1; //TODO: UPDATE WITH MULTIPLE DIMS
     }
   }
-  return 1.0 / numUniqueBondSites;
+  // return 1.0 / numUniqueBondSites;
+  const LatticeBase& lattice = getConstLattice();
+  return 1.0 / lattice.getNumUniqueBonds();
 }
 
 
@@ -190,11 +194,15 @@ Bond HamiltonianBase::createBondToInsert(const LatticeBase* lattice) const {
   
   
   const SiteBase* siteA = &(lattice->chooseRandSite());
-  std::vector<SiteBase*> nearestNeighbors = lattice->getNearestNeighbors(siteA);
+  std::vector<const SiteBase*> nearestNeighbors = lattice->getNearestNeighbors(*siteA);
+  //TODO: !!!!!!!!!!!!!!!!!!!!!What if there are no nearest neighbors? (Up against OPEN boundary)
+  if (nearestNeighbors.size() == 0) {
+    return Bond({});
+  }
   int neighborInd = chooseUnifRandIntWithBounds(0, nearestNeighbors.size());
   const SiteBase* siteB = nearestNeighbors[neighborInd];
   
-  std::set<SiteBase&> bondSites;
+  std::set<const SiteBase*> bondSites;
   bondSites.insert(siteA);
   bondSites.insert(siteB);
   Bond newBond(bondSites);
@@ -218,11 +226,11 @@ Bond HamiltonianBase::createBondToInsert(const LatticeBase* lattice) const {
 
   
 
-  // Ensure bondSize is less than or equal to Nsites
-  if (bondSize > lattice->getNumSites(consts::DirsType::X)) {
-    throw std::runtime_error("bondSize=" + std::to_string(bondSize) + "is " +
-        "larger than Nsites=" + std::to_string(lattice->getNumSites(consts::DirsType::X)));
-  }
+  // // Ensure bondSize is less than or equal to Nsites
+  // if (bondSize > lattice->getNumSites(consts::DirsType::X)) {
+  //   throw std::runtime_error("bondSize=" + std::to_string(bondSize) + "is " +
+  //       "larger than Nsites=" + std::to_string(lattice->getNumSites(consts::DirsType::X)));
+  // }
 
   return newBond;
 }

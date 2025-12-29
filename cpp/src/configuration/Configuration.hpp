@@ -63,12 +63,12 @@ public:
     }
   };
 
-  Eigen::MatrixXd getHProd(int nDims, double omega, double cosh2alpha, 
+  Eigen::MatrixXd getHProd(double omega, double cosh2alpha, 
       double sinh2alpha, double tau, const Bond& bond) const;
   void multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond, 
       double cosh2alpha, double sinh2alpha) const;
-  Eigen::MatrixXd genMatForBond(int nDims, 
-      const std::vector<int>& bondIndsVec, double cosh2alpha, 
+  Eigen::MatrixXd genMatForBond(int numSites, 
+      std::vector<const SiteBase*>& bondSitesVec, double cosh2alpha, 
       double sinh2alpha) const;
 
 private:

@@ -21,16 +21,27 @@ public:
   explicit Honeycomb(const LatticeInput& input);
 
   int getNumSites(consts::DirsType dir) const override;
+  const int getNumUniqueBonds() const override {return 0;};
 
+  int getSiteInd(int x, int y, int z) const override {return 0;};
   //TODO: IMPLEMENT
-  const Site& getSite(int xi, int yi, int zi) const {
+  const Site& getSite(int xi, int yi, int zi) const override {
     return sites[0];
   }
 
   consts::BoundType getBoundType(consts::DirsType dir) const override;
 
-  const SiteBase& chooseRandSite(int bondLength = 2) const override;
-  std::vector<const Site*> getNearestNeighbors(const Site& site);
+  const SiteBase& chooseRandSite(int bondLength = 2) const override {
+    return sites[0];
+  };
+  std::vector<const SiteBase*> getNearestNeighbors(const SiteBase& site) const override {
+    std::vector<const SiteBase*> neighbors;
+    for (auto& site : sites) {
+      neighbors.push_back(&site);
+    }
+    return neighbors;
+  };
+  int getTotNumSites() const {return 0;};
 
   void printInfo() const override;
 

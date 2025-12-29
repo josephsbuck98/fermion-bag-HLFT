@@ -6,7 +6,7 @@
 double TVModel::getWeightFactor(const Configuration& configuration, 
     consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
     const Bond& newBond) const {
-  double defaultTau = -1.0; Bond defaultBond = Bond({-1});
+  double defaultTau = -1.0; Bond defaultBond = Bond({});
   double Wk = computeW(configuration, defaultTau, defaultBond);
 
   std::cout << "Update Analysis: " << std::endl;
@@ -37,7 +37,7 @@ double TVModel::getWeightFactor(const Configuration& configuration,
 
 double TVModel::computeW(const Configuration& configuration, double tau, 
     const Bond& bond) const {
-  Eigen::MatrixXd detArg = configuration.getHProd(nDims, omega, cosh2alpha, 
+  Eigen::MatrixXd detArg = configuration.getHProd(omega, cosh2alpha, 
       sinh2alpha, tau, bond);
   detArg.diagonal().array() += 1.0;
   double det = detArg.determinant();

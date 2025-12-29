@@ -90,16 +90,24 @@ int SimpleCubic::getNumSites(consts::DirsType dir) const {
 
 
 
-const Site& SimpleCubic::getSite(int xi, int yi, int zi) const {
-  static const Site invalidSite{-1, -1, -1};
+int SimpleCubic::getSiteInd(int xi, int yi, int zi) const {
   int index = xi + xNSites * (yi + yNSites * zi);
   if (index < sites.size()) {
-    return sites[index];
+    return index;
   } else {
     std::string eMS = "SimpleCubic: Indices " + std::to_string(xi) + ", " 
         + std::to_string(yi) + ", " + std::to_string(zi) 
         + " do not exist in the lattice. ";
-    // throw std::runtime_error(eMS);
+    throw std::runtime_error(eMS);
+  }
+}
+
+const Site& SimpleCubic::getSite(int xi, int yi, int zi) const {
+  static const Site invalidSite{-1, -1, -1};
+  try {
+    int siteInd = getSiteInd(xi, yi, zi);
+    return sites[siteInd];
+  } catch (const std::runtime_error& err) {
     return invalidSite;
   }
 }
@@ -111,7 +119,6 @@ const std::vector<Site>& SimpleCubic::getSites() const {
 int SimpleCubic::chooseStartInd(consts::DirsType direc, int bondLength) const {
   int startInd = 0;
   int nSites = 1;
-  //TODO: FUNCTION TO GET NSITES FROM DIR
   if (direc == consts::DirsType::X) {nSites = xNSites;}
   else if (direc == consts::DirsType::Y) {nSites = yNSites;}
   else {nSites = zNSites;}
@@ -130,8 +137,8 @@ const SiteBase& SimpleCubic::chooseRandSite(int bondLength) const {
   return getSite(xStartInd, yStartInd, zStartInd); 
 }
 
-std::vector<const Site*> SimpleCubic::getNearestNeighbors(const Site& site) {
-  std::vector<const Site*> nearestNeighbors;
+std::vector<const SiteBase*> SimpleCubic::getNearestNeighbors(const SiteBase& site) const {
+  std::vector<const SiteBase*> nearestNeighbors;
 
   struct Helper {
     int index; int nSites; consts::BoundType bc;
@@ -166,6 +173,25 @@ std::vector<const Site*> SimpleCubic::getNearestNeighbors(const Site& site) {
 
 int SimpleCubic::getTotNumSites() const {
   return xNSites * yNSites * zNSites;
+}
+
+const int SimpleCubic::getNumUniqueBonds() const {
+  int bondLength = 2; //TODO: Make a default parameter
+  int nBonds = getTotNumSites();
+  //TODO: Don't need *3 or *2 if bond length is 1.
+  if (yNSites >= bondLength && zNSites >= bondLength) {
+    nBonds *= 3; // Three bonds per site in 3D SC.
+  } else if (yNSites >= bondLength || zNSites > bondLength) {
+    nBonds *= 2; // Two bonds per site in 2D SC. Assumes x is ALWAYS a dimension
+  }
+  if (input.xBCType == consts::BoundType::OPEN) {
+    nBonds -= ((bondLength - 1) * yNSites * zNSites);
+  } else if (input.yBCType == consts::BoundType::OPEN) {
+    nBonds -= ((bondLength - 1) * xNSites * zNSites);
+  } else if (input.zBCType == consts::BoundType::OPEN) {
+    nBonds -= ((bondLength - 1) * xNSites * yNSites);
+  }
+  return nBonds;
 }
 
 consts::BoundType SimpleCubic::getBoundType(consts::DirsType dir) const {

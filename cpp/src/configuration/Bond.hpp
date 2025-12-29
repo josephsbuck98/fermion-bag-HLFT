@@ -3,10 +3,10 @@
 #include <iostream>
 #include <set>
 
-#include "SimpleCubic.hpp"
+#include "LatticeBase.hpp"
 
 
-class Site; // Forward declaration
+// class Site; // Forward declaration
 
 class Bond { 
 public:
@@ -25,10 +25,11 @@ public:
     }
   };
 
-  Bond(const std::set<const Site*>& sites_);
+  Bond(const std::set<const SiteBase*>& sites_);
 
   int getNumSites() const;
   // const std::set<int>& getIndices() const;
+  const std::set<const SiteBase*, SiteSumLess>& getSites() const;
 
   bool operator==(const Bond& other) const;
   bool operator!=(const Bond& other) const;
@@ -41,5 +42,5 @@ private:
   //DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // std::set<int> indices; 
 
-  std::set<const Site*, SiteSumLess> sites;
+  std::set<const SiteBase*, SiteSumLess> sites;
 };

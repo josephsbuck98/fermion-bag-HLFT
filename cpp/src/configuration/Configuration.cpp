@@ -174,20 +174,23 @@ double Configuration::getBeta() const {
   return beta;
 }
 
-Eigen::MatrixXd Configuration::getHProd(int nDims, double omega, 
+Eigen::MatrixXd Configuration::getHProd(double omega, 
     double cosh2alpha, double sinh2alpha, double tau, const Bond& bond) const {
   //TODO: YOU CAN STORE W IN CLEVER WAYS SO THAT YOU DON'T HAVE TO RECLCULATE THE CURRENT W IF THE CONFIGURATION WAS UNCHANGED FROM THE LAST ATTEMPT. BASICALLY, YOU COULD STORE WCURR AND JHUST MAKE SURE TO SET IT EITHER TO WINS OR WREM (OR LEAVE UNCHANGED) BASED ON WHAT WAS ACCEPTED 
   
-  Eigen::MatrixXd mat = Eigen::MatrixXd::Identity(nDims, nDims);
+  const LatticeBase& lattice = getConstLattice();
+  int numSites = lattice.getTotNumSites();
+
+  Eigen::MatrixXd mat = Eigen::MatrixXd::Identity(numSites, numSites);
 
   bool computingWkm1 = false;
   bool computingWk = tau < 0;
-  if (!computingWk && bond.getIndices().count(-1)) {
+  if (!computingWk && bond.getNumSites() == 0) { //TODO: Unsure if this is truly that same as the previous version of checking for a bond with one site, index -1
     computingWkm1 = true;
   }
 
   if (this->getNumBonds() == 0 && (computingWk || computingWkm1)) {
-    return Eigen::MatrixXd::Zero(nDims, nDims);
+    return Eigen::MatrixXd::Zero(numSites, numSites);
   }
 
   bool completedExtraStep = computingWk; // If computing Wk, extra step is completed by definition
@@ -218,26 +221,32 @@ Eigen::MatrixXd Configuration::getHProd(int nDims, double omega,
 void Configuration::multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond,
     double cosh2alpha, double sinh2alpha) const {
   //TODO: MAKE COMPATIBLE WITH SITES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  std::set<int> bondInds = bond.getIndices(); 
-  int lenBond = bondInds.size();
+  // std::set<int> bondInds = bond.getIndices(); 
+  auto& bondSites = bond.getSites();
+  int lenBond = bondSites.size();
   if (lenBond != 2) {
     throw std::runtime_error("Configuration::getHSum(): Bonds with lengths "
         "other than 2 are not currently supported.");
   }
-  std::vector<int> bondIndsVec(bondInds.begin(), bondInds.end());
+  std::vector<const SiteBase*> bondSitesVec(bondSites.begin(), bondSites.end());
   Eigen::MatrixXd matForBond = Configuration::genMatForBond(hProdMat.rows(), 
-      bondIndsVec, cosh2alpha, sinh2alpha); //TODO: Optimize by only considering that you are multiplying by an identity with a 2 by 2 block changed.
+      bondSitesVec, cosh2alpha, sinh2alpha); //TODO: Optimize by only considering that you are multiplying by an identity with a 2 by 2 block changed.
   hProdMat = matForBond * hProdMat;
 }
 
-Eigen::MatrixXd Configuration::genMatForBond(int nDims, 
-    const std::vector<int>& bondIndsVec, double cosh2alpha, 
+Eigen::MatrixXd Configuration::genMatForBond(int numSites, 
+    std::vector<const SiteBase*>& bondSitesVec, double cosh2alpha, 
     double sinh2alpha) const {
-  Eigen::MatrixXd mat = Eigen::MatrixXd::Identity(nDims, nDims);
-  mat(bondIndsVec[0], bondIndsVec[0]) = cosh2alpha;
-  mat(bondIndsVec[1], bondIndsVec[1]) = cosh2alpha;
-  mat(bondIndsVec[0], bondIndsVec[1]) = sinh2alpha;
-  mat(bondIndsVec[1], bondIndsVec[0]) = sinh2alpha;
+  const LatticeBase& lattice = getConstLattice();
+  int siteAInd = lattice.getSiteInd(bondSitesVec[0]->xi, bondSitesVec[0]->yi, 
+      bondSitesVec[0]->zi);
+  int siteBInd = lattice.getSiteInd(bondSitesVec[1]->xi, bondSitesVec[1]->yi, 
+      bondSitesVec[1]->zi);
+  Eigen::MatrixXd mat = Eigen::MatrixXd::Identity(numSites, numSites);
+  mat(siteAInd, siteAInd) = cosh2alpha;
+  mat(siteBInd, siteBInd) = cosh2alpha;
+  mat(siteAInd, siteBInd) = sinh2alpha;
+  mat(siteBInd, siteAInd) = sinh2alpha;
   return mat;
 }
 
@@ -366,13 +375,14 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
               }
             }
 
-            const LatticeBase& lattice = getLattice();
+            const LatticeBase& lattice = getConstLattice();
             const SiteBase* siteA = &lattice.getSite(cs[0], cs[1], cs[2]);
             const SiteBase* siteB = &lattice.getSite(cs[3], cs[4], cs[5]);
 
-            std::set<const SiteBase*, Bond::SiteSumLess> sites = {siteA, siteB};
+            // std::set<const SiteBase*, Bond::SiteSumLess> sites = {siteA, siteB};
+            std::set<const SiteBase*> sites = {siteA, siteB};
 
-            configuration.bonds.insert({tau, Bond(inds)});
+            configuration.bonds.insert({tau, Bond(sites)});
           } else {
             return is;
           }
