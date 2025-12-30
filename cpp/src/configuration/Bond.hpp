@@ -10,9 +10,6 @@
 
 class Bond { 
 public:
-  //DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // Bond(const std::set<int>& indices);
-
   struct SiteSumLess {
     bool operator()(const SiteBase* a, const SiteBase* b) const {
       // compute sum of coordinates
@@ -28,7 +25,6 @@ public:
   Bond(const std::set<const SiteBase*>& sites_);
 
   int getNumSites() const;
-  // const std::set<int>& getIndices() const;
   const std::set<const SiteBase*, SiteSumLess>& getSites() const;
 
   bool operator==(const Bond& other) const;
@@ -39,8 +35,6 @@ public:
 private:
   int numSites;
 
-  //DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // std::set<int> indices; 
-
   std::set<const SiteBase*, SiteSumLess> sites;
+  
 };

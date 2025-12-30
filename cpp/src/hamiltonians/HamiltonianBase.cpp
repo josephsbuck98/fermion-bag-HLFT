@@ -50,6 +50,7 @@ consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration
     if (type == consts::HamilModel::TVModel) {
       tauToInsRem = chooseTauToInsert(regionData, groupNum);
       newBond = createBondToInsert(lattice);
+      //TODO: Check if newBond.getNumSites() == 1 and if its site has xi=-1. If so, reject
     }
     double acceptInsertProb = getAcceptProb( 
         configuration, consts::BondActionType::INSERTION, tauGroupWidth, 
@@ -70,6 +71,7 @@ consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration
     bool acceptRemove = bernoulli(acceptRemoveProb);
     if (acceptRemove) {
       handleRemoval(configuration, regionData, tauToInsRem);
+      //TODO: If there were no bonds in the region, do we really want to return REMOVAL?
       return consts::BondActionType::REMOVAL;
     }
   }
@@ -82,12 +84,12 @@ void HamiltonianBase::handleInsert(Configuration& configuration, int groupNum,
   // If tauToInsert is a default value, we are using the Random Hamiltonian,
   // and the tau + bond to insert need to be chosen. Otherwise, we are using 
   // the TVModel Hamiltonian, and the tau + bond have already been chosen.
-  if (tauToInsert.first < 0) {
+  if (tauToInsert.first < 0) { // tauToInsert < 0 means Random Hamiltonian
     tauToInsert = chooseTauToInsert(regionData, groupNum);
     newBond = createBondToInsert(lattice);
   }
 
-  // Insert into the bond with retries for duplicate taus
+  // Insert into the configuration with retries for duplicate taus
   std::pair<double, int> tauCandidate = tauToInsert; //TODO: !!!!!!!!!!!!!!!!!!!!PUT THIS INTO THE CONFIGURATION CLASS. TEST IT WELL.
   double tol = configuration.getTolerance();
   int maxAttempts = 100;
@@ -127,7 +129,7 @@ void HamiltonianBase::handleRemoval(Configuration& configuration,
   // If the tauToRemove is less than 0, we are using the Random Hamiltonian, 
   // and the tauToRemove still needs to be chosen. Otherwise, we are using the
   // TVModel Hamiltonian, and have already computed the tauToRemove. 
-  if (tauToRemove.first < 0) {
+  if (tauToRemove.first < 0) { // tauToRemove < 0 means Random Hamiltonian
     tauToRemove = chooseTauToRemove(regionData);
   }
   // If tauToRemove is still negative, there are no bonds in region to delete.
@@ -166,22 +168,7 @@ double HamiltonianBase::getAcceptProb(const Configuration& configuration,
 double HamiltonianBase::getBondSelectionProb() const {
   // TODO: This returns the probability of a uniformly random lattice site 
   // selection being the correct selection to move you from configuration i to 
-  // j. For now, this assumes each allowed bond length in bondLengthProps is 
-  // equally likely even though this is not physically realistic. It also 
-  // assumes each spatial site starting point is equally realistic. It also 
-  // goes without saying that this function works for only one dimensional 
-  // simple cubic lattices.
-
-  // int numUniqueBondSites = 0;
-  // for (const auto& [bondLength, bondProb] : bondTypeProps) {
-  //   if (bondProb < 0.001) continue;
-  //   if (boundType == consts::BoundType::PERIODIC) {
-  //     numUniqueBondSites += numSites;
-  //   } else if (boundType == consts::BoundType::OPEN) {
-  //     numUniqueBondSites += numSites - bondLength + 1;
-  //   }
-  // }
-  // return 1.0 / numUniqueBondSites;
+  // j. It assumes each spatial site starting point is equally realistic.
   
   const LatticeBase& lattice = getConstLattice();
   return 1.0 / lattice.getNumUniqueBonds();
@@ -189,15 +176,16 @@ double HamiltonianBase::getBondSelectionProb() const {
 
 
 Bond HamiltonianBase::createBondToInsert(const LatticeBase* lattice) const {
-  int bondSize = chooseWeightedRandInt(bondTypeProps); //TODO: EVENTUALLY THE BONDTYPEPROPS WILL NOT BE AN INPUT PARAMETER
+  int bondLength = chooseWeightedRandInt(bondTypeProps); //TODO: EVENTUALLY THE BONDTYPEPROPS WILL NOT BE AN INPUT PARAMETER
   
   
-  
+  //TODO: THIS IS HARDCODED FOR LENGTH 2 BONDS. WHAT ABOUT LENGTH 1?
   const SiteBase* siteA = &(lattice->chooseRandSite());
+  //TODO: VALIDATE THE RETURNED SITE. MAKE SURE IT DOESN'T JUST HAVE A -1, -1, -1 SITE
   std::vector<const SiteBase*> nearestNeighbors = lattice->getNearestNeighbors(*siteA);
   //TODO: !!!!!!!!!!!!!!!!!!!!!What if there are no nearest neighbors? (Up against OPEN boundary)
   if (nearestNeighbors.size() == 0) {
-    return Bond({});
+    return Bond({}); //TODO: follow this return and make sure it is what you expect
   }
   int neighborInd = chooseUnifRandIntWithBounds(0, nearestNeighbors.size());
   const SiteBase* siteB = nearestNeighbors[neighborInd];
@@ -206,32 +194,6 @@ Bond HamiltonianBase::createBondToInsert(const LatticeBase* lattice) const {
   bondSites.insert(siteA);
   bondSites.insert(siteB);
   Bond newBond(bondSites);
-
-
-
-  // int latticeBondStart;
-  // int numSites = lattice->getNumSites(consts::DirsType::X);
-  // if (lattice->getBoundType(consts::DirsType::X) == consts::BoundType::OPEN) {
-  //   latticeBondStart = chooseUnifRandIntWithBounds(0, numSites - bondSize + 1);
-  // } else { // Periodic boundary
-  //   latticeBondStart = chooseUnifRandIntWithBounds(0, numSites);
-  // }
-  // std::set<int> bondSites;
-  // for (int i = latticeBondStart; i < latticeBondStart + bondSize; i++) {
-  //   bondSites.insert(i % numSites);
-  // }
-  // Bond newBond(bondSites);
-
-
-
-  
-
-  // // Ensure bondSize is less than or equal to Nsites
-  // if (bondSize > lattice->getNumSites(consts::DirsType::X)) {
-  //   throw std::runtime_error("bondSize=" + std::to_string(bondSize) + "is " +
-  //       "larger than Nsites=" + std::to_string(lattice->getNumSites(consts::DirsType::X)));
-  // }
-
   return newBond;
 }
 
@@ -240,7 +202,7 @@ std::pair<double, int> HamiltonianBase::chooseTauToInsert(
     Configuration::RegionData& regionData, int groupNum) const {
   return std::pair<double, int>
       (chooseUnifRandDoubWithBounds(regionData.lower, regionData.upper), 
-      groupNum);
+      groupNum); //TODO: Ensure upper - lower is greater than Configuration's tau tolerance?
 }
 
 

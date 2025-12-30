@@ -13,18 +13,14 @@ public:
     // atoms in the primitive cell. 
     
     Site(int xi, int yi, int zi) : SiteBase(xi, yi, zi) {};
-    //DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // int xi, yi, zi;
-    // Site(int xii, int yii, int zii): xi(xii), yi(yii), zi(zii) {}
   };
 
   explicit Honeycomb(const LatticeInput& input);
 
   int getNumSites(consts::DirsType dir) const override;
-  const int getNumUniqueBonds() const override {return 0;};
+  const int getNumUniqueBonds(int bondLength) const override {return 0;};
 
   int getSiteInd(int x, int y, int z) const override {return 0;};
-  //TODO: IMPLEMENT
   const Site& getSite(int xi, int yi, int zi) const override {
     return sites[0];
   }

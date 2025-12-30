@@ -29,7 +29,7 @@ public:
   virtual void printInfo() const = 0;
   virtual int getNumSites(consts::DirsType dir) const = 0;
   virtual int getTotNumSites() const = 0;
-  virtual const int getNumUniqueBonds() const = 0;
+  virtual const int getNumUniqueBonds(int bondLength = 2) const = 0;
 
   virtual int getSiteInd(int x, int y, int z) const = 0;
   virtual const SiteBase& getSite(int x, int y, int z) const = 0;

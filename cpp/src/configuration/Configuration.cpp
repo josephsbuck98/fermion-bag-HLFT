@@ -185,7 +185,7 @@ Eigen::MatrixXd Configuration::getHProd(double omega,
 
   bool computingWkm1 = false;
   bool computingWk = tau < 0;
-  if (!computingWk && bond.getNumSites() == 0) { //TODO: Unsure if this is truly that same as the previous version of checking for a bond with one site, index -1
+  if (!computingWk && bond.getNumSites() == 0) { //TODO:!!!!!!!!!! Unsure if this is truly that same as the previous version of checking for a bond with one site, index -1
     computingWkm1 = true;
   }
 
@@ -220,11 +220,9 @@ Eigen::MatrixXd Configuration::getHProd(double omega,
 
 void Configuration::multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond,
     double cosh2alpha, double sinh2alpha) const {
-  //TODO: MAKE COMPATIBLE WITH SITES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // std::set<int> bondInds = bond.getIndices(); 
   auto& bondSites = bond.getSites();
-  int lenBond = bondSites.size();
-  if (lenBond != 2) {
+  int bondLength = bondSites.size();
+  if (bondLength != 2) {
     throw std::runtime_error("Configuration::getHSum(): Bonds with lengths "
         "other than 2 are not currently supported.");
   }
@@ -237,6 +235,7 @@ void Configuration::multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond,
 Eigen::MatrixXd Configuration::genMatForBond(int numSites, 
     std::vector<const SiteBase*>& bondSitesVec, double cosh2alpha, 
     double sinh2alpha) const {
+  //TODO: Does not support bond lengths other than 2
   const LatticeBase& lattice = getConstLattice();
   int siteAInd = lattice.getSiteInd(bondSitesVec[0]->xi, bondSitesVec[0]->yi, 
       bondSitesVec[0]->zi);

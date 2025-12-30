@@ -45,7 +45,7 @@ inline double chooseUnifRandDoubWithBounds(double low, double high) {
 }
 
 inline int chooseUnifRandIntWithBounds(int low, int high) {
-  if (low > high) {
+  if (low >= high) {
     throw std::runtime_error("RandomHelper: Upper bound of random range is "
       "less than the lower bound.");
   }

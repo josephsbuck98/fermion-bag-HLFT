@@ -145,6 +145,7 @@ struct LatticeInput {
       "must be greater than 1 in active dimensions.");
   }
 
+  //TODO: IF SIM IS 1D, VALIDATE Y AND Z AS DEFAULTS. IF SIM IS 2D, VALIDATE Z AS DEFAULTS.
   void validate() const {    
     //TODO: Enforce a constraint on total number of sites in order to keep matrix size low?
     if (type == consts::LatticeType::SIMPLE_CUBIC) {

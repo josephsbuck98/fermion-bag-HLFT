@@ -21,33 +21,6 @@ SimpleCubic::SimpleCubic(const LatticeInput& input) : LatticeBase(input) {
   sites = createSimpleCubic(input);
 };
 
-//DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// std::unordered_map<consts::DirsType, std::ector<double>, 
-//     std::EnumClassHash<consts::DirsType>> 
-//     SimpleCubic::createSimpleCubic(LatticeInput input) {
-
-//   std::unordered_map<consts::DirsType, std::vector<double>, 
-//       std::EnumClassHash<consts::DirsType>> new_sites;
-  
-//   // X, Y, and Z
-//   double min = input.xMin; double base = input.a; int nsites = input.xNSites;
-//   new_sites[consts::DirsType::X] = genUniform1DLattice(min, base, nsites);
-
-//   // Y and Z
-//   if (dims == consts::DimsType::TWO || dims == consts::DimsType::THREE) {
-//     min = input.yMin; base = input.b; nsites = input.yNSites;
-//     new_sites[consts::DirsType::Y] = genUniform1DLattice(min, base, nsites);
-//   }
-
-//   // Z
-//   if (dims == consts::DimsType::THREE) {
-//     min = input.zMin; base = input.c; nsites = input.zNSites;
-//     new_sites[consts::DirsType::Z] = genUniform1DLattice(min, base, nsites);
-//   }
-
-//   return new_sites;
-// }
-
 std::vector<Site> SimpleCubic::createSimpleCubic(const LatticeInput& input) {
   std::vector<Site> new_sites; 
   for (int zi = 0; zi < zNSites; zi++) {
@@ -64,31 +37,11 @@ std::vector<Site> SimpleCubic::createSimpleCubic(const LatticeInput& input) {
   return new_sites;
 }
 
-
-//DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// std::vector<double> SimpleCubic::genUniform1DLattice(double min, double base, int nsites) {
-//   std::vector<double> new_lattice(nsites);
-//   new_lattice[0] = min;
-//   for (int i = 1; i < nsites; i++) {
-//     new_lattice[i] = new_lattice[i - 1] + base;
-//   }
-//   return new_lattice;
-// }
-
 int SimpleCubic::getNumSites(consts::DirsType dir) const {
   if (dir == consts::DirsType::X) return input.xNSites;
   else if (dir == consts::DirsType::Y) return input.yNSites;
   else {return input.zNSites;};
-};
-
-
-
-//DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// double SimpleCubic::getSite(consts::DirsType dir, int index) const {
-//   return sites.at(dir)[index];
-// };
-
-
+}
 
 int SimpleCubic::getSiteInd(int xi, int yi, int zi) const {
   int index = xi + xNSites * (yi + yNSites * zi);
@@ -117,11 +70,16 @@ const std::vector<Site>& SimpleCubic::getSites() const {
 }
 
 int SimpleCubic::chooseStartInd(consts::DirsType direc, int bondLength) const {
-  int startInd = 0;
-  int nSites = 1;
+  int nSites;
   if (direc == consts::DirsType::X) {nSites = xNSites;}
   else if (direc == consts::DirsType::Y) {nSites = yNSites;}
   else {nSites = zNSites;}
+
+  // This is for the case where the dimension whose indices we are determining 
+  // is not part of the simulation (for example, choosing a z index when 
+  // working in 1D or 2D)
+  if (nSites == 1) {return 0;}
+  
   consts::BoundType bcType = getBoundType(direc);
   if (bcType == consts::BoundType::OPEN) {
     return chooseUnifRandIntWithBounds(0, nSites - bondLength + 1);
@@ -175,21 +133,30 @@ int SimpleCubic::getTotNumSites() const {
   return xNSites * yNSites * zNSites;
 }
 
-const int SimpleCubic::getNumUniqueBonds() const {
-  int bondLength = 2; //TODO: Make a default parameter
+const int SimpleCubic::getNumUniqueBonds(int bondLength) const {
+  //TODO: Could refactor into a more intuitive structure.
   int nBonds = getTotNumSites();
-  //TODO: Don't need *3 or *2 if bond length is 1.
-  if (yNSites >= bondLength && zNSites >= bondLength) {
-    nBonds *= 3; // Three bonds per site in 3D SC.
-  } else if (yNSites >= bondLength || zNSites > bondLength) {
-    nBonds *= 2; // Two bonds per site in 2D SC. Assumes x is ALWAYS a dimension
+  if (bondLength == 1) {return nBonds;}
+  if (dims == consts::DimsType::TWO) {
+    nBonds *= 2; // Two bonds per site in 2D SC.
   }
+  if (dims == consts::DimsType::THREE) {
+    nBonds *= 3; // Three bonds per site in 3D SC.
+  }
+
   if (input.xBCType == consts::BoundType::OPEN) {
     nBonds -= ((bondLength - 1) * yNSites * zNSites);
-  } else if (input.yBCType == consts::BoundType::OPEN) {
-    nBonds -= ((bondLength - 1) * xNSites * zNSites);
-  } else if (input.zBCType == consts::BoundType::OPEN) {
-    nBonds -= ((bondLength - 1) * xNSites * yNSites);
+  } 
+
+  if (dims != consts::DimsType::ONE) {
+    if (input.yBCType == consts::BoundType::OPEN) {
+      nBonds -= ((bondLength - 1) * xNSites * zNSites);
+    }
+    if (dims == consts::DimsType::THREE) {
+      if (input.zBCType == consts::BoundType::OPEN) {
+        nBonds -= ((bondLength - 1) * xNSites * yNSites);
+      }
+    }
   }
   return nBonds;
 }
