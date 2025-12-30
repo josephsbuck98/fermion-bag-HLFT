@@ -37,12 +37,11 @@ void HamiltonianBase::normalizeBondTypeProps() {
 
 consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration,
     int groupNum, Configuration::RegionData& regionData, const LatticeBase* lattice) const {
-  int numSites = lattice->getNumSites(consts::DirsType::X);
-  consts::BoundType boundType = lattice->getBoundType(consts::DirsType::X);
   double tauGroupWidth = regionData.upper - regionData.lower;
   bool insertResult = bernoulli(insertProb); 
 
-  std::pair<double, int> tauToInsRem = {-1.0, -1}; // Null objects
+  // Null objects
+  std::pair<double, int> tauToInsRem = {-1.0, -1}; 
   Bond newBond({});
 
   if (insertResult) {
@@ -53,8 +52,8 @@ consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration
       newBond = createBondToInsert(lattice);
     }
     double acceptInsertProb = getAcceptProb( 
-        configuration, consts::BondActionType::INSERTION, numSites, boundType, 
-        tauGroupWidth, regionData.nBondsInRegion, tauToInsRem, newBond);
+        configuration, consts::BondActionType::INSERTION, tauGroupWidth, 
+        regionData.nBondsInRegion, tauToInsRem, newBond);
     bool acceptInsert = bernoulli(acceptInsertProb);
     if (acceptInsert) {
       handleInsert(configuration, groupNum, regionData, lattice, tauToInsRem,
@@ -66,8 +65,8 @@ consts::BondActionType HamiltonianBase::applyUpdate(Configuration& configuration
       tauToInsRem = chooseTauToRemove(regionData);
     }
     double acceptRemoveProb = getAcceptProb(
-        configuration, consts::BondActionType::REMOVAL, numSites, boundType, 
-        tauGroupWidth, regionData.nBondsInRegion, tauToInsRem, newBond);
+        configuration, consts::BondActionType::REMOVAL, tauGroupWidth, 
+        regionData.nBondsInRegion, tauToInsRem, newBond);
     bool acceptRemove = bernoulli(acceptRemoveProb);
     if (acceptRemove) {
       handleRemoval(configuration, regionData, tauToInsRem);
@@ -140,14 +139,14 @@ void HamiltonianBase::handleRemoval(Configuration& configuration,
 
 
 double HamiltonianBase::getAcceptProb(const Configuration& configuration,
-    consts::BondActionType actionType, int numSites, 
-    consts::BoundType boundType, double tauGroupWidth, int numBondsInRegion, 
-    std::pair<double, int> tauToInsRem, const Bond& newBond) const {
+    consts::BondActionType actionType, double tauGroupWidth, 
+    int numBondsInRegion, std::pair<double, int> tauToInsRem, 
+    const Bond& newBond) const {
   double prob; 
   if (actionType == consts::BondActionType::INSERTION) {
-    prob = tauGroupWidth / (getBondSelectionProb(numSites, boundType) * numBondsInRegion);
+    prob = tauGroupWidth / (getBondSelectionProb() * numBondsInRegion);
   } else if (actionType == consts::BondActionType::REMOVAL) {
-    prob = getBondSelectionProb(numSites, boundType) * numBondsInRegion / tauGroupWidth;
+    prob = getBondSelectionProb() * numBondsInRegion / tauGroupWidth;
   } 
   prob *= getWeightFactor(configuration, actionType, tauToInsRem, newBond);
 
@@ -164,8 +163,7 @@ double HamiltonianBase::getAcceptProb(const Configuration& configuration,
 }
 
 
-double HamiltonianBase::getBondSelectionProb(int numSites, 
-    consts::BoundType boundType) const {
+double HamiltonianBase::getBondSelectionProb() const {
   // TODO: This returns the probability of a uniformly random lattice site 
   // selection being the correct selection to move you from configuration i to 
   // j. For now, this assumes each allowed bond length in bondLengthProps is 
@@ -173,16 +171,18 @@ double HamiltonianBase::getBondSelectionProb(int numSites,
   // assumes each spatial site starting point is equally realistic. It also 
   // goes without saying that this function works for only one dimensional 
   // simple cubic lattices.
-  int numUniqueBondSites = 0;
-  for (const auto& [bondLength, bondProb] : bondTypeProps) {
-    if (bondProb < 0.001) continue;
-    if (boundType == consts::BoundType::PERIODIC) {
-      numUniqueBondSites += numSites;
-    } else if (boundType == consts::BoundType::OPEN) {
-      numUniqueBondSites += numSites - bondLength + 1; //TODO: UPDATE WITH MULTIPLE DIMS
-    }
-  }
+
+  // int numUniqueBondSites = 0;
+  // for (const auto& [bondLength, bondProb] : bondTypeProps) {
+  //   if (bondProb < 0.001) continue;
+  //   if (boundType == consts::BoundType::PERIODIC) {
+  //     numUniqueBondSites += numSites;
+  //   } else if (boundType == consts::BoundType::OPEN) {
+  //     numUniqueBondSites += numSites - bondLength + 1;
+  //   }
+  // }
   // return 1.0 / numUniqueBondSites;
+  
   const LatticeBase& lattice = getConstLattice();
   return 1.0 / lattice.getNumUniqueBonds();
 }

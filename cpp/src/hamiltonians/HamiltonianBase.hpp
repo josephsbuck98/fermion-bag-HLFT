@@ -24,8 +24,7 @@ protected:
   };
 
   double getAcceptProb(const Configuration& configuration, 
-    consts::BondActionType actionType, int numSites, 
-    consts::BoundType boundType, double tauGroupWidth, 
+    consts::BondActionType actionType, double tauGroupWidth, 
     int numBondsInRegion, std::pair<double, int> tauToInsRem, 
     const Bond& newBond) const;
 
@@ -45,7 +44,7 @@ private:
       Configuration::RegionData& regionData,  
       std::pair<double, int> tauToRem) const;
 
-  double getBondSelectionProb(int numSites, consts::BoundType boundType) const;
+  double getBondSelectionProb() const;
 
   Bond createBondToInsert(const LatticeBase* lattice) const;
   std::pair<double, int> chooseTauToInsert(
