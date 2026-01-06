@@ -23,8 +23,6 @@ bool Bond::operator!=(const Bond& other) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Bond& bond) {
-  for (const auto* s : bond.sites) {
-    os << s->xi << " " << s->yi << " " << s->zi << " ";
-  }
+  for (const auto* s : bond.sites) {os << *s;}
   return os;
 }

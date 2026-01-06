@@ -14,7 +14,7 @@ output:
 
 lattice:
   type: simple-cubic
-  dims: 2
+  dims: 3
   a: 3.77945                  # in Bohr radii. 2.00 A.
   b: 3.77945
   c: 3.77945
@@ -26,11 +26,15 @@ lattice:
     x:               
       bc_type: open           # Options are periodic and open
       min: 0.00       
-      nsites: 10
+      nsites: 4 
     y: 
       bc_type: open
       min: 0.00
-      nsites: 10
+      nsites: 4
+    z:
+      bc_type: open
+      min: 0.00
+      nsites: 4
   
 hamiltonian:
   # model: random

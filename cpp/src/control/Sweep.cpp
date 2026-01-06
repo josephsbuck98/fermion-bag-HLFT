@@ -25,8 +25,10 @@ void Sweep::run(Configuration& configuration, const LatticeBase* lattice) {
   // configuration.setTauGroupStarts(newTauGroupStarts); //TODO: UNCOMMENT TO UPDATE TAU GROUP STARTS
 
   // Calculate the number of updates per group per sweep to do
+  //TODO: If we keep the number of time groups constant, this function does not
+  //TODO: need to be run for every sweep
   numUpdatesPerGroup = calcNumUpdatesPerGroup(scaleNumUpdates, 
-      configuration.getBeta(), lattice->getNumSites(consts::DirsType::X), //TODO: In the future, getNumSites should automatically detect the lattice structure, and use its points to compute total sites
+      configuration.getBeta(), lattice->getTotNumSites(),
       this->numTimeGroups);
 
   // Create the correct hamiltonian object
@@ -53,5 +55,6 @@ int calcNumUpdatesPerGroup(double scale, double beta,
     int numSites, int numTimeGroups) {
   double width = beta  / numTimeGroups;
   int numUpdates = static_cast<int>(std::ceil(scale * width * numSites));
+  //TODO: IS THIS ARTIFICIALLY INCREASING MEAN NBONDS AT LOW BETA?
   return numUpdates < 1 ? 1 : numUpdates;
 }

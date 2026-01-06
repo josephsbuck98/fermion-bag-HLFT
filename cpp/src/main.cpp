@@ -50,7 +50,6 @@ int main(int argc, char* argv[]) {
   if (input.latticeInput.type == consts::LatticeType::SIMPLE_CUBIC) {
     lattice = std::make_unique<SimpleCubic>(input.latticeInput);
   } else if (input.latticeInput.type == consts::LatticeType::HONEYCOMB) {
-     //TODO: INPUT PARAMETERS FOR NUMBER OF HONEYCOMB CELLS, SIZE OF CELLS, ETC.
     lattice = std::make_unique<Honeycomb>(input.latticeInput);
   }
   latticePtr = lattice.get();

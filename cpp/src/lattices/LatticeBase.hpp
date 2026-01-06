@@ -11,8 +11,7 @@ struct SiteBase {
   int xi, yi, zi;
   SiteBase(int xii, int yii, int zii): xi(xii), yi(yii), zi(zii) {}
   friend std::ostream& operator<<(std::ostream& os, const SiteBase& site) {
-    os << std::to_string(site.xi) << ", " << std::to_string(site.yi) 
-        << ", " << std::to_string(site.zi);
+    os << site.xi << " " << site.yi << " " << site.zi << " ";
     return os;
   }
 };
@@ -26,8 +25,6 @@ public:
   };
 
   virtual ~LatticeBase() = default;
-  virtual void printInfo() const = 0;
-  virtual int getNumSites(consts::DirsType dir) const = 0;
   virtual int getTotNumSites() const = 0;
   virtual const int getNumUniqueBonds(int bondLength = 2) const = 0;
 
@@ -36,7 +33,9 @@ public:
   virtual const SiteBase& chooseRandSite(int bondLength = 2) const = 0;
   virtual std::vector<const SiteBase*> getNearestNeighbors(const SiteBase& site) const = 0;
 
-  virtual consts::BoundType getBoundType(consts::DirsType dir) const = 0;
+  consts::BoundType getBoundType(consts::DirsType dir) const {
+    return boundTypes.at(dir);
+  }
 
 protected:
   LatticeInput input;

@@ -378,7 +378,6 @@ std::istream& operator>>(std::istream& is, Configuration& configuration) {
             const SiteBase* siteA = &lattice.getSite(cs[0], cs[1], cs[2]);
             const SiteBase* siteB = &lattice.getSite(cs[3], cs[4], cs[5]);
 
-            // std::set<const SiteBase*, Bond::SiteSumLess> sites = {siteA, siteB};
             std::set<const SiteBase*> sites = {siteA, siteB};
 
             configuration.bonds.insert({tau, Bond(sites)});

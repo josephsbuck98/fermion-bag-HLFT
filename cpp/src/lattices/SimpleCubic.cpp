@@ -8,39 +8,27 @@ using SC = SimpleCubic;
 using Site = SC::Site;
 
 
-void SimpleCubic::printInfo() const {
-  std::cout << "Simple Cubic Lattice (" <<  getTotNumSites()
-      << std::endl;
-}
-
 SimpleCubic::SimpleCubic(const LatticeInput& input) : LatticeBase(input) { 
   //TODO: Initialize mins, lat params
   xNSites = input.xNSites; yNSites = input.yNSites; zNSites = input.zNSites;
   dims = input.dims;
-  // sites = createSimpleCubic(input); //DELETE ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   sites = createSimpleCubic(input);
 };
 
 std::vector<Site> SimpleCubic::createSimpleCubic(const LatticeInput& input) {
-  std::vector<Site> new_sites; 
+  std::vector<Site> newSites; 
   for (int zi = 0; zi < zNSites; zi++) {
     for (int yi = 0; yi < yNSites; yi++) {
       for (int xi = 0; xi < xNSites; xi++) {
-        new_sites.push_back(Site(xi, yi, zi));
+        newSites.push_back(Site(xi, yi, zi));
       }
     }
   }
-  if (new_sites.size() != xNSites * yNSites * zNSites) {
+  if (newSites.size() != xNSites * yNSites * zNSites) {
     throw std::runtime_error("SimpleCubic: The number of sites was not equal "
       "to the product of sites in each dimension.");
   }
-  return new_sites;
-}
-
-int SimpleCubic::getNumSites(consts::DirsType dir) const {
-  if (dir == consts::DirsType::X) return input.xNSites;
-  else if (dir == consts::DirsType::Y) return input.yNSites;
-  else {return input.zNSites;};
+  return newSites;
 }
 
 int SimpleCubic::getSiteInd(int xi, int yi, int zi) const {
@@ -130,7 +118,7 @@ std::vector<const SiteBase*> SimpleCubic::getNearestNeighbors(const SiteBase& si
 }
 
 int SimpleCubic::getTotNumSites() const {
-  return xNSites * yNSites * zNSites;
+  return sites.size();
 }
 
 const int SimpleCubic::getNumUniqueBonds(int bondLength) const {
@@ -159,8 +147,4 @@ const int SimpleCubic::getNumUniqueBonds(int bondLength) const {
     }
   }
   return nBonds;
-}
-
-consts::BoundType SimpleCubic::getBoundType(consts::DirsType dir) const {
-  return boundTypes.at(dir);
 }
