@@ -146,7 +146,7 @@ double HamiltonianBase::getAcceptProb(const Configuration& configuration,
     const Bond& newBond) const {
   double prob; 
   if (actionType == consts::BondActionType::INSERTION) {
-    prob = tauGroupWidth / (getBondSelectionProb() * numBondsInRegion);
+    prob = tauGroupWidth / (getBondSelectionProb() * (numBondsInRegion + 1));
   } else if (actionType == consts::BondActionType::REMOVAL) {
     prob = getBondSelectionProb() * numBondsInRegion / tauGroupWidth;
   } 

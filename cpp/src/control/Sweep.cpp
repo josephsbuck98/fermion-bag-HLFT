@@ -56,5 +56,6 @@ int calcNumUpdatesPerGroup(double scale, double beta,
   double width = beta  / numTimeGroups;
   int numUpdates = static_cast<int>(std::ceil(scale * width * numSites));
   //TODO: IS THIS ARTIFICIALLY INCREASING MEAN NBONDS AT LOW BETA?
+  //TODO: numUpdatees = number of unique bond possibilities
   return numUpdates < 1 ? 1 : numUpdates;
 }
