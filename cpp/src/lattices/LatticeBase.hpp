@@ -45,4 +45,6 @@ protected:
   std::unordered_map<consts::DirsType, consts::BoundType, 
     std::EnumClassHash<consts::DirsType>> boundTypes;
 
+  virtual int chooseStartInd(consts::DirsType direc, int bondLength) const = 0;
+
 };

@@ -36,6 +36,6 @@ private:
   double alpha, beta, gamma;
 
   std::vector<Site> createSimpleCubic(const LatticeInput& input);
-  int chooseStartInd(consts::DirsType direc, int bondLength) const;
+  int chooseStartInd(consts::DirsType direc, int bondLength) const override;
 
 };

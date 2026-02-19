@@ -57,25 +57,6 @@ const std::vector<Site>& SimpleCubic::getSites() const {
   return sites;
 }
 
-int SimpleCubic::chooseStartInd(consts::DirsType direc, int bondLength) const {
-  int nSites;
-  if (direc == consts::DirsType::X) {nSites = xNSites;}
-  else if (direc == consts::DirsType::Y) {nSites = yNSites;}
-  else {nSites = zNSites;}
-
-  // This is for the case where the dimension whose indices we are determining 
-  // is not part of the simulation (for example, choosing a z index when 
-  // working in 1D or 2D)
-  if (nSites == 1) {return 0;}
-  
-  consts::BoundType bcType = getBoundType(direc);
-  if (bcType == consts::BoundType::OPEN) {
-    return chooseUnifRandIntWithBounds(0, nSites - bondLength + 1);
-  } else {
-    return chooseUnifRandIntWithBounds(0, nSites);
-  }
-}
-
 const SiteBase& SimpleCubic::chooseRandSite(int bondLength) const {
   int xStartInd = chooseStartInd(consts::DirsType::X, bondLength); 
   int yStartInd = chooseStartInd(consts::DirsType::Y, bondLength); 
@@ -115,6 +96,25 @@ std::vector<const SiteBase*> SimpleCubic::getNearestNeighbors(const SiteBase& si
   }
   
   return nearestNeighbors;
+}
+
+int SimpleCubic::chooseStartInd(consts::DirsType direc, int bondLength) const {
+  int nSites;
+  if (direc == consts::DirsType::X) {nSites = xNSites;}
+  else if (direc == consts::DirsType::Y) {nSites = yNSites;}
+  else {nSites = zNSites;}
+
+  // This is for the case where the dimension whose indices we are determining 
+  // is not part of the simulation (for example, choosing a z index when 
+  // working in 1D or 2D)
+  if (nSites == 1) {return 0;}
+  
+  consts::BoundType bcType = getBoundType(direc);
+  if (bcType == consts::BoundType::OPEN) {
+    return chooseUnifRandIntWithBounds(0, nSites - bondLength + 1);
+  } else {
+    return chooseUnifRandIntWithBounds(0, nSites);
+  }
 }
 
 int SimpleCubic::getTotNumSites() const {

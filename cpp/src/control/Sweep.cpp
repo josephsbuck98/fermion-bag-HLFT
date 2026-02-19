@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "LatticeHolder.hpp"
 #include "Sweep.hpp"
 
 
@@ -53,9 +54,11 @@ void Sweep::run(Configuration& configuration, const LatticeBase* lattice) {
 
 int calcNumUpdatesPerGroup(double scale, double beta, 
     int numSites, int numTimeGroups) {
-  double width = beta  / numTimeGroups;
-  int numUpdates = static_cast<int>(std::ceil(scale * width * numSites));
+  // double width = beta  / numTimeGroups;
+  // int numUpdates = static_cast<int>(std::ceil(scale * width * numSites));
   //TODO: IS THIS ARTIFICIALLY INCREASING MEAN NBONDS AT LOW BETA?
-  //TODO: numUpdatees = number of unique bond possibilities
+  //TODO: numUpdates = number of unique bond possibilities
+  const LatticeBase& lattice = getConstLattice();
+  int numUpdates = scale * lattice.getNumUniqueBonds();
   return numUpdates < 1 ? 1 : numUpdates;
 }
