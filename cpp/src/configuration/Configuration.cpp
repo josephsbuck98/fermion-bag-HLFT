@@ -94,18 +94,6 @@ void Configuration::addBond(std::pair<double, int> tau, Bond& bond) {
     throw std::runtime_error(eMS + " could not be inserted into bonds.");
   }
 
-  //TODO: CHECK HERE IF THE TWO CONTAINERS ARE STILL THE SAME LENGTH
-
-  // std::string eMS = "Insert failed: tau=" + std::to_string(tau.first);
-  // if (!retSetPair.second) {
-  //   if (!retMapPair.second) {
-  //     throw std::runtime_error(eMS + " already exists in both taus and bonds.");
-  //   } else {
-  //     throw std::runtime_error(eMS + " already exists in taus.");
-  //   }
-  // } else if (!retMapPair.second) {
-  //   throw std::runtime_error(eMS + " already exists in bonds.");
-  // }
   bondsPerType[bond.getNumSites()]++;
 }
 
