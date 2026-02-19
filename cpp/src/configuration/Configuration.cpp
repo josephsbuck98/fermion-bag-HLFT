@@ -83,19 +83,29 @@ std::vector<double> generateTauGroupStarts(double beta, int numTimeGroups) {
 void Configuration::addBond(std::pair<double, int> tau, Bond& bond) {
   std::pair<double, int> tauTrunc = std::pair<double, int>
       (truncateToTolerance(tau.first), tau.second);
-  auto retSetPair = taus.insert(tauTrunc);
-  auto retMapPair = bonds.insert({tauTrunc.first, bond});
-
   std::string eMS = "Insert failed: tau=" + std::to_string(tau.first);
+  auto retSetPair = taus.insert(tauTrunc);
   if (!retSetPair.second) {
-    if (!retMapPair.second) {
-      throw std::runtime_error(eMS + " already exists in both taus and bonds.");
-    } else {
-      throw std::runtime_error(eMS + " already exists in taus.");
-    }
-  } else if (!retMapPair.second) {
-    throw std::runtime_error(eMS + " already exists in bonds.");
+    throw std::runtime_error(eMS + " already exists in taus.");
   }
+  auto retMapPair = bonds.insert({tauTrunc.first, bond});
+  if (!retMapPair.second) {
+    taus.erase(tauTrunc);
+    throw std::runtime_error(eMS + " could not be inserted into bonds.");
+  }
+
+  //TODO: CHECK HERE IF THE TWO CONTAINERS ARE STILL THE SAME LENGTH
+
+  // std::string eMS = "Insert failed: tau=" + std::to_string(tau.first);
+  // if (!retSetPair.second) {
+  //   if (!retMapPair.second) {
+  //     throw std::runtime_error(eMS + " already exists in both taus and bonds.");
+  //   } else {
+  //     throw std::runtime_error(eMS + " already exists in taus.");
+  //   }
+  // } else if (!retMapPair.second) {
+  //   throw std::runtime_error(eMS + " already exists in bonds.");
+  // }
   bondsPerType[bond.getNumSites()]++;
 }
 
