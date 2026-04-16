@@ -26,7 +26,7 @@ protected:
       const Bond& newBond) const override;
 
 private:
-  double t = 0.0, V = 0.0;
+  double t = 0.0, V = 0.0; //TODO: CONVERT TO LONG DOUBLES
   double omega, cosh2alpha, sinh2alpha;
 
   double computeW(const Configuration& configuration, double tau, 

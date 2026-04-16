@@ -12,3 +12,6 @@ the root directory.
 sweep\_params.sh: This script allows easy specification of parameters to vary,
 and handles directory structure creation and job submission. This script takes
 in a sweep.config file path. An example config file is stored at _____.
+
+
+TODO: Write instructions detailing steps to running the full analysis.

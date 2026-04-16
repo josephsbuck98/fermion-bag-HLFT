@@ -29,7 +29,7 @@ walk_dirs() {
     if [[ -d "$current_dir/$data_dirname" ]]; then
         echo "Found $data_dirname in: $current_dir"
         (cd "$current_dir" && python3 "$plot_path" -o $data_dirname)
-        # Copy data in sub-agg.dat files to root agg.dat file.
+        #TODO: Copy data in sub-agg.dat files to root agg.dat file.
     fi
 
     # Loop through subdirectories

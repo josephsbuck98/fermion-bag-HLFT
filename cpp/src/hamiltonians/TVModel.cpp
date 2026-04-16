@@ -45,7 +45,6 @@ double TVModel::computeW(const Configuration& configuration, double tau,
   if (det < 0) {
     std::cout << "DETERMINANT " << det << " IS NEGATIVE!!!!!" << std::endl;
     std::cout << "detArg: " << std::endl;
-    //TODO: Print detArg here
     for (int i = 0; i < detArg.rows(); i++) {
       std::cout << "  ";
       for (int j = 0; j < detArg.cols(); j++) {
@@ -56,6 +55,7 @@ double TVModel::computeW(const Configuration& configuration, double tau,
     std::cout << "tau: " << tau << std::endl;
     std::cout << "bond: " << std::endl << bond << std::endl;
     std::cout << configuration << std::endl;
+    std::cout << "DETERMINANT " << det << " IS NEGATIVE!!!!!" << std::endl;
     throw std::runtime_error("Determinant of 1+Prods[exp(h_b)] was negative.");
   }
 

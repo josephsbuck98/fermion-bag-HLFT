@@ -22,7 +22,7 @@ def plot_sweep_series(df):
     plt.grid()
 
 
-def plot_nBonds_hist(df, plot_analytical, outdir_name):
+def plot_nBonds_hist(df, parsed_INPUT, plot_analytical, outdir_name):
     plt.figure()
 
     hist_range = get_hist_range(df)
@@ -35,7 +35,7 @@ def plot_nBonds_hist(df, plot_analytical, outdir_name):
     plt.grid()
 
     if plot_analytical: 
-        analytical_dist, overflow, mean_nbonds_thr = get_analytical_dist(outdir_name, hist_range[1])
+        analytical_dist, overflow, mean_nbonds_thr = get_analytical_dist(parsed_INPUT, outdir_name, hist_range[1])
         if overflow:
             fact = np.amax(counts) / np.amax(analytical_dist)
             analytical_dist *= fact
@@ -52,12 +52,7 @@ def get_hist_range(df):
     return (num_bonds_mean - 3 * num_bonds_std_dev, num_bonds_mean + 3 * num_bonds_std_dev)
 
 
-def get_analytical_dist(outdir_name, upper):
-    INPUT_path = os.getcwd() + "/" + outdir_name + "/INPUT"
-    if not os.path.exists(INPUT_path):
-        print(f"Path {INPUT_path} does not exist.")
-        sys.exit(1)
-    parsed_INPUT = parse_INPUT(INPUT_path)
+def get_analytical_dist(parsed_INPUT, outdir_name, upper):
     beta = parsed_INPUT["beta"]
     num_unique_bonds = get_num_unique_bonds(parsed_INPUT)
     
@@ -88,13 +83,23 @@ def parse_INPUT(INPUT_path):
     lat_lims = data["lattice"]["lims"]
     parsed_INPUT["xNSites"] = lat_lims["x"]["nsites"]
     parsed_INPUT["xBCType"] = lat_lims["x"]["bc_type"]
-    if data["lattice"]["dims"] > 1:
+    try:
         parsed_INPUT["yNSites"] = lat_lims["y"]["nsites"]
         parsed_INPUT["yBCType"] = lat_lims["y"]["bc_type"]
-    if data["lattice"]["dims"] > 2:
+    except KeyError:
+        parsed_INPUT["yNSites"] = 1
+        parsed_INPUT["yBCType"] = "open"
+    try:
         parsed_INPUT["zNSites"] = lat_lims["z"]["nsites"]
         parsed_INPUT["zBCType"] = lat_lims["z"]["bc_type"]
+    except:
+        parsed_INPUT["zNSites"] = 1
+        parsed_INPUT["zBCType"] = "open"
     parsed_INPUT["latticeType"] = data["lattice"]["type"]
+    hamil = data["hamiltonian"]
+    parsed_INPUT["hamilType"] = hamil["model"]
+    parsed_INPUT["t"] = hamil["t"] if hamil["t"] else 0
+    parsed_INPUT["V"] = hamil["V"] if hamil["V"] else 0
     return parsed_INPUT
 
 
@@ -138,6 +143,32 @@ def get_num_unique_bonds(data):
                 num_bonds -= ((2 - 1) * xNSites * yNSites)
 
     return num_bonds
+
+
+def filter_warmup(df):
+    data = df['numBonds'].values
+    N = len(data)
+
+    tolerance = 0.01
+    min_points = 10
+    
+    # Compute cumulative mean
+    cumsum = np.cumsum(data)
+    cumu_mean = cumsum / (np.arange(N) + 1)
+    
+    # Final mean (assumes the last part is stationary)
+    final_mean = cumu_mean[-1]
+    
+    # Stationarity: where cumulative mean is within tolerance of final mean
+    within_tolerance = np.abs(cumu_mean - final_mean) <= tolerance * final_mean
+    
+    # Ensure minimum points are considered
+    candidate_indices = np.where(within_tolerance)[0]
+    burn_index = candidate_indices[candidate_indices >= min_points][0]
+    
+    df_filtered = df.iloc[burn_index:].copy()
+    
+    return df_filtered, burn_index
 
 
 def get_num_sites(data):
@@ -184,14 +215,24 @@ def main():
             not os.path.exists(outdir_name + "sweeps.dat"):
         print(f"Data does not exist in {outdir_name}/sweeps.dat.")
     
+    # Read in data and filter out equilibration period
     df = pd.read_csv(outdir_name + "sweeps.dat", sep="\s+", comment="-")
     df = df.set_index("sweepID")
+    df, ind = filter_warmup(df)
+    print(f"Equil Ind: {ind}")
+
+    # Parse input file
+    INPUT_path = os.getcwd() + "/" + outdir_name + "/INPUT"
+    if not os.path.exists(INPUT_path):
+        print(f"Path {INPUT_path} does not exist.")
+        sys.exit(1)
+    parsed_INPUT = parse_INPUT(INPUT_path)
 
     # Plot sweep series data
     plot_sweep_series(df)
 
     # Plot number of bonds histogram
-    mean_nbonds_thr = plot_nBonds_hist(df, True, outdir_name)
+    mean_nbonds_thr = plot_nBonds_hist(df, parsed_INPUT, True, outdir_name)
 
     # Plot number of inserts/removes histogram
     plot_other_data_hist(df)
@@ -203,6 +244,14 @@ def main():
 
     # Write data
     with open(outdir_name + "agg.dat", "w") as f:
+        f.write(f"hamil_type: {parsed_INPUT['hamilType']}\n")
+        f.write(f"t: {parsed_INPUT['t']}\n")
+        f.write(f"V: {parsed_INPUT['V']}\n")
+        f.write(f"latt_type: {parsed_INPUT['latticeType']}\n")
+        f.write(f"xNSites: {parsed_INPUT['xNSites']}\n")
+        f.write(f"yNSites: {parsed_INPUT['yNSites']}\n")
+        f.write(f"zNSites: {parsed_INPUT['zNSites']}\n")
+        f.write(f"beta: {parsed_INPUT['beta']}\n")
         f.write(f"mean_nbonds_thr: {mean_nbonds_thr}\n")
         f.write(f"mean_nbonds: {mean_nbonds}\n")
         f.write(f"sd_nbonds: {sd_nbonds}\n")
