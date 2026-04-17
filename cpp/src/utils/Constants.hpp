@@ -21,6 +21,15 @@ namespace consts {
     {"tV", HamilModel::TVModel} //TODO: Case insensitive?
   };
 
+  enum class TVAlgo {
+    BRUTE, GREEN, GREEN_FAST
+  };
+  inline const std::unordered_map<std::string, TVAlgo> TV_ALGO_MAP = {
+    {"brute", TVAlgo::BRUTE},
+    {"green", TVAlgo::GREEN},
+    {"green-fast", TVAlgo::GREEN_FAST}
+  };
+
   enum class LatticeType {
     SIMPLE_CUBIC, HONEYCOMB
   };

@@ -31,6 +31,7 @@ lattice:
 hamiltonian:
   # model: random
   model: tV
+  algo: brute
   accept_prob: 0.5     #TODO: REMOVE ACCEPT_PROB
   insert_prob: 0.5
   bond_type_props:

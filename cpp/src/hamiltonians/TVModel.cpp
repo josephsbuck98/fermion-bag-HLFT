@@ -7,7 +7,16 @@ double TVModel::getWeightFactor(const Configuration& configuration,
     consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
     const Bond& newBond) const {
   //TODO: Handle choice of algorithm here
-  return getWeightFactor_brute(configuration, actionType, tauToInsRem, newBond);
+  if (algo == consts::TVAlgo::GREEN) {
+    return 0.0;
+  } else if (algo == consts::TVAlgo::GREEN_FAST) {
+    return 0.0;
+  } else if (algo == consts::TVAlgo::BRUTE) {
+    return getWeightFactor_brute(configuration, actionType, tauToInsRem, newBond);
+  } else {
+    std::cout << "TVAlgo not recognized. Aborting." << std::endl;
+    throw std::runtime_error("TVAlgo not recognized. Aborting.");
+  }
 }
 
 

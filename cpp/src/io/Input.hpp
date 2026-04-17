@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <numbers>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -276,6 +277,7 @@ struct convert<LatticeInput> {
 
 struct HamiltonianInput {
   consts::HamilModel model;
+  std::optional<consts::TVAlgo> algo = std::nullopt;
   double acceptProb = 0.5;
   double insertProb = 0.5;
   std::map<int, double> bondTypeProps; 
@@ -298,6 +300,7 @@ struct HamiltonianInput {
         (consts::HAMIL_MODEL_MAP, hamilIn.model) << "\n";
     os << "    Probability of accepting a proposed update - " << 
         hamilIn.acceptProb << "\n"; //TODO: Adjust what is printed depending on the model
+        //TODO: Print out algo chosen for tV model
     os << "    Probability of a proposal being an insert - " << 
         hamilIn.insertProb << "\n";
     if (hamilIn.model == consts::HamilModel::TVModel) {
@@ -315,7 +318,11 @@ struct convert<HamiltonianInput> {
     if (!node.IsMap()) return false;
 
     assignFromMap<std::string>(node, "model", consts::HAMIL_MODEL_MAP, rhs.model, "HamiltonianInput");
-
+    if (rhs.model == consts::HamilModel::TVModel) {
+      assignFromMap<std::string>(node, "algo", consts::TV_ALGO_MAP, rhs.algo, "HamiltonianInput");
+      if (!rhs.algo.has_value()) rhs.algo = consts::TVAlgo::BRUTE; //TODO: Change default to green-fast eventually
+    }
+  
     if (node["accept_prob"]) rhs.acceptProb = 
         getRequiredScalar<double>(node, "accept_prob");
     if (node["insert_prob"]) rhs.insertProb = 
