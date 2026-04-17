@@ -24,6 +24,10 @@ protected:
   double getWeightFactor(const Configuration& configuration, 
       consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
       const Bond& newBond) const override;
+  
+  double getWeightFactor_brute(const Configuration& configuration, 
+      consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
+      const Bond& newBond) const;
 
 private:
   double t = 0.0, V = 0.0; //TODO: CONVERT TO LONG DOUBLES

@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
   //TODO: USER SHOULD ALWAYS BE ABLE TO SPECIFY THE MAX SWEEPS, BUT THEY SHOULD ALSO BE ABLE TO SPECIFY THE NUMBER OF SWEEPS BEYOND THE END OF THE RESTART FILE THAT THEY WANT TO DO. MAX SWEEPS WILL ALWAYS OVERRIDE. 
   } catch (...) {
     std::cout << "\n\nWriting RESTART file after exception thrown...\n\n";
-    output.writeAndClearSweepCache();
+    output.writeAndClearSweepCache(); //TODO: Outputs junk rows after the correct data if the sweep cache is not full.
   }
 
   return 0;

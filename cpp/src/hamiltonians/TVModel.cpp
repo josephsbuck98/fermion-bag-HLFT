@@ -6,9 +6,18 @@
 double TVModel::getWeightFactor(const Configuration& configuration, 
     consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
     const Bond& newBond) const {
+  //TODO: Handle choice of algorithm here
+  return getWeightFactor_brute(configuration, actionType, tauToInsRem, newBond);
+}
+
+
+double TVModel::getWeightFactor_brute(const Configuration& configuration, 
+    consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
+    const Bond& newBond) const {
   double defaultTau = -1.0; Bond defaultBond = Bond({});
   double Wk = computeW(configuration, defaultTau, defaultBond);
 
+  //TODO: Clean-up, scale back, and formalize printouts
   std::cout << "Update Analysis: " << std::endl;
   std::cout << "Nbonds: " << configuration.getNumBonds() << std::endl;
   std::cout << "Wk: " << Wk << std::endl;
