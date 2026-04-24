@@ -182,8 +182,9 @@ Eigen::MatrixXd Configuration::getHProd_Wrap(double cosh2alpha, double sinh2alph
   Eigen::MatrixXd matHigh = Eigen::MatrixXd::Identity(numSites, numSites);
 
   if ((taus.size() == 0) && remove) {
-    throw std::runtime_error("getHProd_Wrap: Cannot remove a bond from an "
-        "empty configuration.");
+    std::cout << "getHProd_Wrap: Cannot remove tau=" << tau << " from an "
+        "empty configuration." << std::endl;
+    return Eigen::MatrixXd();
   }
 
   if (((taus.size()) == 0) || ((taus.size() == 1) && remove)) {

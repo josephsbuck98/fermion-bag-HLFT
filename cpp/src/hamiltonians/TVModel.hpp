@@ -27,7 +27,11 @@ protected:
       const Bond& newBond) const override;
   
   double getWeightFactor_brute(const Configuration& configuration, 
-      consts::BondActionType actionType, std::pair<double, int> tauToInsRem, 
+      consts::BondActionType actionType, std::pair<double, int> tauToInsRem, //TODO: COMBINE BRUTE AND GREEN INTO THE SAME FUNCTION. DIFFERENTIATE ALGOS INSIDE THAT FUNCTION
+      const Bond& newBond) const;
+  
+  double getWeightFactor_green(const Configuration& configuration, 
+      consts::BondActionType actionType, std::pair<double, int> tauToInsRem,
       const Bond& newBond) const;
 
 private:

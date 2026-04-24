@@ -85,8 +85,9 @@ int main(int argc, char* argv[]) {
   try {
     driver.run(configuration, output, startSweepId, lattice.get());
   //TODO: USER SHOULD ALWAYS BE ABLE TO SPECIFY THE MAX SWEEPS, BUT THEY SHOULD ALSO BE ABLE TO SPECIFY THE NUMBER OF SWEEPS BEYOND THE END OF THE RESTART FILE THAT THEY WANT TO DO. MAX SWEEPS WILL ALWAYS OVERRIDE. 
-  } catch (...) {
+  } catch (const std::exception& e) {
     std::cout << "\n\nWriting RESTART file after exception thrown...\n\n";
+    std::cout << "ERROR: " << e.what() << std::endl;
     output.writeAndClearSweepCache(); //TODO: Outputs junk rows after the correct data if the sweep cache is not full.
   }
 

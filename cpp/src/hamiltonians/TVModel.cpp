@@ -8,7 +8,7 @@ double TVModel::getWeightFactor(const Configuration& configuration,
     const Bond& newBond) const {
   //TODO: Handle choice of algorithm here
   if (algo == consts::TVAlgo::GREEN) {
-    return 0.0;
+    return getWeightFactor_green(configuration, actionType, tauToInsRem, newBond);
   } else if (algo == consts::TVAlgo::GREEN_FAST) {
     return 0.0;
   } else if (algo == consts::TVAlgo::BRUTE) {
@@ -50,6 +50,44 @@ double TVModel::getWeightFactor_brute(const Configuration& configuration,
     return Wk / Wkm1 / omega;
   } 
   return 1.0;
+}
+
+
+double TVModel::getWeightFactor_green(const Configuration& configuration, 
+    consts::BondActionType actionType, std::pair<double, int> tauToInsRem,
+    const Bond& newBond) const {
+
+  if (tauToInsRem.first < 0) return 0.0;
+
+  bool remove;
+  double factor;
+  Bond extraBond = newBond;
+  
+  if (actionType == consts::BondActionType::INSERTION) {
+    remove = false;
+    factor = omega;
+  } else if (actionType == consts::BondActionType::REMOVAL) {
+    remove = true;
+    extraBond = configuration.getBond(tauToInsRem.first);
+    factor = 1 / omega;
+  }
+
+  Eigen::MatrixXd invArg = configuration.getHProd_Wrap(cosh2alpha, sinh2alpha, 
+      tauToInsRem.first, remove);
+  // Return 0 if it is a removal from an empty configuration
+  if (invArg.cols() == 0) return 0.0;
+  
+  invArg.diagonal().array() += 1.0;
+  Eigen::MatrixXd G = invArg.inverse();
+
+  auto& bondSites = extraBond.getSites();
+  std::vector<const SiteBase*> bondSitesVec(bondSites.begin(), bondSites.end());
+  Eigen::MatrixXd bondMat = configuration.genMatForBond(G.cols(), bondSitesVec, 
+      cosh2alpha, sinh2alpha);
+
+  Eigen::MatrixXd I = Eigen::MatrixXd::Identity(G.cols(), G.cols());
+  Eigen::MatrixXd detArg = I + ((I - G) * (bondMat - I));
+  return factor * detArg.determinant();
 }
 
 
