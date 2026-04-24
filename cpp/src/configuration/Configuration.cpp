@@ -172,7 +172,49 @@ double Configuration::getBeta() const {
   return beta;
 }
 
-Eigen::MatrixXd Configuration::getHProd(double omega, 
+Eigen::MatrixXd Configuration::getHProd_Wrap(double cosh2alpha, double sinh2alpha, 
+    double tau, bool remove) const {
+  
+  const LatticeBase& lattice = getConstLattice();
+  int numSites = lattice.getTotNumSites();
+
+  Eigen::MatrixXd matLow = Eigen::MatrixXd::Identity(numSites, numSites);
+  Eigen::MatrixXd matHigh = Eigen::MatrixXd::Identity(numSites, numSites);
+
+  if ((taus.size() == 0) && remove) {
+    throw std::runtime_error("getHProd_Wrap: Cannot remove a bond from an "
+        "empty configuration.");
+  }
+
+  if (((taus.size()) == 0) || ((taus.size() == 1) && remove)) {
+    return Eigen::MatrixXd::Zero(numSites, numSites);
+  }
+
+  auto it = taus.begin();
+  while (it != taus.end() && it->first < tau) {
+    auto& currTau = *it;
+    multToHProd(matLow, getBond(truncateToTolerance(currTau.first)), 
+        cosh2alpha, sinh2alpha);
+    ++it;
+  }
+  if (remove) {
+    if (getBond(truncateToTolerance(it->first)).getNumSites() == 0) {
+      throw std::runtime_error("getHProd_Wrap: Cannot remove a bond for a tau"
+          "that is not present in the configuration.");
+    }
+    ++it;
+  }
+  while (it != taus.end()) {
+    auto& currTau = *it;
+    multToHProd(matHigh, getBond(truncateToTolerance(currTau.first)), 
+        cosh2alpha, sinh2alpha);
+    ++it;
+  }
+
+  return matLow * matHigh;
+}
+
+Eigen::MatrixXd Configuration::getHProd_noWrap(double omega, 
     double cosh2alpha, double sinh2alpha, double tau, const Bond& bond) const {
   //TODO: YOU CAN STORE W IN CLEVER WAYS SO THAT YOU DON'T HAVE TO RECLCULATE THE CURRENT W IF THE CONFIGURATION WAS UNCHANGED FROM THE LAST ATTEMPT. BASICALLY, YOU COULD STORE WCURR AND JHUST MAKE SURE TO SET IT EITHER TO WINS OR WREM (OR LEAVE UNCHANGED) BASED ON WHAT WAS ACCEPTED 
   

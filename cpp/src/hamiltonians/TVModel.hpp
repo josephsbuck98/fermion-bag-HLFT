@@ -7,7 +7,7 @@ class TVModel : public HamiltonianBase {
 public:
   TVModel(InputParser::ParsedInput input) : HamiltonianBase(input),
       t(input.hamiltonianInput.t), V(input.hamiltonianInput.V), 
-      algo(input.hamiltonianInput.algo) {
+      algo(input.hamiltonianInput.algo.value_or(consts::TVAlgo::BRUTE)) { //TODO: CHANGE DEFAULT VALUE TO GREEN-FAST EVENTUALLY
     if (t == 0 && V == 0) {
       throw std::runtime_error("TVModel: Both t and V are 0. Undefined "
         "behavior. Aborting.");
@@ -32,7 +32,7 @@ protected:
 
 private:
   double t = 0.0, V = 0.0; //TODO: CONVERT TO LONG DOUBLES
-  std::optional<consts::TVAlgo> algo;
+  consts::TVAlgo algo;
   double omega, cosh2alpha, sinh2alpha;
 
   double computeW(const Configuration& configuration, double tau, 

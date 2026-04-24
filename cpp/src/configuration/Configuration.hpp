@@ -63,7 +63,9 @@ public:
     }
   };
 
-  Eigen::MatrixXd getHProd(double omega, double cosh2alpha, 
+  Eigen::MatrixXd getHProd_Wrap(double cosh2alpha, double sinh2alpha, 
+      double tau, bool remove) const;
+  Eigen::MatrixXd getHProd_noWrap(double omega, double cosh2alpha, 
       double sinh2alpha, double tau, const Bond& bond) const;
   void multToHProd(Eigen::MatrixXd& hProdMat, const Bond& bond, 
       double cosh2alpha, double sinh2alpha) const;

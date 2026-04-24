@@ -55,7 +55,7 @@ double TVModel::getWeightFactor_brute(const Configuration& configuration,
 
 double TVModel::computeW(const Configuration& configuration, double tau, 
     const Bond& bond) const {
-  Eigen::MatrixXd detArg = configuration.getHProd(omega, cosh2alpha, 
+  Eigen::MatrixXd detArg = configuration.getHProd_noWrap(omega, cosh2alpha, 
       sinh2alpha, tau, bond);
   detArg.diagonal().array() += 1.0;
   double det = detArg.determinant();
